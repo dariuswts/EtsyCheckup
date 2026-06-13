@@ -14,6 +14,8 @@ Use approved_for_everbee_validation only when all are true: seed-aligned, clear 
 A keyword from a seed file is not automatically seed-aligned; respect rule_hits/rule_blocks such as seed_aligned, missing_seed_alignment, product_specific, generic_product_only, pod_compatible, meaningful_clicks, very_low_clicks, very_high_kd_low_clicks, and seller_supply_or_digital_market.
 Use expand_to_long_tail when the keyword is useful but too broad as a direct EverBee query.
 Use needs_more_data when demand exists but POD fit, buyer intent, competition, or data completeness is unclear.
+Do not choose needs_more_data solely because one or two of the eight core metrics are unavailable. Use the remaining demand, engagement, buyer-intent, product-fit, seed-alignment, and competition evidence when it is sufficient for a directional decision.
+Data completeness rule: too_little_data means more than 2 of the 8 core metrics are missing; 6/8, 7/8, and 8/8 known metrics can be sufficient for review.
 Use reject for irrelevant, junk, seller-supply, or clearly non-POD/non-buyer-intent terms.
 Broad/generic examples usually need expand_to_long_tail or needs_more_data: christmas ornament, christmas ornaments, custom sweatshirt, personalized gift, teacher gift, nurse gift.
 Only approve broad-looking phrases if they are clearly niche/product-specific enough and metrics are sufficient.

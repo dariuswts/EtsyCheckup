@@ -577,7 +577,7 @@ def build_queues(normalized_path: Path = NORMALIZED_PATH, ai_path: Path = LIVE_O
     }
 
 
-def write_live_report(status: str, reviewed: List[Dict[str, str]], errors: List[str], tokens: Dict[str, int], model: str, input_rows: int) -> None:
+def write_live_report(status: str, reviewed: List[Dict[str, str]], errors: List[str], tokens: Dict[str, int], model: str, input_rows: int, output_path: Path = LIVE_REPORT_PATH) -> None:
     counts = Counter(clean(row.get("ai_keyword_decision")) for row in reviewed)
     lines = [
         "# WF0 eRank Keyword AI Review Live Report",
@@ -608,8 +608,8 @@ def write_live_report(status: str, reviewed: List[Dict[str, str]], errors: List[
         "",
     ])
     lines.extend([f"- {error}" for error in errors] or ["- None"])
-    LIVE_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_REPORT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def run_queues() -> int:
@@ -953,7 +953,7 @@ def run_live(input_path: Path, max_rows: int, model: str, include_manual: bool, 
         reviewed = []
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        write_live_report("Live AI review did not run because `OPENAI_API_KEY` is missing. Fail-closed: no fake AI approvals were written.", [], ["OPENAI_API_KEY missing"], {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}, model, len(candidates))
+        write_live_report("Live AI review did not run because `OPENAI_API_KEY` is missing. Fail-closed: no fake AI approvals were written.", [], ["OPENAI_API_KEY missing"], {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}, model, len(candidates), batch / "WF0_erank_keyword_ai_review_live_report.md")
         print("OPENAI_API_KEY is missing. Live AI review did not run; no fake approvals were written.")
         return 2
     errors: List[str] = []
@@ -984,7 +984,7 @@ def run_live(input_path: Path, max_rows: int, model: str, include_manual: bool, 
             columns.append(column)
     reviewed = sorted(reviewed, key=batch_identity)
     write_csv(live_path, columns, reviewed)
-    write_live_report("Live AI review completed.", reviewed, errors, tokens, model, len(candidates))
+    write_live_report("Live AI review completed.", reviewed, errors, tokens, model, len(candidates), batch / "WF0_erank_keyword_ai_review_live_report.md")
     build_queues(batch)
     print(json.dumps({"batch_id": batch_id, "selected": len(candidates), "resumed_skipped_successes": len(existing_success) if resume else 0, "reviewed_or_preserved_rows": len(reviewed), "retried_rows": len(pending), "live_path": str(live_path), "preflight": preflight["selected_file_path"]}, indent=2, sort_keys=True))
     return 0
@@ -992,7 +992,7 @@ def run_live(input_path: Path, max_rows: int, model: str, include_manual: bool, 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="WF0 eRank keyword AI review and queue builder.")
-    parser.add_argument("--mode", choices=["queues", "live", "prompt_preview", "preflight"], default="queues")
+    parser.add_argument("--mode", choices=["queues", "live", "prompt_preview", "preflight", "diverse-preflight", "seed-bundle-preflight"], default="queues")
     parser.add_argument("--input", default=str(PREFILTER_PATH))
     parser.add_argument("--batch-dir", help="Required batch folder, or 'latest' for timestamp-selected latest WF0 batch.")
     parser.add_argument("--max-rows", type=int, default=100)
@@ -1002,6 +1002,14 @@ def main() -> int:
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
+    if args.mode in {"diverse-preflight", "seed-bundle-preflight"}:
+        from build_wf0_diverse_ai_candidates import build_diverse_candidates
+        summary = build_diverse_candidates(args.batch_dir or "latest")
+        print(json.dumps(summary, indent=2, sort_keys=True))
+        print("External services used: none")
+        print("AI call made: false")
+        print("Live grouped mode enabled: false")
+        return 0
     if args.mode == "live":
         return run_live(Path(args.input), args.max_rows, args.model, args.include_needs_manual_review, args.batch_dir, args.confirm_live, args.resume, args.overwrite)
     if args.mode == "preflight":

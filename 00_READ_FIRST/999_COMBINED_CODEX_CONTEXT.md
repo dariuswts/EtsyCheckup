@@ -310,3 +310,40 @@ Next implementation should repair WF0 batch coherence first: clean seed parsing,
 - No live OpenAI/API, paid API, scraping, Etsy, Printify, Ideogram, n8n, publishing, product/design generation, or database action was run.
 - Follow-up verification: removed the stale `WF1_everbee_normalization_20260608_204134` literal from `tools`; all 31 Python files under `tools` pass AST parsing and WF0 deterministic tests still pass.
 
+## 2026-06-13 - WF0 Middle Filter And Grouped AI Redesign
+
+- Added a no-API middle-filter WF0 candidate path alongside the historical strict row-level selection.
+- Deterministic WF0 now preserves strict rows for audit, holds generic noise, quarantines row-level and seed-level IP, and prepares compact seed-bundle payloads for future grouped AI niche synthesis.
+- Canonical lanes: `hard_excluded`, `ip_quarantine`, `generic_noise_hold`, `broad_expansion_candidate`, and `reviewable_candidate`.
+- Candidate type remains separate from lane: `direct_product_query`, `theme_or_identity_query`, `broad_seed_expansion`, `adjacent_discovery`, `uncertain_semantic_fit`, etc.
+- Hard deterministic exclusion remains conservative: blank/malformed rows, source-lineage failure, more than 2 missing core metrics, no demand/engagement evidence, explicit seller-supply/digital terms, obvious junk, and clear unsupported supply phrases.
+- Generic terms such as `gift`, `custom`, `personalized`, colors, and bare surfaces are held from normal bundle slots unless they add distinctive meaning.
+- Seed-level IP quarantine is active. Current seed bundles for `pokemon` and `sonic birthday invitation` are quarantined and not paid-review eligible by default.
+- Current batch `wf0_batch_20260613_220121` outputs:
+  - current strict selected rows: 13
+  - middle-filter selected candidates: 440
+  - paid-review bundles: 11
+  - quarantined bundles: 2
+  - hard exclusions: 115
+  - IP quarantine rows: 893
+  - generic-noise holds: 329
+  - broad-expansion candidates: 1,199
+  - reviewable candidates: 5,511
+  - cross-seed generic rows held/suppressed: 99
+  - repeated candidates suppressed: 41
+  - near-duplicate rows suppressed: 376
+- New key files:
+  - `tools/build_wf0_diverse_ai_candidates.py`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_review_candidates_diverse.csv`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_deterministic_candidate_full_audit.csv`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_candidate_cluster_audit.csv`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_bundles.json`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_bundle_preflight.json`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_prompt_preview.md`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/global_consolidation_preflight.json`
+  - `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/deterministic_candidate_redesign_report.md`
+  - `10_LOGS/WF0_MIDDLE_FILTER_AND_GROUPED_AI_REDESIGN_20260613.md`
+- Canonical next no-live test command:
+  - `python tools\build_wf0_diverse_ai_candidates.py --mode seed-bundle-preflight --batch-dir 05_DATA_MODEL\sample_intake_tests\batches\wf0_batch_20260613_220121 --per-seed-cap 40 --generic-noise-cap 0 --broad-ingredient-cap 2 --exploratory-cap 8 --cross-seed-generic-threshold 4 --batch-repeat-cap 2 --seed-ip-quarantine on --write-comparison-report`
+- No live OpenAI/API, paid API, scraping, Etsy, EverBee API, Printify, Ideogram, n8n, database, publishing, product/design generation, WF1/WF2/WF3/WF4 logic change, or scoring action was run.
+

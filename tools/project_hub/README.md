@@ -18,9 +18,9 @@ The active review surface is the Strategic Review page. Historical WF1 human-ins
 
 The Upload CSVs page accepts up to 100 `.csv` files at once and saves them only to the selected local inbox. It reports uploaded, skipped, duplicate-renamed, and failed files; processing does not run automatically.
 
-The WF0 Batch Viewer page at `/wf0-batch-viewer` is read-only. It finds the newest WF0/eRank batch folder, summarizes key output counts, links to generated WF0 files, and previews the EverBee manual search queue with generated EverBee Product Analytics links when that queue exists.
+The WF0 Batch Viewer page at `/wf0-batch-viewer` is read-only. It finds the newest WF0/eRank batch folder, summarizes key output counts, links to generated WF0 files, labels the historical strict selection and prior permissive experiment separately from the canonical middle-filter grouped preflight, shows lane/slot counts when present, and previews the EverBee manual search queue with generated EverBee Product Analytics links when that queue exists.
 
-The Workflow Runner exposes the existing WF0 eRank AI review flow: preflight, confirmation-required live review, and local EverBee search queue creation. Queue creation writes the existing WF0 queue outputs plus `WF1_everbee_manual_search_queue.csv` and `WF1_EVERBEE_MANUAL_SEARCH_GUIDE.md`.
+The Workflow Runner exposes the existing WF0 eRank AI review flow: row-level preflight, middle-filter seed-bundle preflight, confirmation-required legacy live review, and local EverBee search queue creation. The seed-bundle preflight is local/no-API and does not enable grouped live AI. Queue creation writes the existing WF0 queue outputs plus `WF1_everbee_manual_search_queue.csv` and `WF1_EVERBEE_MANUAL_SEARCH_GUIDE.md`.
 
 The Listing Candidate Review page hides WF4 listing candidates that already appear in human decision export CSVs. The original listing candidate queue and all exported decision files remain on disk for audit history. Use the page toggle to show reviewed/exported listing candidates in a separate section.
 

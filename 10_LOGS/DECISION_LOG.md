@@ -352,3 +352,37 @@ Next recommended implementation: repair WF0 batch coherence and deterministic fa
 - No live OpenAI/API, paid API, scraping, Etsy, Printify, Ideogram, n8n, publishing, product/design generation, or database action was run.
 - Follow-up verification: removed the stale `WF1_everbee_normalization_20260608_204134` literal from `tools`; all 31 Python files under `tools` pass AST parsing and WF0 deterministic tests still pass.
 
+## 2026-06-13 - WF0 Middle Filter And Grouped AI Redesign
+
+Decision: Replace the overly permissive diverse-candidate experiment with a no-API middle-filter WF0 candidate path alongside the historical strict row-level AI selection.
+
+Reason: The strict deterministic layer made semantic POD/product/buyer-intent decisions too early, but the first permissive redesign left too many generic terms eligible. The middle filter keeps recall for distinctive/evidenced rows while holding generic noise and quarantining IP before paid grouped AI.
+
+Created:
+- `tools/build_wf0_diverse_ai_candidates.py`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_review_candidates_diverse.csv`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_deterministic_candidate_full_audit.csv`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_candidate_cluster_audit.csv`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_bundles.json`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_bundle_preflight.json`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/ai_seed_review_prompt_preview.md`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/global_consolidation_preflight.json`
+- `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_20260613_220121/deterministic_candidate_redesign_report.md`
+- `10_LOGS/WF0_MIDDLE_FILTER_AND_GROUPED_AI_REDESIGN_20260613.md`
+
+Result on `wf0_batch_20260613_220121`:
+- Current strict selected rows: 13.
+- Middle-filter selected rows: 440.
+- Paid-review bundles: 11.
+- Quarantined seed bundles: 2 (`pokemon`, `sonic birthday invitation`).
+- Hard exclusions: 115.
+- IP quarantine rows: 893.
+- Generic-noise holds: 329.
+- Broad-expansion candidates: 1,199.
+- Reviewable candidates: 5,511.
+- Cross-seed generic rows held/suppressed: 99.
+- Repeated candidates suppressed: 41.
+- Near-duplicate rows suppressed: 376.
+
+Boundary: This is WF0 triage only. No live OpenAI/API call, paid API, EverBee/Etsy/Printify/Ideogram/n8n/database/scraping/publishing/design generation, WF1/WF2/WF3/WF4 logic change, product concept, or scoring action was run or approved.
+

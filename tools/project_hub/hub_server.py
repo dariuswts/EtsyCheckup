@@ -329,6 +329,18 @@ def csv_value_counts(path: Path | None, column: str) -> Counter[str]:
     return counts
 
 
+def json_bundle_summary(path: Path | None) -> dict[str, Any]:
+    if not path or not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"error": "invalid_json"}
+    if isinstance(data, list):
+        return {"bundle_count": len(data), "legacy_list_shape": True}
+    return data if isinstance(data, dict) else {}
+
+
 def count_value(counts: Counter[str], names: list[str]) -> str:
     total = sum(counts.get(name, 0) for name in names)
     return str(total) if counts else "not found"
@@ -342,6 +354,12 @@ def wf0_batch_files(folder: Path) -> dict[str, Path | None]:
         "normalized": first_existing_path([first_existing_file(folder, ["normalized.csv", "*normalized*.csv"]), sample_root / "WF0_erank_keyword_normalized.csv"]),
         "ai_review_pool": first_existing_path([first_existing_file(folder, ["ai_review_pool.csv"])]),
         "ai_review_selected": first_existing_path([first_existing_file(folder, ["ai_review_selected.csv"])]),
+        "ai_review_candidates_diverse": first_existing_path([first_existing_file(folder, ["ai_review_candidates_diverse.csv"])]),
+        "ai_deterministic_candidate_full_audit": first_existing_path([first_existing_file(folder, ["ai_deterministic_candidate_full_audit.csv"])]),
+        "ai_candidate_cluster_audit": first_existing_path([first_existing_file(folder, ["ai_candidate_cluster_audit.csv"])]),
+        "ai_seed_review_bundles": first_existing_path([first_existing_file(folder, ["ai_seed_review_bundles.json"])]),
+        "ai_seed_review_bundle_preflight": first_existing_path([first_existing_file(folder, ["ai_seed_review_bundle_preflight.json"])]),
+        "deterministic_candidate_redesign_report": first_existing_path([first_existing_file(folder, ["deterministic_candidate_redesign_report.md"])]),
         "ai_review_live": first_existing_path([first_existing_file(folder, ["ai_review_live.csv"])]),
         "queue_manifest": first_existing_path([first_existing_file(folder, ["queue_manifest.json"])]),
         "rule_audit": first_existing_file(folder, ["ai_review_pool_rule_audit.csv", "*rule*audit*.csv", "*audit*.csv"]),
@@ -771,7 +789,18 @@ class HubHandler(BaseHTTPRequestHandler):
         files = wf0_batch_files(batch)
         report_path = files.get("report")
         ai_pool_path = files.get("ai_review_pool")
+        diverse_path = files.get("ai_review_candidates_diverse")
+        bundle_path = files.get("ai_seed_review_bundles")
+        cluster_audit_path = files.get("ai_candidate_cluster_audit")
         ai_lane_counts = csv_value_counts(ai_pool_path, "ai_review_pool_lane")
+        diverse_type_counts = csv_value_counts(diverse_path, "deterministic_candidate_type")
+        diverse_seed_counts = csv_value_counts(diverse_path, "seed_keyword")
+        full_audit_path = files.get("ai_deterministic_candidate_full_audit")
+        lane_counts = csv_value_counts(full_audit_path, "deterministic_lane")
+        slot_group_counts = csv_value_counts(diverse_path, "bundle_slot_group")
+        bundle_summary = json_bundle_summary(bundle_path)
+        bundle_list = bundle_summary.get("bundles") if isinstance(bundle_summary.get("bundles"), list) else []
+        quarantined_bundle_count = sum(1 for bundle in bundle_list if bundle.get("seed_ip_status") == "quarantined")
         summary_rows = [
             ("Latest batch folder name", batch.name),
             ("Latest batch folder path", rel(batch)),
@@ -781,18 +810,43 @@ class HubHandler(BaseHTTPRequestHandler):
             ("Normalized/unique keyword count", markdown_count(report_path, "Unique normalized keywords")),
             ("Duplicate count", count_csv_rows_safe(files.get("overlap"))),
             ("Prefilter candidate count", markdown_count(report_path, "Prefilter candidate count") if markdown_count(report_path, "Prefilter candidate count") != "not found" else count_csv_rows_safe(files.get("prefilter"))),
-            ("AI review pool included", count_value(ai_lane_counts, ["include", "included", "strict_include", "seed_audit_include"])),
-            ("AI review pool held", count_value(ai_lane_counts, ["hold", "held"])),
-            ("AI review pool excluded", count_value(ai_lane_counts, ["exclude", "excluded"])),
+            ("Historical strict selected rows", count_csv_rows_safe(files.get("ai_review_selected"))),
+            ("Legacy strict/obvious direct lane rows", count_value(ai_lane_counts, ["strict_include"])),
+            ("Legacy deterministic fallback lane rows", count_value(ai_lane_counts, ["deterministic_fallback", "seed_audit_include"])),
+            ("Legacy pool held", count_value(ai_lane_counts, ["hold_low_priority"])),
+            ("Legacy pool excluded", count_value(ai_lane_counts, ["exclude_from_ai_review_pool"])),
+            ("Permissive 260-row experiment", "legacy comparison only"),
+            ("Canonical middle-filter selected candidates", count_csv_rows_safe(diverse_path)),
+            ("Canonical represented seeds", str(len(diverse_seed_counts)) if diverse_seed_counts else "not found"),
+            ("Hard exclusions", count_value(lane_counts, ["hard_excluded"])),
+            ("IP quarantine", count_value(lane_counts, ["ip_quarantine"])),
+            ("Generic-noise holds", count_value(lane_counts, ["generic_noise_hold"])),
+            ("Broad-expansion candidates", count_value(lane_counts, ["broad_expansion_candidate"])),
+            ("Reviewable candidates", count_value(lane_counts, ["reviewable_candidate"])),
+            ("Paid-review eligible bundle count", str(bundle_summary.get("paid_review_bundle_count", "not found"))),
+            ("Quarantined bundle count", str(quarantined_bundle_count) if bundle_summary else "not found"),
+            ("Global repeated terms suppressed", count_value(csv_value_counts(full_audit_path, "batch_repeat_suppressed"), ["true"])),
+            ("Near-duplicate rows suppressed", str(sum(int(clean(row.get("suppressed_row_count")) or "0") for row in read_csv_all(cluster_audit_path)) if cluster_audit_path and cluster_audit_path.exists() else "not found")),
+            ("Grouped seed bundles", str(bundle_summary.get("bundle_count", "not found"))),
+            ("Live status", "no live grouped AI; legacy live remains explicit confirmation-only"),
+            ("Batch coherence", "batch-local timestamp-selected"),
             ("EverBee manual search queue rows", count_csv_rows_safe(files.get("everbee_queue"))),
         ]
         summary_table = "".join(f"<tr><td>{esc(label)}</td><td>{esc(value)}</td></tr>" for label, value in summary_rows)
+        lane_chips = "".join(f"<span>{esc(key)}: {value}</span>" for key, value in sorted(lane_counts.items())) or "<span>not found</span>"
+        slot_chips = "".join(f"<span>{esc(key)}: {value}</span>" for key, value in sorted(slot_group_counts.items())) or "<span>not found</span>"
         key_files = [
             ("EverBee manual search queue", files.get("everbee_queue")),
             ("EverBee manual search guide", files.get("everbee_guide")),
             ("WF0 normalized output CSV", files.get("normalized")),
             ("WF0 AI review pool CSV", ai_pool_path),
-            ("WF0 selected AI rows CSV", files.get("ai_review_selected")),
+            ("Historical strict selected AI rows CSV", files.get("ai_review_selected")),
+            ("New diverse deterministic candidate CSV", diverse_path),
+            ("New full deterministic candidate audit CSV", files.get("ai_deterministic_candidate_full_audit")),
+            ("New candidate cluster audit CSV", cluster_audit_path),
+            ("New grouped seed bundles JSON", bundle_path),
+            ("New grouped seed bundle preflight JSON", files.get("ai_seed_review_bundle_preflight")),
+            ("New deterministic candidate redesign report", files.get("deterministic_candidate_redesign_report")),
             ("WF0 live AI output CSV", files.get("ai_review_live")),
             ("WF0 queue manifest JSON", files.get("queue_manifest")),
             ("WF0 rule audit CSV", files.get("rule_audit")),
@@ -853,6 +907,7 @@ class HubHandler(BaseHTTPRequestHandler):
         body = f"""
 <div class="warning">Read-only WF0 viewer. This page does not run workflows, call AI/APIs, move raw files, delete raw files, or touch Etsy/Printify/Ideogram/n8n/database/publishing.</div>
 <div class="card"><h2>WF0 Batch Viewer</h2><table><tr><th>Field</th><th>Value</th></tr>{summary_table}</table></div>
+<div class="card"><h2>Canonical Middle-Filter Lanes</h2><div class="chips">{lane_chips}</div><h3>Selected Slot Groups</h3><div class="chips">{slot_chips}</div></div>
 <div class="card"><h2>Key WF0 Output Files</h2><table><tr><th>File</th><th>Path</th><th>Open</th></tr>{file_rows}</table></div>
 <div class="card"><h2>Files Found In Latest Batch</h2><ul>{found_files}</ul></div>
 {preview_html}

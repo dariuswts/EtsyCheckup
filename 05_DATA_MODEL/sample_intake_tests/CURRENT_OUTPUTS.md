@@ -2,7 +2,8 @@
 
 Status labels are documentation only, not machine-readable state.
 
-- canonical WF0 batch: latest timestamped `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_YYYYMMDD_HHMMSS` with `normalized.csv`, `ai_review_pool.csv`, `ai_review_selected.csv`, optional `ai_review_live.csv`, batch-local `WF1_everbee_manual_search_queue.csv`, and `queue_manifest.json`.
+- canonical WF0 batch: latest timestamped `05_DATA_MODEL/sample_intake_tests/batches/wf0_batch_YYYYMMDD_HHMMSS` with `normalized.csv`, `ai_review_pool.csv`, historical strict `ai_review_selected.csv`, optional `ai_review_live.csv`, batch-local `WF1_everbee_manual_search_queue.csv`, and `queue_manifest.json`.
+- new WF0 grouped preflight artifacts: `ai_review_candidates_diverse.csv`, `ai_deterministic_candidate_full_audit.csv`, `ai_candidate_cluster_audit.csv`, `ai_seed_review_bundles.json`, `ai_seed_review_bundle_preflight.json`, `ai_seed_review_prompt_preview.md`, `global_consolidation_preflight.json`, and `deterministic_candidate_redesign_report.md` are local/no-API candidate-preparation artifacts. They do not approve EverBee queues, product concepts, scoring, designs, drafts, or publishing.
 - compatibility copy: root-level WF0 CSVs under `05_DATA_MODEL/sample_intake_tests/` may exist for old scripts, but are not canonical.
 - manually patched: historical helper/live files that were edited outside a coherent batch must be treated as legacy evidence only.
 - helper-created: root `WF1_everbee_manual_search_queue.csv` from older helpers is not canonical when a batch-local queue exists.

@@ -14,7 +14,11 @@ Apify is deprecated/inactive in the current active execution path. eRank Top Lis
 
 Source: eRank Keyword Tool CSVs only.
 
-Purpose: normalize keyword demand/competition/click/KD/tag-occurrence data, attach manifest seed metadata, prefilter by data completeness/intent, and route suitable keywords to AI/human review for possible EverBee validation.
+Purpose: normalize keyword demand/competition/click/KD/tag-occurrence data, attach manifest seed metadata, filter only reliably invalid rows, preserve audit lineage, and prepare diverse seed-balanced candidates for AI interpretation before possible EverBee validation.
+
+Current deterministic WF0 should not prove POD fit, buyer intent, product economics, or EverBee readiness by fixed word lists. Those are semantic interpretation and validation responsibilities. The deterministic layer now uses explicit middle-filter lanes: `hard_excluded`, `ip_quarantine`, `generic_noise_hold`, `broad_expansion_candidate`, and `reviewable_candidate`.
+
+The historical strict row-level AI selection remains preserved for comparison. The canonical next no-live test path is the middle-filter deterministic candidate pool plus grouped seed review bundles. Grouped bundles are preflight-only unless a future grouped live mode is explicitly approved. Global consolidation is scaffolded as no-API preflight only and fails closed until real seed-bundle live results exist.
 
 ## WF1 - Product / Listing Validation
 
