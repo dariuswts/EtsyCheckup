@@ -1,0 +1,115 @@
+body {
+  margin: 0;
+  font-family: Segoe UI, Arial, sans-serif;
+  background: #f6f7f8;
+  color: #172026;
+}
+a { color: #185a8d; }
+header {
+  background: #172026;
+  color: #fff;
+  padding: 14px 22px;
+}
+header h1 { margin: 0 0 8px; font-size: 20px; }
+nav a {
+  color: #fff;
+  margin-right: 14px;
+  text-decoration: none;
+  font-size: 14px;
+}
+main { padding: 22px; max-width: 1320px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.card {
+  background: #fff;
+  border: 1px solid #d9dee3;
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.stat { font-size: 26px; font-weight: 700; }
+.muted { color: #5d6972; font-size: 13px; }
+.warning {
+  border-left: 4px solid #b35b00;
+  background: #fff7ea;
+  padding: 12px;
+  margin: 12px 0;
+}
+.ok {
+  border-left: 4px solid #277a3d;
+  background: #eef9f0;
+  padding: 12px;
+  margin: 12px 0;
+}
+.error {
+  border-left: 4px solid #b42318;
+  background: #fff1f0;
+  padding: 12px;
+  margin: 12px 0;
+}
+table { border-collapse: collapse; width: 100%; background: #fff; }
+th, td {
+  border: 1px solid #d9dee3;
+  padding: 7px;
+  vertical-align: top;
+  font-size: 13px;
+}
+th { background: #eef1f4; position: sticky; top: 0; }
+pre {
+  white-space: pre-wrap;
+  background: #111820;
+  color: #e9f0f4;
+  padding: 14px;
+  overflow: auto;
+  border-radius: 6px;
+}
+button, input[type="submit"], .button {
+  border: 0;
+  border-radius: 5px;
+  padding: 8px 11px;
+  background: #185a8d;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+button.danger, input.danger { background: #a44900; }
+input, select, textarea {
+  width: 100%;
+  max-width: 760px;
+  padding: 7px;
+  border: 1px solid #c9d0d6;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+textarea { min-height: 76px; }
+.copy-prompt {
+  max-width: none;
+  width: 100%;
+  min-height: 150px;
+  margin-top: 5px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  background: #fbfcfd;
+}
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+.actions form { display: inline; margin-right: 8px; }
+.candidate-card h3 { margin-top: 0; }
+.reviewed-card {
+  background: #f9fafb;
+  border-color: #b8c0c8;
+}
+.chips span {
+  display: inline-block;
+  background: #eef1f4;
+  border-radius: 4px;
+  padding: 4px 7px;
+  margin: 2px;
+  font-size: 12px;
+}
+.field { margin: 10px 0; }
+.field label { display: block; font-size: 12px; color: #5d6972; margin-bottom: 3px; }

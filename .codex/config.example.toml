@@ -1,0 +1,2 @@
+# Example Codex config. Do not store secrets here.
+# model = "gpt-5.5-codex"
