@@ -992,13 +992,14 @@ def run_live(input_path: Path, max_rows: int, model: str, include_manual: bool, 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="WF0 eRank keyword AI review and queue builder.")
-    parser.add_argument("--mode", choices=["queues", "live", "prompt_preview", "preflight", "diverse-preflight", "seed-bundle-preflight"], default="queues")
+    parser.add_argument("--mode", choices=["queues", "live", "legacy-row-live", "prompt_preview", "preflight", "diverse-preflight", "seed-bundle-preflight"], default="queues")
     parser.add_argument("--input", default=str(PREFILTER_PATH))
     parser.add_argument("--batch-dir", help="Required batch folder, or 'latest' for timestamp-selected latest WF0 batch.")
     parser.add_argument("--max-rows", type=int, default=100)
     parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", DEFAULT_MODEL))
     parser.add_argument("--include-needs-manual-review", action="store_true")
     parser.add_argument("--confirm-live", action="store_true")
+    parser.add_argument("--confirm-legacy-row-live", action="store_true")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
@@ -1011,6 +1012,14 @@ def main() -> int:
         print("Live grouped mode enabled: false")
         return 0
     if args.mode == "live":
+        raise SystemExit(
+            "Generic --mode live is disabled. The active WF0 grouped seed-bundle workflow is not live-enabled yet. "
+            "No OpenAI call was made. Historical row-level live review is available only with "
+            "--mode legacy-row-live --confirm-live --confirm-legacy-row-live."
+        )
+    if args.mode == "legacy-row-live":
+        if not args.confirm_legacy_row_live:
+            raise SystemExit("Legacy row-level live review requires --confirm-legacy-row-live in addition to --confirm-live.")
         return run_live(Path(args.input), args.max_rows, args.model, args.include_needs_manual_review, args.batch_dir, args.confirm_live, args.resume, args.overwrite)
     if args.mode == "preflight":
         return run_preflight(Path(args.input), args.max_rows, args.include_needs_manual_review, args.batch_dir)

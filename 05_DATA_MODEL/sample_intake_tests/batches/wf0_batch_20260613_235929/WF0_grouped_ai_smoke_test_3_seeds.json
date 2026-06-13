@@ -1,0 +1,1771 @@
+{
+  "ai_call_made": false,
+  "bundle_count": 3,
+  "bundles": [
+    {
+      "bundle_id": "wf0_batch_20260613_235929::bachelorette",
+      "candidate_count": 20,
+      "candidate_type_counts": {
+        "adjacent_discovery": 4,
+        "direct_product_query": 4,
+        "theme_or_identity_query": 12
+      },
+      "candidates": [
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0014",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::baby_shower_gift::row_001",
+          "clicks": "5945",
+          "competition": "1391561",
+          "ctr": "101",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "5",
+          "google_volume": "0",
+          "kd": "100",
+          "keyword": "baby shower gift",
+          "normalized_keyword": "baby shower gift",
+          "original_seed": "bachelorette",
+          "searches": "5915",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::baby_shower_gift",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0352",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::life_of_a_showgirl::row_001",
+          "clicks": "5897",
+          "competition": "16921",
+          "ctr": "110",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "165000",
+          "kd": "25",
+          "keyword": "life of a showgirl",
+          "normalized_keyword": "life of a showgirl",
+          "original_seed": "bachelorette",
+          "searches": "5338",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::life_of_a_showgirl",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0560",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_shirt::row_001",
+          "clicks": "5562",
+          "competition": "218921",
+          "ctr": "126",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "2400",
+          "kd": "85",
+          "keyword": "bachelorette shirt",
+          "normalized_keyword": "bachelorette shirt",
+          "original_seed": "bachelorette",
+          "searches": "4429",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_shirt",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0420",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::custom_photo_gift::row_001",
+          "clicks": "2226",
+          "competition": "492046",
+          "ctr": "103",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "320",
+          "kd": "100",
+          "keyword": "custom photo gift",
+          "normalized_keyword": "custom photo gift",
+          "original_seed": "bachelorette",
+          "searches": "2160",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::custom_photo_gift",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0060",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_party_favors::row_001",
+          "clicks": "2044",
+          "competition": "128787",
+          "ctr": "123",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "2900",
+          "kd": "94",
+          "keyword": "bachelorette party favors",
+          "normalized_keyword": "bachelorette party favors",
+          "original_seed": "bachelorette",
+          "searches": "1662",
+          "selection_reasons": [
+            "demand_leader",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_party_favors",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0110",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bridal_party_gifts::row_001",
+          "clicks": "1938",
+          "competition": "453071",
+          "ctr": "126",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "4400",
+          "kd": "100",
+          "keyword": "bridal party gifts",
+          "normalized_keyword": "bridal party gifts",
+          "original_seed": "bachelorette",
+          "searches": "1542",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bridal_party_gifts",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0582",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bride_shirt::row_001",
+          "clicks": "1921",
+          "competition": "158166",
+          "ctr": "107",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "2400",
+          "kd": "97",
+          "keyword": "bride shirt",
+          "normalized_keyword": "bride shirt",
+          "original_seed": "bachelorette",
+          "searches": "1793",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bride_shirt",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "bachelorette::cluster_0061",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_party_games::row_001",
+          "clicks": "1604",
+          "competition": "62201",
+          "ctr": "106",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "9900",
+          "kd": "81",
+          "keyword": "bachelorette party games",
+          "normalized_keyword": "bachelorette party games",
+          "original_seed": "bachelorette",
+          "searches": "1518",
+          "selection_reasons": [
+            "demand_leader",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::bachelorette_party_games",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0347",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::last_toast_on_the_coast_bachelorette::row_001",
+          "clicks": "799",
+          "competition": "10727",
+          "ctr": "104",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "1000",
+          "kd": "57",
+          "keyword": "last toast on the coast bachelorette",
+          "normalized_keyword": "last toast on the coast bachelorette",
+          "original_seed": "bachelorette",
+          "searches": "769",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::last_toast_on_the_coast_bachelorette",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0271",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::girls_gone_mild_bachelorette::row_001",
+          "clicks": "215",
+          "competition": "5470",
+          "ctr": "95",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "69",
+          "keyword": "girls gone mild bachelorette",
+          "normalized_keyword": "girls gone mild bachelorette",
+          "original_seed": "bachelorette",
+          "searches": "226",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::girls_gone_mild_bachelorette",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0203",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::comfort_colors_bachelorette_crewneck::row_001",
+          "clicks": "158",
+          "competition": "4216",
+          "ctr": "149",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "80",
+          "keyword": "comfort colors bachelorette crewneck",
+          "normalized_keyword": "comfort colors bachelorette crewneck",
+          "original_seed": "bachelorette",
+          "searches": "106",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::comfort_colors_bachelorette_crewneck",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0272",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::girls_gone_mild_bachelorette_theme::row_001",
+          "clicks": "101",
+          "competition": "676",
+          "ctr": "94",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "40",
+          "keyword": "girls gone mild bachelorette theme",
+          "normalized_keyword": "girls gone mild bachelorette theme",
+          "original_seed": "bachelorette",
+          "searches": "107",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::girls_gone_mild_bachelorette_theme",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0488",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::vino_before_vows_bachelorette::row_001",
+          "clicks": "100",
+          "competition": "2855",
+          "ctr": "94",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "72",
+          "keyword": "vino before vows bachelorette",
+          "normalized_keyword": "vino before vows bachelorette",
+          "original_seed": "bachelorette",
+          "searches": "106",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::vino_before_vows_bachelorette",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0450",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::shes_trying_the_knot_bachelorette_decor_ideas::row_001",
+          "clicks": "100",
+          "competition": "0",
+          "ctr": "100",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "shes trying the knot bachelorette decor ideas",
+          "normalized_keyword": "shes trying the knot bachelorette decor ideas",
+          "original_seed": "bachelorette",
+          "searches": "100",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::shes_trying_the_knot_bachelorette_decor_ideas",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "kd_missing_unknown_not_low",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0360",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::love_on_the_lake_bachelorette_theme::row_001",
+          "clicks": "95",
+          "competition": "285",
+          "ctr": "96",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "23",
+          "keyword": "love on the lake bachelorette theme",
+          "normalized_keyword": "love on the lake bachelorette theme",
+          "original_seed": "bachelorette",
+          "searches": "99",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::love_on_the_lake_bachelorette_theme",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0340",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::last_rodeo_bachelorette_tapestry::row_001",
+          "clicks": "65",
+          "competition": "394",
+          "ctr": "148",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "48",
+          "keyword": "last rodeo bachelorette tapestry",
+          "normalized_keyword": "last rodeo bachelorette tapestry",
+          "original_seed": "bachelorette",
+          "searches": "44",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::last_rodeo_bachelorette_tapestry",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0366",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::margarita_veil_bachelorette_banner::row_001",
+          "clicks": "63",
+          "competition": "86",
+          "ctr": "143",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "15",
+          "keyword": "margarita veil bachelorette banner",
+          "normalized_keyword": "margarita veil bachelorette banner",
+          "original_seed": "bachelorette",
+          "searches": "44",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::margarita_veil_bachelorette_banner",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "bachelorette::cluster_0489",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::vino_before_vows_bachelorette_banner::row_001",
+          "clicks": "63",
+          "competition": "362",
+          "ctr": "147",
+          "deterministic_candidate_type": "theme_or_identity_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "46",
+          "keyword": "vino before vows bachelorette banner",
+          "normalized_keyword": "vino before vows bachelorette banner",
+          "original_seed": "bachelorette",
+          "searches": "43",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::vino_before_vows_bachelorette_banner",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "ctr_over_100_valid",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "bachelorette::cluster_0622",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::life_happens_bachelorette_shirts::row_001",
+          "clicks": "102",
+          "competition": "26",
+          "ctr": "150",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "1",
+          "keyword": "life happens bachelorette shirts",
+          "normalized_keyword": "life happens bachelorette shirts",
+          "original_seed": "bachelorette",
+          "searches": "68",
+          "selection_reasons": [
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::life_happens_bachelorette_shirts",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "bachelorette::cluster_0624",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::love_is_brewing_bachelorette_shirt::row_001",
+          "clicks": "64",
+          "competition": "42",
+          "ctr": "145",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "1",
+          "keyword": "love is brewing bachelorette shirt",
+          "normalized_keyword": "love is brewing bachelorette shirt",
+          "original_seed": "bachelorette",
+          "searches": "44",
+          "selection_reasons": [
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_bachelorette_wf0_batch_20260613_235929::love_is_brewing_bachelorette_shirt",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        }
+      ],
+      "lane_counts": {
+        "reviewable_candidate": 20
+      },
+      "paid_review_eligible": true,
+      "seed_direction": "seed_bachelorette",
+      "seed_formula": "raw_seed",
+      "seed_group": "bachelorette",
+      "seed_ip_status": "clear",
+      "seed_keyword": "bachelorette",
+      "seed_run_id": "wf0_seed_bachelorette_wf0_batch_20260613_235929",
+      "slot_group_counts": {
+        "demand_leader": 8,
+        "long_tail_specific": 10,
+        "lower_difficulty_with_signal": 2
+      },
+      "token_budget_estimate": 8699
+    },
+    {
+      "bundle_id": "wf0_batch_20260613_235929::blanket",
+      "candidate_count": 20,
+      "candidate_type_counts": {
+        "adjacent_discovery": 11,
+        "direct_product_query": 9
+      },
+      "candidates": [
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_0878",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::lord_of_the_rings::row_001",
+          "clicks": "16840",
+          "competition": "32651",
+          "ctr": "129",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "450000",
+          "kd": "20",
+          "keyword": "lord of the rings",
+          "normalized_keyword": "lord of the rings",
+          "original_seed": "blanket",
+          "searches": "13062",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::lord_of_the_rings",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_0895",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::mothers_day_gift::row_001",
+          "clicks": "10827",
+          "competition": "1873149",
+          "ctr": "103",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "5",
+          "google_volume": "823000",
+          "kd": "100",
+          "keyword": "mothers day gift",
+          "normalized_keyword": "mothers day gift",
+          "original_seed": "blanket",
+          "searches": "10475",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::mothers_day_gift",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_1091",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crochet_blanket::row_001",
+          "clicks": "10014",
+          "competition": "107641",
+          "ctr": "63",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "27100",
+          "kd": "41",
+          "keyword": "crochet blanket",
+          "normalized_keyword": "crochet blanket",
+          "original_seed": "blanket",
+          "searches": "15976",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crochet_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_1004",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_blanket::row_001",
+          "clicks": "9138",
+          "competition": "357544",
+          "ctr": "78",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "40500",
+          "kd": "74",
+          "keyword": "baby blanket",
+          "normalized_keyword": "baby blanket",
+          "original_seed": "blanket",
+          "searches": "11652",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_1321",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::woven_blanket::row_001",
+          "clicks": "7149",
+          "competition": "94125",
+          "ctr": "112",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "5400",
+          "kd": "58",
+          "keyword": "woven blanket",
+          "normalized_keyword": "woven blanket",
+          "original_seed": "blanket",
+          "searches": "6407",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::woven_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_1291",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::throw_blanket::row_001",
+          "clicks": "6438",
+          "competition": "657216",
+          "ctr": "107",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "74000",
+          "kd": "100",
+          "keyword": "throw blanket",
+          "normalized_keyword": "throw blanket",
+          "original_seed": "blanket",
+          "searches": "5998",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::throw_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_0715",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_shower_gift::row_001",
+          "clicks": "5945",
+          "competition": "1391561",
+          "ctr": "101",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "5",
+          "google_volume": "0",
+          "kd": "100",
+          "keyword": "baby shower gift",
+          "normalized_keyword": "baby shower gift",
+          "original_seed": "blanket",
+          "searches": "5915",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_shower_gift",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "blanket::cluster_0989",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::winnie_the_pooh::row_001",
+          "clicks": "5802",
+          "competition": "104464",
+          "ctr": "105",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "550000",
+          "kd": "64",
+          "keyword": "winnie the pooh",
+          "normalized_keyword": "winnie the pooh",
+          "original_seed": "blanket",
+          "searches": "5522",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::winnie_the_pooh",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0716",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_shower_favors::row_001",
+          "clicks": "5233",
+          "competition": "239531",
+          "ctr": "103",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "9900",
+          "kd": "84",
+          "keyword": "baby shower favors",
+          "normalized_keyword": "baby shower favors",
+          "original_seed": "blanket",
+          "searches": "5073",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_shower_favors",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0876",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::living_room_decor::row_001",
+          "clicks": "2647",
+          "competition": "5645362",
+          "ctr": "105",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "14800",
+          "kd": "100",
+          "keyword": "living room decor",
+          "normalized_keyword": "living room decor",
+          "original_seed": "blanket",
+          "searches": "2513",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::living_room_decor",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_1315",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::winnie_the_pooh_baby_blanket::row_001",
+          "clicks": "1050",
+          "competition": "1813",
+          "ctr": "108",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "13",
+          "keyword": "winnie the pooh baby blanket",
+          "normalized_keyword": "winnie the pooh baby blanket",
+          "original_seed": "blanket",
+          "searches": "974",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::winnie_the_pooh_baby_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0947",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::rustic_home_decor::row_001",
+          "clicks": "979",
+          "competition": "1248042",
+          "ctr": "101",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "3600",
+          "kd": "100",
+          "keyword": "rustic home decor",
+          "normalized_keyword": "rustic home decor",
+          "original_seed": "blanket",
+          "searches": "969",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::rustic_home_decor",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0778",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::coming_home_outfit::row_001",
+          "clicks": "818",
+          "competition": "43140",
+          "ctr": "100",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "880",
+          "kd": "86",
+          "keyword": "coming home outfit",
+          "normalized_keyword": "coming home outfit",
+          "original_seed": "blanket",
+          "searches": "818",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::coming_home_outfit",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_1090",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crochet_baby_blanket_patterns::row_001",
+          "clicks": "806",
+          "competition": "25560",
+          "ctr": "97",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "74",
+          "keyword": "crochet baby blanket patterns",
+          "normalized_keyword": "crochet baby blanket patterns",
+          "original_seed": "blanket",
+          "searches": "833",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crochet_baby_blanket_patterns",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0916",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::newborn_girl_outfit::row_001",
+          "clicks": "658",
+          "competition": "107717",
+          "ctr": "97",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "100",
+          "keyword": "newborn girl outfit",
+          "normalized_keyword": "newborn girl outfit",
+          "original_seed": "blanket",
+          "searches": "679",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::newborn_girl_outfit",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_1082",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::couch_throw_blanket_70quot_x_80quot::row_001",
+          "clicks": "0",
+          "competition": "0",
+          "ctr": "0",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "couch throw blanket 70quot x 80quot",
+          "normalized_keyword": "couch throw blanket 70quot x 80quot",
+          "original_seed": "blanket",
+          "searches": "143",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::couch_throw_blanket_70quot_x_80quot",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "kd_missing_unknown_not_low",
+            "low_click_signal",
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0708",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_girl_going_home::row_001",
+          "clicks": "0",
+          "competition": "7752",
+          "ctr": "0",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "100",
+          "keyword": "baby girl going home",
+          "normalized_keyword": "baby girl going home",
+          "original_seed": "blanket",
+          "searches": "1",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::baby_girl_going_home",
+          "unknown_metric_count": "1",
+          "warnings": [
+            "high_kd_signal",
+            "low_click_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "blanket::cluster_0816",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::doll_lace_flat_sheet::row_001",
+          "clicks": "0",
+          "competition": "3",
+          "ctr": "0",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "doll lace flat sheet",
+          "normalized_keyword": "doll lace flat sheet",
+          "original_seed": "blanket",
+          "searches": "0",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::doll_lace_flat_sheet",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "kd_missing_unknown_not_low",
+            "low_click_signal",
+            "seed_alignment_not_required",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "blanket::cluster_1126",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::fart_blanket::row_001",
+          "clicks": "293",
+          "competition": "28",
+          "ctr": "98",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "480",
+          "kd": "1",
+          "keyword": "fart blanket",
+          "normalized_keyword": "fart blanket",
+          "original_seed": "blanket",
+          "searches": "298",
+          "selection_reasons": [
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::fart_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "product_word_is_signal_not_proof"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "blanket::cluster_1086",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crane_woven_blanket::row_001",
+          "clicks": "255",
+          "competition": "33",
+          "ctr": "147",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "0",
+          "kd": "1",
+          "keyword": "crane woven blanket",
+          "normalized_keyword": "crane woven blanket",
+          "original_seed": "blanket",
+          "searches": "173",
+          "selection_reasons": [
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_blanket_wf0_batch_20260613_235929::crane_woven_blanket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof"
+          ]
+        }
+      ],
+      "lane_counts": {
+        "reviewable_candidate": 20
+      },
+      "paid_review_eligible": true,
+      "seed_direction": "seed_blanket",
+      "seed_formula": "raw_seed",
+      "seed_group": "blanket",
+      "seed_ip_status": "clear",
+      "seed_keyword": "blanket",
+      "seed_run_id": "wf0_seed_blanket_wf0_batch_20260613_235929",
+      "slot_group_counts": {
+        "demand_leader": 8,
+        "long_tail_specific": 10,
+        "lower_difficulty_with_signal": 2
+      },
+      "token_budget_estimate": 8244
+    },
+    {
+      "bundle_id": "wf0_batch_20260613_235929::iron_lung",
+      "candidate_count": 20,
+      "candidate_type_counts": {
+        "adjacent_discovery": 6,
+        "direct_product_query": 9,
+        "uncertain_semantic_fit": 5
+      },
+      "candidates": [
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4620",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::pins::row_001",
+          "clicks": "29599",
+          "competition": "1099392",
+          "ctr": "138",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "368000",
+          "kd": "85",
+          "keyword": "pins",
+          "normalized_keyword": "pins",
+          "original_seed": "iron lung",
+          "searches": "21495",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::pins",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4612",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::y2k::row_001",
+          "clicks": "17670",
+          "competition": "353266",
+          "ctr": "119",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "3",
+          "google_volume": "201000",
+          "kd": "69",
+          "keyword": "y2k",
+          "normalized_keyword": "y2k",
+          "original_seed": "iron lung",
+          "searches": "14812",
+          "selection_reasons": [
+            "demand_leader"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::y2k",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4564",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::project_hail_mary::row_001",
+          "clicks": "9860",
+          "competition": "259",
+          "ctr": "120",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "1500000",
+          "kd": "1",
+          "keyword": "project hail mary",
+          "normalized_keyword": "project hail mary",
+          "original_seed": "iron lung",
+          "searches": "8211",
+          "selection_reasons": [
+            "demand_leader",
+            "exploratory_distinctive",
+            "long_tail_specific",
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::project_hail_mary",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4691",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::sticker_pack::row_001",
+          "clicks": "6591",
+          "competition": "139408",
+          "ctr": "126",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "6600",
+          "kd": "71",
+          "keyword": "sticker pack",
+          "normalized_keyword": "sticker pack",
+          "original_seed": "iron lung",
+          "searches": "5219",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::sticker_pack",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4647",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::embroidered_shirt::row_001",
+          "clicks": "6111",
+          "competition": "287771",
+          "ctr": "125",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "8100",
+          "kd": "89",
+          "keyword": "embroidered shirt",
+          "normalized_keyword": "embroidered shirt",
+          "original_seed": "iron lung",
+          "searches": "4885",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::embroidered_shirt",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4623",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::anime_poster::row_001",
+          "clicks": "5523",
+          "competition": "80732",
+          "ctr": "123",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "9900",
+          "kd": "63",
+          "keyword": "anime poster",
+          "normalized_keyword": "anime poster",
+          "original_seed": "iron lung",
+          "searches": "4478",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::anime_poster",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4693",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::vinyl_stickers::row_001",
+          "clicks": "5175",
+          "competition": "975720",
+          "ctr": "127",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "22200",
+          "kd": "100",
+          "keyword": "vinyl stickers",
+          "normalized_keyword": "vinyl stickers",
+          "original_seed": "iron lung",
+          "searches": "4073",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::vinyl_stickers",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "high_kd_signal",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "demand_leader",
+          "candidate_cluster_id": "iron lung::cluster_4631",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::movie_posters::row_001",
+          "clicks": "4595",
+          "competition": "167317",
+          "ctr": "104",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "110000",
+          "kd": "79",
+          "keyword": "movie posters",
+          "normalized_keyword": "movie posters",
+          "original_seed": "iron lung",
+          "searches": "4418",
+          "selection_reasons": [
+            "demand_leader",
+            "direct_modified_surface"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::movie_posters",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4550",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::office_desk_decor::row_001",
+          "clicks": "814",
+          "competition": "175823",
+          "ctr": "96",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "2900",
+          "kd": "100",
+          "keyword": "office desk decor",
+          "normalized_keyword": "office desk decor",
+          "original_seed": "iron lung",
+          "searches": "848",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::office_desk_decor",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4466",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::horror_movie_merch::row_001",
+          "clicks": "565",
+          "competition": "4653",
+          "ctr": "149",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "880",
+          "kd": "54",
+          "keyword": "horror movie merch",
+          "normalized_keyword": "horror movie merch",
+          "original_seed": "iron lung",
+          "searches": "380",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::horror_movie_merch",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4449",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::gaming_room_decor::row_001",
+          "clicks": "557",
+          "competition": "42172",
+          "ctr": "100",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "5400",
+          "kd": "94",
+          "keyword": "gaming room decor",
+          "normalized_keyword": "gaming room decor",
+          "original_seed": "iron lung",
+          "searches": "557",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::gaming_room_decor",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4447",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::gamer_room_decor::row_001",
+          "clicks": "253",
+          "competition": "1185297",
+          "ctr": "74",
+          "deterministic_candidate_type": "adjacent_discovery",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "2",
+          "google_volume": "5400",
+          "kd": "100",
+          "keyword": "gamer room decor",
+          "normalized_keyword": "gamer room decor",
+          "original_seed": "iron lung",
+          "searches": "340",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::gamer_room_decor",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "high_kd_signal",
+            "seed_alignment_not_required",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4617",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_phone_case::row_001",
+          "clicks": "203",
+          "competition": "11",
+          "ctr": "148",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "10",
+          "kd": "1",
+          "keyword": "iron lung phone case",
+          "normalized_keyword": "iron lung phone case",
+          "original_seed": "iron lung",
+          "searches": "137",
+          "selection_reasons": [
+            "direct_modified_surface",
+            "exploratory_distinctive",
+            "long_tail_specific",
+            "lower_difficulty_with_signal",
+            "theme_audience_occasion"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_phone_case",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4510",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_popcorn_bucket::row_001",
+          "clicks": "124",
+          "competition": "2",
+          "ctr": "63",
+          "deterministic_candidate_type": "uncertain_semantic_fit",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "18100",
+          "kd": "1",
+          "keyword": "iron lung popcorn bucket",
+          "normalized_keyword": "iron lung popcorn bucket",
+          "original_seed": "iron lung",
+          "searches": "198",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific",
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_popcorn_bucket",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4506",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_movie_keychain::row_001",
+          "clicks": "63",
+          "competition": "0",
+          "ctr": "147",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "iron lung movie keychain",
+          "normalized_keyword": "iron lung movie keychain",
+          "original_seed": "iron lung",
+          "searches": "43",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_movie_keychain",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "ctr_over_100_valid",
+            "kd_missing_unknown_not_low",
+            "product_word_is_signal_not_proof",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4480",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_badge_reel::row_001",
+          "clicks": "58",
+          "competition": "0",
+          "ctr": "149",
+          "deterministic_candidate_type": "uncertain_semantic_fit",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "iron lung badge reel",
+          "normalized_keyword": "iron lung badge reel",
+          "original_seed": "iron lung",
+          "searches": "39",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_badge_reel",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "ctr_over_100_valid",
+            "kd_missing_unknown_not_low",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4482",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_blouse_top::row_001",
+          "clicks": "0",
+          "competition": "0",
+          "ctr": "0",
+          "deterministic_candidate_type": "uncertain_semantic_fit",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "iron lung blouse top",
+          "normalized_keyword": "iron lung blouse top",
+          "original_seed": "iron lung",
+          "searches": "0",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_blouse_top",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "kd_missing_unknown_not_low",
+            "low_click_signal",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "long_tail_specific",
+          "candidate_cluster_id": "iron lung::cluster_4522",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_video_game::row_001",
+          "clicks": "0",
+          "competition": "0",
+          "ctr": "0",
+          "deterministic_candidate_type": "uncertain_semantic_fit",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "",
+          "kd": "",
+          "keyword": "iron lung video game",
+          "normalized_keyword": "iron lung video game",
+          "original_seed": "iron lung",
+          "searches": "0",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "long_tail_specific"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_video_game",
+          "unknown_metric_count": "2",
+          "warnings": [
+            "kd_missing_unknown_not_low",
+            "low_click_signal",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "iron lung::cluster_4616",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_hoodie::row_001",
+          "clicks": "189",
+          "competition": "42",
+          "ctr": "121",
+          "deterministic_candidate_type": "direct_product_query",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "50",
+          "kd": "1",
+          "keyword": "iron lung hoodie",
+          "normalized_keyword": "iron lung hoodie",
+          "original_seed": "iron lung",
+          "searches": "156",
+          "selection_reasons": [
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_hoodie",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "product_word_is_signal_not_proof",
+            "seed_risk_requires_ai_interpretation"
+          ]
+        },
+        {
+          "bundle_slot_group": "lower_difficulty_with_signal",
+          "candidate_cluster_id": "iron lung::cluster_4505",
+          "candidate_id": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_movie::row_001",
+          "clicks": "189",
+          "competition": "19",
+          "ctr": "148",
+          "deterministic_candidate_type": "uncertain_semantic_fit",
+          "deterministic_lane": "reviewable_candidate",
+          "global_seed_count": "1",
+          "google_volume": "550000",
+          "kd": "1",
+          "keyword": "iron lung movie",
+          "normalized_keyword": "iron lung movie",
+          "original_seed": "iron lung",
+          "searches": "128",
+          "selection_reasons": [
+            "exploratory_distinctive",
+            "lower_difficulty_with_signal"
+          ],
+          "semantic_phrase_key": "wf0_batch_20260613_235929::wf0_seed_iron_lung_wf0_batch_20260613_235929::iron_lung_movie",
+          "unknown_metric_count": "0",
+          "warnings": [
+            "ctr_over_100_valid",
+            "seed_risk_requires_ai_interpretation",
+            "surface_not_explicit"
+          ]
+        }
+      ],
+      "lane_counts": {
+        "reviewable_candidate": 20
+      },
+      "paid_review_eligible": true,
+      "seed_direction": "seed_iron_lung",
+      "seed_formula": "raw_seed",
+      "seed_group": "iron_lung",
+      "seed_ip_status": "unclear",
+      "seed_keyword": "iron lung",
+      "seed_run_id": "wf0_seed_iron_lung_wf0_batch_20260613_235929",
+      "slot_group_counts": {
+        "demand_leader": 8,
+        "long_tail_specific": 10,
+        "lower_difficulty_with_signal": 2
+      },
+      "token_budget_estimate": 8726
+    }
+  ],
+  "candidate_cap_per_bundle": 20,
+  "candidate_count_total": 60,
+  "external_services_used": "none",
+  "purpose": "no_api_grouped_semantic_review_packet",
+  "schema_version": "wf0_grouped_ai_smoke_test_3_seeds_v1",
+  "seed_keywords": [
+    "bachelorette",
+    "blanket",
+    "iron lung"
+  ],
+  "source_artifact": "ai_seed_review_bundles.json",
+  "source_batch_id": "wf0_batch_20260613_235929",
+  "source_schema_version": "wf0_seed_bundle_v2"
+}

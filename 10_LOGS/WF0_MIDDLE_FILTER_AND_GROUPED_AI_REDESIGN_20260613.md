@@ -38,20 +38,20 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 
 ## New Middle Filter
 
-- broad_expansion_candidate: `1199`
-- generic_noise_hold: `329`
-- hard_excluded: `115`
-- ip_quarantine: `893`
-- reviewable_candidate: `5511`
+- broad_expansion_candidate: `1187`
+- generic_noise_hold: `348`
+- hard_excluded: `76`
+- ip_quarantine: `914`
+- reviewable_candidate: `5522`
 - Selected rows: `440`
 - Paid-review candidate count: `440`
 - Bundle count: `11`
 - Paid-review bundle count: `11`
 - Quarantined bundle count: `2`
-- Cross-seed generic rows suppressed/held: `99`
-- Repeated candidates suppressed: `41`
-- Near-duplicate rows suppressed: `376`
-- Estimated grouped payload tokens: `79352`
+- Cross-seed generic rows suppressed/held: `95`
+- Repeated candidates suppressed: `31`
+- Near-duplicate rows suppressed: `374`
+- Estimated grouped payload tokens: `93417`
 - Candidate slot-group distribution:
 - broad_expansion_ingredient: `22`
 - demand_leader: `88`
@@ -64,9 +64,9 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - Candidate-type distribution:
 - adjacent_discovery: `84`
 - broad_seed_expansion: `22`
-- direct_product_query: `170`
-- theme_or_identity_query: `129`
-- uncertain_semantic_fit: `35`
+- direct_product_query: `166`
+- theme_or_identity_query: `130`
+- uncertain_semantic_fit: `38`
 - Selected rows per seed:
 - bachelorette: `40`
 - blanket: `40`
@@ -120,35 +120,37 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - custom blanket (blanket)
 - personalized blanket (blanket)
 - halloween blanket (blanket)
-- dog blanket (blanket)
-- fur blanket (blanket)
-- custom pet blanket (blanket)
-- cat blanket (blanket)
-- custom dog blanket (blanket)
 - wedding blanket (blanket)
 - sweatshirt blanket (blanket)
-- personalized dog blanket (blanket)
 - anniversary blanket (blanket)
 - blanket hoodie (blanket)
-- custom cat blanket (blanket)
-- fox fur blanket (blanket)
-- personalized pet blanket (blanket)
 - halloween shirt (crop top)
 - custom tote bag (bachelorette)
-- custom pet shirt (mexico)
 - okc shirt (vintage)
 - christmas blanket (blanket)
 - custom blankets (blanket)
 - blanket custom (blanket)
-- pet blanket (blanket)
 - bed blanket (blanket)
 - blanket personalized (blanket)
 - personalized christmas blanket (blanket)
-- lap blanket (blanket)
 - valentine blanket (blanket)
 - wedding gift blanket (blanket)
+- custom christmas blanket (blanket)
+- pink blanket (blanket)
+- brown blanket (blanket)
+- custom blanket kid (blanket)
+- custom shirt (crop top)
+- cute stickers (iron lung)
+- personalized cups (housewarming gift)
+- custom cups (bachelorette)
+- gym shirt (crop top)
+- personalized shirt (bachelorette)
+- personalized shirt (crop top)
+- white shirt (crop top)
 
 ## Hard-Exclusion Examples
+- print on demand (goth)
+- print on demand (mexico)
 - bachelorette gift bag fillers (bachelorette)
 - gift card holder (housewarming gift)
 - gift bag (housewarming gift)
@@ -158,17 +160,15 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - wine lover gift bag (housewarming gift)
 - gift bag (bachelorette)
 - wine gift bag (housewarming gift)
-- pokemon tumbler wrap (pokemon)
+- cancun mexico beach design dtf (mexico)
+- aztec mexico design dtf (mexico)
 - woven blanket mockup (blanket)
 - blanket mockup (blanket)
+- chunky knit blanket pattern (blanket)
+- baby blanket knitting pattern (blanket)
+- knit baby blanket pattern (blanket)
 - blanket mockups (blanket)
 - 30x40 baby blanket mockup (blanket)
-- baby blanket crib mockup (blanket)
-- person holding woven blanket mockup (blanket)
-- woven blanket mockup realistic (blanket)
-- blanket png (blanket)
-- world cup 2026 svg (mexico)
-- soccer shirt png (mexico)
 
 ## IP Examples
 - mamma mia bachelorette shirts (bachelorette)
@@ -225,13 +225,13 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - bridesmaid shirt (bachelorette)
 - bride to be (bachelorette)
 - bachelorette gifts for bride (bachelorette)
-- decor (bachelorette)
-- cat (blanket)
-- dog (blanket)
 - mothers day gift (blanket)
-- living room decor (blanket)
-- baby girl going home (blanket)
 - throw blanket (blanket)
+- baby shower gift (blanket)
+- living room decor (blanket)
+- rustic home decor (blanket)
+- newborn girl outfit (blanket)
+- baby girl going home (blanket)
 - blankets and throws (blanket)
 - new mom gift (blanket)
 - gift for grandma (blanket)
@@ -271,11 +271,11 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - vino before vows bachelorette banner (bachelorette)
 - baby shower favors (blanket)
 - living room decor (blanket)
-- crochet baby blanket pattern (blanket)
-- baby blanket crochet pattern (blanket)
-- easy alpine crochet blanket pattern pdf (blanket)
-- crochet blanket pattern easy pdf (blanket)
 - winnie the pooh baby blanket (blanket)
+- rustic home decor (blanket)
+- coming home outfit (blanket)
+- crochet baby blanket patterns (blanket)
+- newborn girl outfit (blanket)
 - couch throw blanket 70quot x 80quot (blanket)
 - baby girl going home (blanket)
 - doll lace flat sheet (blanket)
@@ -294,13 +294,13 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - bachelorette tote bags (bachelorette)
 - crochet blanket (blanket)
 - baby blanket (blanket)
-- crochet blanket pattern (blanket)
 - woven blanket (blanket)
-- crochet baby blanket pattern (blanket)
-- baby blanket crochet pattern (blanket)
-- easy alpine crochet blanket pattern pdf (blanket)
-- crochet blanket pattern easy pdf (blanket)
+- throw blanket (blanket)
 - winnie the pooh baby blanket (blanket)
+- crochet baby blanket patterns (blanket)
+- couch throw blanket 70quot x 80quot (blanket)
+- fart blanket (blanket)
+- crane woven blanket (blanket)
 
 ## Diagnostics
 - Every paid-review seed reached the cap with backfill; inspect quality before live review.

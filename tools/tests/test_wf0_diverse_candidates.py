@@ -149,10 +149,85 @@ class WF0DiverseCandidateTests(unittest.TestCase):
         self.assertEqual(diverse.hard_exclusion(zeroes, batch_id)[1], "no_demand_or_engagement_signal")
         high_kd = base_row("low volume garden club shirt", erank_keyword_difficulty="100", clicks="1", search_volume="0")
         self.assertFalse(diverse.hard_exclusion(high_kd, batch_id)[0])
-        for phrase in ["svg file", "digital download", "canva template", "mockup", "gift bag filler"]:
+        for phrase in [
+            "crochet pattern", "knitting pattern", "sewing pattern", "cross stitch pattern",
+            "embroidery pattern", "pattern pdf", "pdf pattern", "dtf design", "dtf file",
+            "dtf transfer", "stl 3d model", "stl file download", "print on demand",
+            "tumbler wrap", "mockup", "digital download", "svg file", "png file",
+            "dxf file", "eps file", "canva template", "editable template", "gift bag filler",
+        ]:
             self.assertTrue(diverse.hard_exclusion(base_row(phrase), batch_id)[0], phrase)
-        self.assertFalse(diverse.hard_exclusion(base_row("vintage print"), batch_id)[0])
+        for phrase in [
+            "floral pattern shirt", "leopard print shirt", "vintage print", "art print",
+            "canvas print", "3d printed picture frame", "iron on patch", "embroidered shirt",
+            "garden design shirt",
+        ]:
+            self.assertFalse(diverse.hard_exclusion(base_row(phrase), batch_id)[0], phrase)
         self.assertFalse(diverse.hard_exclusion(base_row("redwood garden shirt"), batch_id)[0])
+
+    def test_bare_generic_and_modified_short_token_boundaries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            bare_terms = [
+                "cat", "dog", "art", "decor", "set", "tea", "car", "jewelry",
+                "necklace", "bracelet", "mask", "poster", "print", "keychain",
+                "gift", "custom", "personalized", "shirt",
+            ]
+            eligible_terms = [
+                "dog blanket", "cat blanket", "pet blanket", "lap blanket",
+                "custom pet blanket", "custom dog blanket", "personalized dog blanket",
+                "personalized pet blanket", "fox fur blanket",
+            ]
+            hold_terms = ["custom blanket", "personalized blanket"]
+            rows = [base_row(term, "blanket") for term in bare_terms + eligible_terms + hold_terms]
+            rows.append(base_row("car", "car"))
+            write_csv(batch / "ai_review_pool.csv", rows)
+            diverse.build_diverse_candidates(batch, write_comparison_report=False)
+            full_rows = read_csv(batch / "ai_deterministic_candidate_full_audit.csv")
+            full = {row["keyword"]: row for row in full_rows if not (row["keyword"] == "car" and row["seed_keyword"] == "blanket")}
+            for term in bare_terms:
+                if term == "car":
+                    continue
+                self.assertEqual(full[term]["deterministic_lane"], "generic_noise_hold", term)
+            blanket_car = next(row for row in full_rows if row["keyword"] == "car" and row["seed_keyword"] == "blanket")
+            self.assertEqual(blanket_car["deterministic_lane"], "generic_noise_hold")
+            self.assertNotEqual(full["car"]["deterministic_lane"], "generic_noise_hold")
+            for term in eligible_terms:
+                self.assertIn(full[term]["deterministic_lane"], {"reviewable_candidate", "broad_expansion_candidate"}, term)
+            for term in hold_terms:
+                self.assertEqual(full[term]["deterministic_lane"], "generic_noise_hold", term)
+
+    def test_exact_duplicates_get_unique_stable_ids_and_only_representative_selected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            rows = [base_row("garden club shirt", "garden") for _ in range(3)]
+            rows += [base_row(f"garden club shirt variant {index}", "garden") for index in range(45)]
+            write_csv(batch / "ai_review_pool.csv", rows)
+            first = diverse.build_diverse_candidates(batch, write_comparison_report=False)
+            first_full = read_csv(batch / "ai_deterministic_candidate_full_audit.csv")
+            first_selected = read_csv(batch / "ai_review_candidates_diverse.csv")
+            second = diverse.build_diverse_candidates(batch, write_comparison_report=False)
+            second_full = read_csv(batch / "ai_deterministic_candidate_full_audit.csv")
+            self.assertEqual(first["selected_candidate_count"], second["selected_candidate_count"])
+            duplicates = [row for row in first_full if row["keyword"] == "garden club shirt"]
+            self.assertEqual(len({row["candidate_id"] for row in duplicates}), 3)
+            self.assertEqual([row["candidate_id"] for row in duplicates], [row["candidate_id"] for row in second_full if row["keyword"] == "garden club shirt"])
+            canonical = [row for row in duplicates if row["exact_duplicate_status"] == "canonical_representative"]
+            suppressed = [row for row in duplicates if row["exact_duplicate_status"] == "duplicate_suppressed"]
+            self.assertEqual(len(canonical), 1)
+            self.assertEqual(len(suppressed), 2)
+            self.assertTrue(all(row["duplicate_of_candidate_id"] == canonical[0]["candidate_id"] for row in suppressed))
+            selected_duplicate_rows = [row for row in first_selected if row["keyword"] == "garden club shirt"]
+            self.assertLessEqual(len(selected_duplicate_rows), 1)
+            self.assertTrue(all(row["exact_duplicate_status"] == "canonical_representative" for row in selected_duplicate_rows))
+
+    def test_ip_primary_lane_preserves_supply_signal(self) -> None:
+        row = base_row("pokemon svg file", "pokemon")
+        lane, details = diverse.lane_for(row, diverse.build_global_stats([row]), "wf0_batch_20260613_010203", 4)
+        self.assertEqual(lane, "ip_quarantine")
+        self.assertEqual(details["ip_quarantine_status"], "true")
+        self.assertEqual(details["hard_exclusion_reason"], "seller_supply_or_digital_market")
+        self.assertIn("svg file", details["hard_exclusion_matched_term"])
 
     def test_conservative_clustering_and_audit_columns(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

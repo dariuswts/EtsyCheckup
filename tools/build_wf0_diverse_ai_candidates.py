@@ -110,6 +110,11 @@ BARE_SURFACE_TOKENS = {
     "ornament", "ornaments", "hoodie", "hoodies", "sweatshirt", "sweatshirts",
     "card", "cards", "bag", "bags", "tote", "totes", "hat", "hats",
 }
+BARE_SINGLE_TOKEN_GENERIC_TERMS = {
+    "cat", "dog", "art", "decor", "set", "tea", "car", "jewelry", "necklace",
+    "bracelet", "mask", "poster", "print", "keychain", "gift", "custom",
+    "personalized", "personalised", "shirt",
+}
 
 DISTINCTIVE_TOKEN_HINTS = {
     "goth", "crochet", "housewarming", "mexico", "california", "poppy", "bachelorette",
@@ -117,6 +122,7 @@ DISTINCTIVE_TOKEN_HINTS = {
     "introvert", "furry", "trucker", "nurse", "teacher", "fishing", "pickleball",
     "camping", "cowgirl", "western", "charleston", "wild", "wife", "homeowner",
     "new", "home", "car", "auto", "phone", "crop", "top", "iron", "lung",
+    "cat", "dog", "pet", "lap", "fox", "fur",
 }
 
 BROAD_DISTINCTIVE_PHRASES = {
@@ -132,16 +138,21 @@ THEME_AUDIENCE_TERMS = {
     "bachelorette", "bride", "bridesmaid", "housewarming", "homeowner", "club",
     "humor", "funny", "furry", "crochet", "memorial", "sympathy", "mexico",
     "california poppy", "car", "auto", "phone", "camping", "cowgirl", "western",
+    "cat", "dog", "pet", "lap", "fox", "fur",
 }
 
 SELLER_SUPPLY_DIGITAL_PHRASES = {
     "digital download", "downloadable file", "sublimation file", "embroidery file",
     "cricut file", "cut file", "cut files", "laser file", "canva template",
     "editable template", "tumbler wrap", "dtf transfer", "digital invitation template",
+    "print on demand",
 }
 SELLER_SUPPLY_DIGITAL_TOKENS = {
-    "svg", "png", "dxf", "eps", "clipart", "mockup", "mockups", "font", "fonts", "plr",
+    "clipart", "mockup", "mockups", "font", "fonts", "plr",
 }
+CRAFT_PATTERN_TOKENS = {"crochet", "knit", "knitting", "sewing", "embroidery"}
+SELLER_FILE_TOKENS = {"file", "files", "download", "downloads", "digital"}
+VECTOR_FILE_TOKENS = {"svg", "png", "dxf", "eps"}
 PACKAGING_SUPPLY_PHRASES = {
     "gift bag", "gift bags", "gift bag filler", "gift bag fillers", "gift bag stuffer",
     "gift bag stuffers", "favor bags", "gift card holder", "gift card holders",
@@ -382,6 +393,14 @@ def stable_candidate_id(row: dict[str, str], batch_id: str) -> str:
     return f"{source_batch_id(row, batch_id)}::{seed_run_id}::{slug}"
 
 
+def stable_semantic_candidate_key(row: dict[str, str], batch_id: str) -> str:
+    return stable_candidate_id(row, batch_id)
+
+
+def stable_row_candidate_id(row: dict[str, str], batch_id: str, exact_ordinal: int) -> str:
+    return f"{stable_semantic_candidate_key(row, batch_id)}::row_{exact_ordinal:03d}"
+
+
 def metric_values(row: dict[str, str]) -> dict[str, float | None]:
     return {
         "search_volume": parse_number(row.get("search_volume")),
@@ -425,6 +444,26 @@ def has_any_evidence(row: dict[str, str]) -> bool:
     return False
 
 
+def seller_supply_digital_match(phrase: str) -> tuple[bool, str]:
+    row_tokens = token_set(phrase)
+    hits = matched_terms(phrase, SELLER_SUPPLY_DIGITAL_PHRASES)
+    hits.extend(sorted(row_tokens & SELLER_SUPPLY_DIGITAL_TOKENS))
+    if "pattern" in row_tokens and (row_tokens & CRAFT_PATTERN_TOKENS):
+        hits.extend(sorted(f"{token} pattern" for token in (row_tokens & CRAFT_PATTERN_TOKENS)))
+    if {"cross", "stitch", "pattern"}.issubset(row_tokens):
+        hits.append("cross stitch pattern")
+    if {"pattern", "pdf"}.issubset(row_tokens):
+        hits.append("pattern pdf")
+    if "dtf" in row_tokens and (row_tokens & {"design", "file", "files", "transfer", "transfers"}):
+        hits.extend(sorted(f"dtf {token}" for token in (row_tokens & {"design", "file", "files", "transfer", "transfers"})))
+    if "stl" in row_tokens and (row_tokens & {"3d", "model", "models", "file", "files", "download", "downloads"}):
+        hits.extend(sorted(f"stl {token}" for token in (row_tokens & {"3d", "model", "models", "file", "files", "download", "downloads"})))
+    if row_tokens & VECTOR_FILE_TOKENS and row_tokens & SELLER_FILE_TOKENS:
+        hits.extend(sorted(f"{token} file" for token in (row_tokens & VECTOR_FILE_TOKENS)))
+    hits = sorted(set(hits))
+    return bool(hits), pipe(hits)
+
+
 def source_lineage_valid(row: dict[str, str], batch_id: str) -> tuple[bool, str]:
     if clean(row.get("source_tool")).lower() not in {"", "erank"}:
         return False, "unsupported_source_type"
@@ -447,10 +486,9 @@ def hard_exclusion(row: dict[str, str], batch_id: str) -> tuple[bool, str, str]:
         return True, lineage_reason, source_batch_id(row, batch_id)
     if unknown_metric_count(row) > MAX_MISSING_CORE_METRICS:
         return True, "too_little_data", str(unknown_metric_count(row))
-    phrase_hits = matched_terms(phrase, SELLER_SUPPLY_DIGITAL_PHRASES)
-    token_hits = sorted(row_tokens & SELLER_SUPPLY_DIGITAL_TOKENS)
-    if phrase_hits or token_hits:
-        return True, "seller_supply_or_digital_market", pipe(phrase_hits + token_hits)
+    supply_hit, supply_terms = seller_supply_digital_match(phrase)
+    if supply_hit:
+        return True, "seller_supply_or_digital_market", supply_terms
     packaging_hits = matched_terms(phrase, PACKAGING_SUPPLY_PHRASES)
     if packaging_hits:
         return True, "seller_supply_or_digital_market", pipe(packaging_hits)
@@ -504,6 +542,7 @@ def generic_noise(row: dict[str, str], stats: dict[str, Any], threshold: int) ->
     row_tokens = tokens(phrase)
     meaningful = meaningful_tokens(phrase)
     all_meaningful_generic = not meaningful
+    exact_source_seed = phrase == normalize_text(row.get("seed_keyword"))
     bare_surface = bool(surface_matches(phrase)) and distinctive_token_count(phrase) == 0
     bare_short_generic = len(row_tokens) <= 3 and all_meaningful_generic
     cross_seed = (
@@ -514,6 +553,8 @@ def generic_noise(row: dict[str, str], stats: dict[str, Any], threshold: int) ->
     )
     if cross_seed:
         return True, "cross_seed_generic_without_distinctive_token", bare_surface, "cross_seed_generic"
+    if len(row_tokens) == 1 and row_tokens[0] in BARE_SINGLE_TOKEN_GENERIC_TERMS and not exact_source_seed:
+        return True, "bare_single_token_generic_without_distinctive_context", False, ""
     if bare_surface:
         return True, "bare_surface_without_distinctive_modifier", bare_surface, ""
     if bare_short_generic:
@@ -572,6 +613,13 @@ def lane_for(row: dict[str, str], stats: dict[str, Any], batch_id: str, threshol
         "broad_ingredient_status": "false",
         "cross_seed_generic_status": "",
     }
+    if hard and reason == "seller_supply_or_digital_market" and (seed_status == "quarantined" or row_ip):
+        details["ip_quarantine_status"] = "true"
+        details["ip_quarantine_reason"] = row_ip_reason or seed_reason
+        details["ip_matched_term"] = row_ip_reason or seed_reason
+        details["ip_match_scope"] = "row" if row_ip else "seed"
+        details["paid_review_eligible"] = "false"
+        return "ip_quarantine", details
     if hard:
         details["paid_review_eligible"] = "false"
         return "hard_excluded", details
@@ -786,6 +834,7 @@ def select_seed_candidates(
     representatives = [
         row for row in seed_rows
         if row["candidate_cluster_representative"] == "true"
+        and row["exact_duplicate_status"] in {"unique", "canonical_representative"}
         and row["deterministic_lane"] in {"reviewable_candidate", "broad_expansion_candidate"}
         and row["batch_repeat_suppressed"] != "true"
     ]
@@ -859,6 +908,7 @@ def select_seed_candidates(
 def compact_candidate(row: dict[str, str]) -> dict[str, Any]:
     return {
         "candidate_id": row["candidate_id"],
+        "semantic_phrase_key": row["semantic_phrase_key"],
         "keyword": clean(row.get("keyword")),
         "normalized_keyword": clean(row.get("normalized_keyword")),
         "original_seed": clean(row.get("seed_keyword")),
@@ -942,23 +992,31 @@ def classify_rows(
     cross_seed_threshold: int,
 ) -> tuple[list[dict[str, str]], list[dict[str, Any]], dict[str, Any]]:
     stats = build_global_stats(pool_rows)
-    exact_seen: set[tuple[str, str, str]] = set()
+    exact_seen: dict[tuple[str, str, str], str] = {}
+    exact_counts: Counter[tuple[str, str, str]] = Counter()
     annotated: list[dict[str, str]] = []
 
     for row in pool_rows:
         out = dict(row)
         phrase = normalize_text(out.get("normalized_keyword") or out.get("keyword"))
         out["source_batch_id"] = source_batch_id(out, batch_id)
-        out["candidate_id"] = stable_candidate_id(out, batch_id)
         exact_key = (out["source_batch_id"], clean(out.get("seed_run_id")), phrase)
+        exact_counts[exact_key] += 1
+        out["semantic_phrase_key"] = stable_semantic_candidate_key(out, batch_id)
+        out["candidate_id"] = stable_row_candidate_id(out, batch_id, exact_counts[exact_key])
+        duplicate_of = exact_seen.get(exact_key, "")
+        if duplicate_of:
+            out["duplicate_of_candidate_id"] = duplicate_of
+            out["exact_duplicate_status"] = "duplicate_suppressed"
+            out["exact_duplicate_reason"] = "same_source_batch_seed_run_and_normalized_keyword"
+        else:
+            exact_seen[exact_key] = out["candidate_id"]
+            out["duplicate_of_candidate_id"] = ""
+            out["exact_duplicate_status"] = "canonical_representative"
+            out["exact_duplicate_reason"] = ""
         lane, details = lane_for(out, stats, batch_id, cross_seed_threshold)
-        if exact_key in exact_seen and lane not in {"hard_excluded", "ip_quarantine"}:
-            lane = "hard_excluded"
-            details["hard_exclusion_status"] = "true"
-            details["hard_exclusion_reason"] = "exact_duplicate_within_seed_context"
-            details["hard_exclusion_matched_term"] = phrase
+        if out["exact_duplicate_status"] == "duplicate_suppressed":
             details["paid_review_eligible"] = "false"
-        exact_seen.add(exact_key)
         out.update(details)
         out["deterministic_lane"] = lane
         out["deterministic_candidate_type"] = lane if lane in {"hard_excluded", "ip_quarantine", "generic_noise_hold"} else candidate_type(out)
@@ -986,6 +1044,11 @@ def classify_rows(
         out["deterministic_warnings"] = ""
         annotated.append(out)
 
+    for row in annotated:
+        exact_key = (row["source_batch_id"], clean(row.get("seed_run_id")), normalize_text(row.get("normalized_keyword") or row.get("keyword")))
+        if exact_counts[exact_key] == 1:
+            row["exact_duplicate_status"] = "unique"
+
     cluster_audit = assign_clusters(annotated)
     for row in annotated:
         row["deterministic_warnings"] = pipe(deterministic_warnings(row))
@@ -998,6 +1061,7 @@ def apply_batch_repeat_cap(rows: list[dict[str, str]], batch_repeat_cap: int) ->
             row for row in rows
             if row["deterministic_lane"] in {"reviewable_candidate", "broad_expansion_candidate"}
             and row["candidate_cluster_representative"] == "true"
+            and row["exact_duplicate_status"] in {"unique", "canonical_representative"}
             and row["seed_ip_status"] != "quarantined"
         ],
         key=demand_key,

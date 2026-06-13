@@ -121,6 +121,24 @@ class WF0RepairTests(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     ai_review.run_live(Path("unused"), 10, "mock", False, batch, confirm_live=True, resume=True, overwrite=True)
 
+    def test_generic_live_mode_fails_before_openai(self) -> None:
+        with mock.patch.object(sys, "argv", ["ai_review_erank_keywords.py", "--mode", "live"]), \
+             mock.patch.dict(os.environ, {"OPENAI_API_KEY": "test"}), \
+             mock.patch.object(ai_review, "call_openai") as call_openai:
+            with self.assertRaises(SystemExit) as raised:
+                ai_review.main()
+            self.assertIn("grouped seed-bundle workflow is not live-enabled", str(raised.exception))
+            call_openai.assert_not_called()
+
+    def test_legacy_row_live_requires_extra_acknowledgement(self) -> None:
+        with mock.patch.object(sys, "argv", ["ai_review_erank_keywords.py", "--mode", "legacy-row-live", "--confirm-live"]), \
+             mock.patch.dict(os.environ, {"OPENAI_API_KEY": "test"}), \
+             mock.patch.object(ai_review, "call_openai") as call_openai:
+            with self.assertRaises(SystemExit) as raised:
+                ai_review.main()
+            self.assertIn("--confirm-legacy-row-live", str(raised.exception))
+            call_openai.assert_not_called()
+
 
     def test_build_pool_full_output_not_replaced_by_selected_rows(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
