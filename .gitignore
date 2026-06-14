@@ -21,3 +21,17 @@ __pycache__/
 05_DATA_MODEL/sample_intake_tests/archived_wf1_queues/
 **/live_outputs/
 **/raw_responses/
+
+# Historical runtime archives
+99_ARCHIVE/
+
+# Generated root-level pipeline outputs
+05_DATA_MODEL/sample_intake_tests/*.csv
+05_DATA_MODEL/sample_intake_tests/*.json
+05_DATA_MODEL/sample_intake_tests/*.html
+
+# Raw research exports
+resources/*.csv
+
+# Local run artifacts
+10_LOGS/project_hub_runs/

@@ -1,6 +1,0 @@
-queue_phrase,coverage_status,normalized_rows_count,unique_listing_count_in_normalized,deduped_rows_count,duplicate_audit_rows_count,shortlist_rows_count,likely_reason,recommended_manual_action
-halloween ornament,no_evidence_found,0,0,0,0,0,No normalized evidence rows were matched to this queue phrase.,verify filename/queue match
-kpop demon hunters ornament,no_evidence_found,0,0,0,0,0,No normalized evidence rows were matched to this queue phrase.,verify filename/queue match
-custom trucker hats,no_evidence_found,0,0,0,0,0,No normalized evidence rows were matched to this queue phrase.,verify filename/queue match
-dance mom shirt,no_evidence_found,0,0,0,0,0,No normalized evidence rows were matched to this queue phrase.,verify filename/queue match
-furry stickers,present_only_as_duplicate_overlap,3000,3000,0,3000,0,"Normalized evidence exists, but dedupe kept overlapping listings under other queue phrases.",inspect duplicate overlap before judging phrase
