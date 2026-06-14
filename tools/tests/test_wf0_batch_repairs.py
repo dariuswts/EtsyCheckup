@@ -166,6 +166,38 @@ class WF0RepairTests(unittest.TestCase):
             self.assertIn("original_pool_status", output_rows[0])
             self.assertTrue(any("obvious_ip_risk" in row["rule_blocks"] for row in output_rows))
 
+    def test_batch_runner_foregrounds_grouped_preflight_without_live_calls(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            inbox = Path(tmp) / "inbox"
+            inbox.mkdir()
+            csv_path = inbox / "eRank_-_Keyword_Tool_-_bachelorette.csv"
+            csv_path.write_text("Keyword,Searches,Clicks,CTR,Competition,Average Searches,Average Clicks,Average CTR,Etsy Competition,Google Searches,Google Competition,Google CPC,Google CTR\nx shirt,1,1,100,1,1,1,100,1,0,0,0,0\n", encoding="utf-8")
+            fake_preflight = {"rows_that_would_be_submitted": 1, "count_by_ai_review_pool_lane": {}, "count_by_seed": {}}
+            with mock.patch.object(runner, "classify_csv", return_value=("selected", "", 1)), \
+                 mock.patch.object(runner, "BATCHES_DIR", Path(tmp) / "batches"), \
+                 mock.patch.object(runner, "PROCESSED_DIR", Path(tmp) / "processed"), \
+                 mock.patch.object(runner, "REJECTED_DIR", Path(tmp) / "rejected"), \
+                 mock.patch.object(runner, "normalize_selected", return_value={"prefilter_path": str(Path(tmp) / "prefilter.csv"), "total_raw_keyword_rows": 1, "unique_normalized_keywords": 1, "prefilter_candidate_count": 1}), \
+                 mock.patch.object(runner.pool_builder, "build_pool", return_value={"status_counts": {}, "lane_counts": {"strict_include": 1}}), \
+                 mock.patch.object(runner, "build_preflight", return_value=fake_preflight), \
+                 mock.patch.object(runner.ai_review, "read_csv", return_value=[]), \
+                 mock.patch.object(runner.diverse_candidates, "build_diverse_candidates", return_value={"selected_candidate_count": 40}), \
+                 mock.patch.object(runner.grouped_pilot, "write_grouped_batch_preflight", return_value={
+                     "eligible_seed_count": 1,
+                     "excluded_seeds": [],
+                     "payload_path": "payload.json",
+                     "request_size_estimates": {"total_approx_input_tokens": 123},
+                     "payload_validation": {"status": "pass"},
+                     "recommended_grouped_live_command": "live",
+                     "recommended_run_all_command": "run-all",
+                 }), \
+                 mock.patch.object(runner, "move_files"):
+                summary = runner.run_batch(inbox, max_rows=1, batch_limit=1)
+            self.assertEqual(summary["grouped_selected_candidate_count"], 40)
+            self.assertEqual(summary["eligible_grouped_seed_count"], 1)
+            self.assertEqual(summary["grouped_preflight_validation_status"], "pass")
+            self.assertFalse(summary["live_ai_call_made"])
+
 
 if __name__ == "__main__":
     unittest.main()

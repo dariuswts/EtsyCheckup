@@ -20,8 +20,10 @@ from pathlib import Path
 from typing import Any
 
 import ai_review_erank_keywords as ai_review
+import build_wf0_diverse_ai_candidates as diverse_candidates
 import build_erank_ai_review_pool as pool_builder
 import normalize_erank_keywords as normalizer
+import wf0_grouped_ai_pilot as grouped_pilot
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -475,6 +477,8 @@ def run_batch(input_folder: Path, max_rows: int, batch_limit: int) -> dict[str, 
             audit_cap=5,
         )
         preflight = build_preflight(output_dir, max_rows)
+        grouped_deterministic = diverse_candidates.build_diverse_candidates(output_dir)
+        grouped_compact = grouped_pilot.write_grouped_batch_preflight(output_dir)
         shortlist = ai_review.read_csv(output_dir / "ai_review_selected.csv")
     else:
         normalize_summary = {
@@ -502,6 +506,8 @@ def run_batch(input_folder: Path, max_rows: int, batch_limit: int) -> dict[str, 
             "external_services_used": "none",
             "ai_call_made": False,
         }
+        grouped_deterministic = {"status": "not_run_no_selected_rows"}
+        grouped_compact = {"payload_validation": {"status": "not_run_no_selected_rows"}}
 
     with (output_dir / "preflight_report.json").open("w", encoding="utf-8") as f:
         json.dump(preflight, f, indent=2, sort_keys=True)
@@ -551,6 +557,15 @@ def run_batch(input_folder: Path, max_rows: int, batch_limit: int) -> dict[str, 
         "preflight_selected_count": preflight["rows_that_would_be_submitted"],
         "preflight_lane_counts": preflight["count_by_ai_review_pool_lane"],
         "preflight_seed_counts": preflight["count_by_seed"],
+        "grouped_selected_candidate_count": grouped_deterministic.get("selected_candidate_count", 0),
+        "eligible_grouped_seed_count": grouped_compact.get("eligible_seed_count", 0),
+        "quarantined_seed_count": len(grouped_compact.get("excluded_seeds", [])),
+        "compact_payload_path": grouped_compact.get("payload_path", ""),
+        "compact_estimated_token_count": grouped_compact.get("request_size_estimates", {}).get("total_approx_input_tokens", 0),
+        "grouped_preflight_validation_status": grouped_compact.get("payload_validation", {}).get("status", ""),
+        "recommended_grouped_live_command": grouped_compact.get("recommended_grouped_live_command", ""),
+        "recommended_grouped_run_all_command": grouped_compact.get("recommended_run_all_command", ""),
+        "legacy_strict_result_label": "diagnostic_only",
         "live_ai_call_made": False,
         "external_services_used": "none",
         "paid_actions_taken": "none",
