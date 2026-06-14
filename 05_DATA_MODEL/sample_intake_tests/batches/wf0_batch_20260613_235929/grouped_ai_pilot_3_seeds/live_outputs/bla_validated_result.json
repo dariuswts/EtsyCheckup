@@ -1,0 +1,104 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "pilot_bla",
+  "bundle_summary": "Most candidates are either named IP, handmade crochet/supply terms, or generic product surfaces. One defensible niche emerges around baby arrival gifting: demand for baby blankets paired with new-mom gifting intent. All named IP terms quarantined; crochet/supply terms marked seller-supply and not used for validation.",
+  "bundle_warnings": [
+    "Quarantined named IP: lord of the rings, michael jackson blanket, winnie the pooh baby blanket, bloomies blanket.",
+    "Crochet and supply-oriented terms are seller-supply and not POD-validating: crochet blanket variants and doll lace flat sheet.",
+    "Many remaining terms are generic product surfaces (throw/woven/living room decor) and treated only as ingredients, not niches."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "bla05",
+      "bla09",
+      "bla13",
+      "bla14",
+      "bla18",
+      "bla20"
+    ],
+    "insufficient_evidence": [
+      "bla12"
+    ],
+    "irrelevant": [
+      "bla02",
+      "bla06",
+      "bla08"
+    ],
+    "quarantine_ip": [
+      "bla01",
+      "bla10",
+      "bla11",
+      "bla19"
+    ],
+    "seller_supply_or_digital": [
+      "bla03",
+      "bla07",
+      "bla15",
+      "bla17"
+    ],
+    "supports": [
+      "bla04",
+      "bla16"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "new moms; gift-givers for newborns",
+      "concise_evidence": "Direct demand for baby blankets (bla04) plus explicit gifting intent toward new moms (bla16) indicate a coherent baby-arrival gift niche beyond generic blanket surfaces.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H1",
+      "label": "Personalized baby blankets as gifts for new moms/baby arrival",
+      "likely_validation_surfaces": [
+        "Etsy search results for: personalized baby blanket",
+        "Etsy search results for: custom baby name blanket",
+        "Etsy search results for: baby shower gift blanket"
+      ],
+      "linked_query_ids": [
+        "Q1",
+        "Q2",
+        "Q3"
+      ],
+      "supporting_candidate_ids": [
+        "bla04",
+        "bla16"
+      ],
+      "theme_identity_or_occasion": "baby arrival/new mom gifting occasion",
+      "uncertainty": "Does the gifting intent translate specifically to blankets vs. broader baby gifts; seasonality around baby showers may vary."
+    }
+  ],
+  "seed_keyword": "blanket",
+  "validation_queries": [
+    {
+      "concise_reason": "Directly tests core product-audience fit for baby arrival gifting.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "personalized baby blanket",
+      "query_id": "Q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Common personalization framing for baby gifts; strong indicator of POD suitability.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "custom baby name blanket",
+      "query_id": "Q2",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Validates blanket selection specifically as a baby shower gift surface.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "baby shower gift blanket",
+      "query_id": "Q3",
+      "query_type": "direct"
+    }
+  ]
+}

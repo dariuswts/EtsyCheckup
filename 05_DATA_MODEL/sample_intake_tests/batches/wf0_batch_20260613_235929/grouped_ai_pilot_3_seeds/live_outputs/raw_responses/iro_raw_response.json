@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781431571,
+  "created_at": 1781431552,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_080a03d51939e4ca006a2e7d007cd8819caa4e70068aa96238",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_080a03d51939e4ca006a2e7d02c830819c88133ebe73cf6992",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"pilot_iro\",\"seed_keyword\":\"iron lung\",\"bundle_decision\":\"hold_no_queries\",\"bundle_summary\":\"The bundle centers on an ambiguous named IP (Iron Lung, game/movie, Markiplier). Multiple candidates explicitly reference named media or a creator and must be quarantined. The remaining items are broad product surfaces or generic aesthetics (e.g., Y2K, 90s, posters, stickers) without a coherent, non-generic multi-candidate theme independent of the IP. Per pilot rules, these generic neighbors cannot be promoted into standalone validation directions. No defensible non-IP hypothesis emerges.\",\"hypotheses\":[],\"validation_queries\":[],\"candidate_dispositions\":{\"supports\":[],\"ingredient_only\":[\"iro01\",\"iro03\",\"iro04\",\"iro13\",\"iro14\",\"iro15\",\"iro16\",\"iro17\",\"iro18\",\"iro19\",\"iro20\"],\"duplicate_or_redundant\":[],\"irrelevant\":[],\"insufficient_evidence\":[],\"seller_supply_or_digital\":[],\"quarantine_ip\":[\"iro02\",\"iro05\",\"iro06\",\"iro07\",\"iro08\",\"iro09\",\"iro10\",\"iro11\",\"iro12\"]},\"bundle_warnings\":[\"Named IP present: Iron Lung (video game/movie) and Markiplier; multiple candidates reference specific media/creator and are quarantined.\",\"Per iron lung pilot rules, isolated generic neighbors (Y2K, 90s, anime poster, horror movie merch, office desk decor) cannot be advanced as independent validation directions.\"]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_080a03d51939e4ca006a2e7d111604819c9b762599e5720654",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 4263,
+    "input_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "output_tokens": 1657,
+    "output_tokens_details": {
+      "reasoning_tokens": 1280
+    },
+    "total_tokens": 5920
+  },
+  "user": null
+}

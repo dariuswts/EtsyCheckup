@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781431513,
+  "created_at": 1781431481,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_073902f22ff26c4c006a2e7cb92cd081a0be31d8f1321c033d",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_073902f22ff26c4c006a2e7cb9e3b481a087fbc096e4346b40",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"pilot_bac\",\"seed_keyword\":\"bachelorette\",\"bundle_decision\":\"advance_some\",\"bundle_summary\":\"Advancing three coherent bachelorette party niche themes: (1) Girls Gone Mild modest/wholesome bachelorette theme, (2) Wine-centric \u201cVino Before Vows,\u201d and (3) Coastal/destination trips signaled by \u201cLast Toast on the Coast\u201d and Carmel-by-the-Sea. Product-only and broad occasion terms held as ingredients. One brand-term quarantined.\",\"hypotheses\":[{\"hypothesis_id\":\"H1\",\"label\":\"Girls Gone Mild bachelorette theme (modest/wholesome vibe) for apparel and decor\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"bac06\",\"bac09\"],\"audience_or_buyer\":\"Brides/bridesmaids planning a modest or low-key bachelorette party\",\"theme_identity_or_occasion\":\"\u201cGirls Gone Mild\u201d wholesome bachelorette theme\",\"likely_validation_surfaces\":[\"t-shirts\",\"crewnecks\",\"tote bags\",\"party banners\",\"stickers\",\"invitations\"],\"linked_query_ids\":[\"q1\",\"q2\"],\"concise_evidence\":\"Two separate searches explicitly for the \u2018Girls Gone Mild\u2019 bachelorette theme with measurable clicks and competition suggest active interest.\",\"uncertainty\":\"Theme scale beyond Etsy unclear; demand may be seasonal and phrase-specific.\"},{\"hypothesis_id\":\"H2\",\"label\":\"Wine-themed \u201cVino Before Vows\u201d bachelorette party items\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"bac07\",\"bac20\"],\"audience_or_buyer\":\"Wine-loving bridal parties planning themed celebrations\",\"theme_identity_or_occasion\":\"Wine-centric bachelorette theme signaled by \u201cVino Before Vows\u201d\",\"likely_validation_surfaces\":[\"banners\",\"shirts\",\"tote bags\",\"stickers\",\"cups/koozies\"],\"linked_query_ids\":[\"q3\",\"q4\"],\"concise_evidence\":\"Two distinct queries around \u2018Vino Before Vows\u2019 including a banner-specific variant indicate targeted themed demand.\",\"uncertainty\":\"Theme may be phrase-dependent; performance could hinge on exact wording.\"},{\"hypothesis_id\":\"H3\",\"label\":\"Coastal/destination bachelorette trips (\u201cLast Toast on the Coast\u201d, Carmel-by-the-Sea)\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"bac08\",\"bac11\"],\"audience_or_buyer\":\"Groups planning coastal destination bachelorettes\",\"theme_identity_or_occasion\":\"Coastal/destination bachelorette trip aesthetic\",\"likely_validation_surfaces\":[\"trip shirts\",\"totes\",\"banners\",\"itineraries/invites\",\"stickers\"],\"linked_query_ids\":[\"q5\",\"q6\"],\"concise_evidence\":\"Coastal phrase \u2018Last Toast on the Coast\u2019 shows demand, reinforced by location-specific \u2018Carmel by the Sea bachelorette\u2019.\",\"uncertainty\":\"Demand may cluster around a few coastal phrases/locations and be regionally concentrated.\"}],\"validation_queries\":[{\"query_id\":\"q1\",\"query\":\"girls gone mild bachelorette\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"high\",\"concise_reason\":\"Exact theme phrase used in two supporting candidates.\"},{\"query_id\":\"q2\",\"query\":\"girls gone mild bachelorette shirts\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"medium\",\"concise_reason\":\"Adds a common POD surface to the theme to test commercial intent.\"},{\"query_id\":\"q3\",\"query\":\"vino before vows bachelorette\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"high\",\"concise_reason\":\"Direct match to repeated theme phrase.\"},{\"query_id\":\"q4\",\"query\":\"vino before vows bachelorette banner\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"medium\",\"concise_reason\":\"Directly reflects a candidate variant focused on decor.\"},{\"query_id\":\"q5\",\"query\":\"last toast on the coast bachelorette\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H3\"],\"confidence\":\"high\",\"concise_reason\":\"Core coastal phrase shows demand in metrics.\"},{\"query_id\":\"q6\",\"query\":\"carmel by the sea bachelorette\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H3\"],\"confidence\":\"medium\",\"concise_reason\":\"Location-specific validation for destination theme.\"}],\"candidate_dispositions\":{\"supports\":[\"bac06\",\"bac09\",\"bac07\",\"bac20\",\"bac08\",\"bac11\"],\"ingredient_only\":[\"bac03\",\"bac10\",\"bac05\",\"bac12\",\"bac13\",\"bac14\",\"bac15\",\"bac16\",\"bac17\",\"bac18\"],\"duplicate_or_redundant\":[],\"irrelevant\":[\"bac01\",\"bac04\"],\"insufficient_evidence\":[\"bac02\"],\"seller_supply_or_digital\":[],\"quarantine_ip\":[\"bac19\"]},\"bundle_warnings\":[\"Named brand mention detected and quarantined: \u201ccomfort colors\u201d (bac19). Broad product and occasion terms were treated as ingredients, not standalone niches.\"]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_073902f22ff26c4c006a2e7ccdd09c81a0ac260dea4e0bc605",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 3994,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 2863,
+    "output_tokens_details": {
+      "reasoning_tokens": 1792
+    },
+    "total_tokens": 6857
+  },
+  "user": null
+}

@@ -1,0 +1,28 @@
+{
+  "accepted_bundle_count": 3,
+  "cumulative_pilot_usage": {
+    "input_tokens": 23586,
+    "output_tokens": 15809,
+    "reasoning_tokens": 9856,
+    "total_tokens": 39395
+  },
+  "current_run_token_usage": {
+    "input_tokens": 12279,
+    "output_tokens": 7393,
+    "reasoning_tokens": 5312,
+    "total_tokens": 19672
+  },
+  "error_count": 0,
+  "everbee_queue_written": false,
+  "max_output_tokens": 6000,
+  "model": "gpt-5",
+  "reasoning_effort": "low",
+  "token_usage": {
+    "input_tokens": 23586,
+    "output_tokens": 15809,
+    "reasoning_tokens": 9856,
+    "total_tokens": 39395
+  },
+  "usage_attempt_count": 6,
+  "wf1_updated": false
+}
