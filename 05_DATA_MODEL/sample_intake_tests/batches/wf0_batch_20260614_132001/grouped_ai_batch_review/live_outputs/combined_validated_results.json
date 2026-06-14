@@ -1,0 +1,1421 @@
+{
+  "model": "gpt-5",
+  "source_batch_id": "wf0_batch_20260614_132001",
+  "validated_results": [
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::bachelorette",
+      "bundle_summary": "Advance three niche bachelorette-party themes supported by multiple specific, non-generic phrases: Girls Gone Mild; Vino Before Vows (wine-themed); and Coastal/Seaside destination (Last Toast on the Coast + Carmel-by-the-Sea). Broad occasion/product surfaces and unrelated adjacencies are held as ingredients or rejected.",
+      "bundle_warnings": [
+        "Multiple entries are generic occasion/product surfaces and were held as ingredients.",
+        "Some queries contain typos or low volumes; CTR inflation possible on small sample sizes."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "01_bac_03",
+          "01_bac_04",
+          "01_bac_10",
+          "01_bac_13",
+          "01_bac_14",
+          "01_bac_15",
+          "01_bac_16",
+          "01_bac_17",
+          "01_bac_18",
+          "01_bac_19"
+        ],
+        "insufficient_evidence": [
+          "01_bac_05",
+          "01_bac_12"
+        ],
+        "irrelevant": [
+          "01_bac_01",
+          "01_bac_02"
+        ],
+        "quarantine_ip": [],
+        "seller_supply_or_digital": [],
+        "supports": [
+          "01_bac_06",
+          "01_bac_09",
+          "01_bac_07",
+          "01_bac_20",
+          "01_bac_08",
+          "01_bac_11"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Maid of honor/bridesmaids planning a low-key, wholesome bachelorette",
+          "concise_evidence": "Two distinct keywords explicitly reference the Girls Gone Mild bachelorette theme with measurable clicks and low-to-moderate competition.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H1",
+          "label": "Girls Gone Mild bachelorette theme demand",
+          "likely_validation_surfaces": [
+            "t-shirts",
+            "crewnecks",
+            "hats",
+            "tote bags",
+            "banners",
+            "stickers",
+            "drinkware"
+          ],
+          "linked_query_ids": [
+            "Q1",
+            "Q2"
+          ],
+          "supporting_candidate_ids": [
+            "01_bac_06",
+            "01_bac_09"
+          ],
+          "theme_identity_or_occasion": "Bachelorette party theme \u2013 Girls Gone Mild",
+          "uncertainty": "Scope of sub-themes and seasonality are unclear; CTR may be inflated on small volumes."
+        },
+        {
+          "audience_or_buyer": "Wine-loving bridal parties planning a themed event",
+          "concise_evidence": "Two separate queries use the exact themed phrase Vino Before Vows with clicks and manageable competition.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H2",
+          "label": "Wine-themed bachelorette: Vino Before Vows",
+          "likely_validation_surfaces": [
+            "banners",
+            "t-shirts",
+            "tote bags",
+            "wine bags",
+            "koozies",
+            "cups"
+          ],
+          "linked_query_ids": [
+            "Q3",
+            "Q4"
+          ],
+          "supporting_candidate_ids": [
+            "01_bac_07",
+            "01_bac_20"
+          ],
+          "theme_identity_or_occasion": "Bachelorette party theme \u2013 wine/vineyard focus (Vino Before Vows)",
+          "uncertainty": "Google volume missing; needs validation on recency and breadth beyond banners."
+        },
+        {
+          "audience_or_buyer": "Bridal groups traveling to seaside towns or planning coastal-themed events",
+          "concise_evidence": "'Last toast on the coast' shows solid Etsy demand; a specific locale query (Carmel-by-the-Sea bachelorette) corroborates coastal destination interest.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H3",
+          "label": "Coastal/seaside destination bachelorette themes",
+          "likely_validation_surfaces": [
+            "t-shirts",
+            "totes",
+            "banners",
+            "caps",
+            "drinkware",
+            "itineraries/signage"
+          ],
+          "linked_query_ids": [
+            "Q5",
+            "Q6"
+          ],
+          "supporting_candidate_ids": [
+            "01_bac_08",
+            "01_bac_11"
+          ],
+          "theme_identity_or_occasion": "Bachelorette party theme \u2013 coastal destination (Last Toast on the Coast, Carmel-by-the-Sea)",
+          "uncertainty": "Location breadth vs. single-town concentration is unclear; need to confirm applicability beyond the cited locale."
+        }
+      ],
+      "seed_keyword": "bachelorette",
+      "validation_queries": [
+        {
+          "concise_reason": "Exact-theme discovery to verify breadth of listings and related products.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "girls gone mild bachelorette theme",
+          "query_id": "Q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Variant phrasing already showing clicks; checks consistency and surface diversity.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "girls gone mild bachelorette",
+          "query_id": "Q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Exact phrase with demonstrated clicks; validates across product types beyond banners.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "vino before vows bachelorette",
+          "query_id": "Q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Drills into the strongest observed surface to confirm commercial density.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "vino before vows bachelorette banner",
+          "query_id": "Q4",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct high-signal phrase to validate scale and product spread.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H3"
+          ],
+          "query": "last toast on the coast bachelorette",
+          "query_id": "Q5",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Location-specific corroboration for coastal/destination theme viability.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H3"
+          ],
+          "query": "carmel by the sea bachelorette",
+          "query_id": "Q6",
+          "query_type": "direct"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::blanket",
+      "bundle_summary": "Advance two generic, non-IP directions: (1) baby/new-parent gifting blankets; (2) rustic/living-room decor throw or woven blankets. Quarantined named IP/brand terms and excluded crochet-focused evidence as seller-supply/handmade oriented. Several niche fragments held as ingredients due to insufficient independent support.",
+      "bundle_warnings": [
+        "Named IP/brand or celebrity references quarantined: lord of the rings, bloomies blanket, michael jackson blanket, winnie the pooh baby blanket.",
+        "Crochet-related demand likely handmade/seller-supply; excluded from validation surfaces.",
+        "Some broad decor/gifting terms carry high KD; validation should seek long-tail blanket-specific intent."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "02_bla_02",
+          "02_bla_05",
+          "02_bla_12"
+        ],
+        "insufficient_evidence": [
+          "02_bla_06"
+        ],
+        "irrelevant": [
+          "02_bla_07"
+        ],
+        "quarantine_ip": [
+          "02_bla_01",
+          "02_bla_10",
+          "02_bla_11",
+          "02_bla_19"
+        ],
+        "seller_supply_or_digital": [
+          "02_bla_03",
+          "02_bla_15",
+          "02_bla_17"
+        ],
+        "supports": [
+          "02_bla_04",
+          "02_bla_08",
+          "02_bla_09",
+          "02_bla_13",
+          "02_bla_14",
+          "02_bla_16",
+          "02_bla_18",
+          "02_bla_20"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "New parents, gift-givers (baby shower hosts, family such as grandma)",
+          "concise_evidence": "Direct product intent for baby blankets plus clear gifting occasions (new mom, baby shower) and recipient (grandma) indicate a coherent non-IP gifting niche.",
+          "confidence": "medium",
+          "decision": "rewrite_and_validate",
+          "hypothesis_id": "H1",
+          "label": "Baby/new-parent gifting blankets (baby showers, new mom, gifts for grandma)",
+          "likely_validation_surfaces": [
+            "Etsy search/autosuggest for baby blanket gifting queries",
+            "Non-IP competitor listings for baby/new parent blanket gifts",
+            "Category browse in Baby & Child > Blankets"
+          ],
+          "linked_query_ids": [
+            "Q1",
+            "Q2"
+          ],
+          "supporting_candidate_ids": [
+            "02_bla_04",
+            "02_bla_16",
+            "02_bla_08",
+            "02_bla_18"
+          ],
+          "theme_identity_or_occasion": "Baby-focused gifting occasions (new mom gifts, baby showers, family gifts)",
+          "uncertainty": "Scope could be broad; ensure queries capture blanket-focused gift intent rather than general gift baskets or favors."
+        },
+        {
+          "audience_or_buyer": "Home decor shoppers seeking rustic/cozy aesthetics for living rooms",
+          "concise_evidence": "Two coherent decor themes (rustic, living room) align with blanket surfaces (throw, woven), indicating decor-driven blanket demand.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H2",
+          "label": "Rustic/living-room decor throw and woven blankets",
+          "likely_validation_surfaces": [
+            "Etsy search for rustic throw/woven blankets",
+            "Competitor analysis in Home & Living > Home Decor > Blankets & Throws",
+            "Autosuggest and related-search panels for rustic blankets"
+          ],
+          "linked_query_ids": [
+            "Q3",
+            "Q4"
+          ],
+          "supporting_candidate_ids": [
+            "02_bla_20",
+            "02_bla_09",
+            "02_bla_14",
+            "02_bla_13"
+          ],
+          "theme_identity_or_occasion": "Rustic home decor aesthetic for living room styling",
+          "uncertainty": "High KD on broad decor terms; need to confirm blanket-specific sub-intent and viable long-tails."
+        }
+      ],
+      "seed_keyword": "blanket",
+      "validation_queries": [
+        {
+          "concise_reason": "Directly ties blanket to new-mom gifting intent.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "baby blanket gift for new mom",
+          "query_id": "Q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Targets baby-shower occasion with blanket explicitly.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "baby shower blanket gift",
+          "query_id": "Q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Combines rustic theme with living-room use and blanket surface.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "rustic throw blanket for living room",
+          "query_id": "Q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Connects woven/throw blanket surface to rustic decor intent.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "woven throw blanket rustic decor",
+          "query_id": "Q4",
+          "query_type": "direct"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "hold_no_queries",
+      "bundle_id": "wf0_batch_20260614_132001::california poppy",
+      "bundle_summary": "Seed-specific demand appears only in a few low-signal, product-tied queries (california poppy door mat, california poppy art canvas). The strongest seed-aligned interest (california poppy stained glass) and related stained-glass surfaces point to handcrafted seller-supply, not POD. Remaining candidates are broad surfaces/audience terms or unrelated niches and do not form a coherent, non-generic multi-candidate cluster. No defensible POD validation direction at this stage.",
+      "bundle_warnings": [
+        "Seed-specific signals are weak and/or product-constrained; stained glass indicates handmade supply not suitable for POD."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "03_calpop_01",
+          "03_calpop_02",
+          "03_calpop_04",
+          "03_calpop_06",
+          "03_calpop_09",
+          "03_calpop_13",
+          "03_calpop_14",
+          "03_calpop_16",
+          "03_calpop_17",
+          "03_calpop_19",
+          "03_calpop_20"
+        ],
+        "insufficient_evidence": [
+          "03_calpop_10",
+          "03_calpop_11"
+        ],
+        "irrelevant": [
+          "03_calpop_03",
+          "03_calpop_12",
+          "03_calpop_15",
+          "03_calpop_18"
+        ],
+        "quarantine_ip": [],
+        "seller_supply_or_digital": [
+          "03_calpop_05",
+          "03_calpop_07",
+          "03_calpop_08"
+        ],
+        "supports": []
+      },
+      "hypotheses": [],
+      "seed_keyword": "california poppy",
+      "validation_queries": []
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::car accessories",
+      "bundle_summary": "Two defensible directions emerge: (1) personalized photo-based visor clip accessories, supported by two near-identical long-tail queries; (2) cute/feminine car accessories, especially rear-view mirror items and seat covers, supported by multiple audience/style queries. Broad product surfaces and generic gift terms are held as ingredients. One named-IP candidate is quarantined.",
+      "bundle_warnings": [
+        "Named IP detected and quarantined: 21 pilots merch",
+        "Many entries are generic product surfaces or broad occasions; treated as ingredients only",
+        "Some long-tail items have low clicks; validation should confirm meaningful demand before advancement"
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "04_caracc_01",
+          "04_caracc_02",
+          "04_caracc_03",
+          "04_caracc_04",
+          "04_caracc_13",
+          "04_caracc_17"
+        ],
+        "insufficient_evidence": [
+          "04_caracc_05",
+          "04_caracc_08",
+          "04_caracc_12",
+          "04_caracc_20"
+        ],
+        "irrelevant": [
+          "04_caracc_10",
+          "04_caracc_14",
+          "04_caracc_15"
+        ],
+        "quarantine_ip": [
+          "04_caracc_11"
+        ],
+        "seller_supply_or_digital": [],
+        "supports": [
+          "04_caracc_06",
+          "04_caracc_09",
+          "04_caracc_16",
+          "04_caracc_18",
+          "04_caracc_19",
+          "04_caracc_07"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Drivers and gift-givers seeking personalized or keepsake-style car accessories",
+          "concise_evidence": "Two coherent long-tail queries explicitly for photo-based visor/clip accessories indicate targeted demand within car accessories.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h1",
+          "label": "Personalized photo car visor clip accessories",
+          "likely_validation_surfaces": [
+            "visor clip",
+            "rear-view mirror hanger",
+            "dashboard photo holder"
+          ],
+          "linked_query_ids": [
+            "q1",
+            "q2"
+          ],
+          "supporting_candidate_ids": [
+            "04_caracc_06",
+            "04_caracc_09"
+          ],
+          "theme_identity_or_occasion": "Personalized photo/keepsake for the car (visor clip focus)",
+          "uncertainty": "Low absolute volume; need to confirm broader cross-terms and seasonality."
+        },
+        {
+          "audience_or_buyer": "Women shoppers seeking cute/boho style car decor",
+          "concise_evidence": "Multiple audience/style queries (cute, for women, rear-view mirror focus, boho seat covers) form a coherent cluster within car accessories.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h2",
+          "label": "Cute/feminine car accessories (women-focused), incl. rear-view mirror decor and seat covers",
+          "likely_validation_surfaces": [
+            "rear-view mirror accessory",
+            "seat cover",
+            "interior decor/accessory set"
+          ],
+          "linked_query_ids": [
+            "q3",
+            "q4",
+            "q5"
+          ],
+          "supporting_candidate_ids": [
+            "04_caracc_16",
+            "04_caracc_18",
+            "04_caracc_19",
+            "04_caracc_07"
+          ],
+          "theme_identity_or_occasion": "Cute/feminine aesthetic; women-focused car accessories; boho style",
+          "uncertainty": "Highly competitive styles and fast-changing aesthetics; need to verify specific styles/sub-niches with real query volume."
+        }
+      ],
+      "seed_keyword": "car accessories",
+      "validation_queries": [
+        {
+          "concise_reason": "Exact phrasing aligns with both supporting candidates and tests core personalized intent.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "personalized car visor photo clip",
+          "query_id": "q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Non-personalized variant validates baseline demand around the same accessory surface.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "car visor photo clip",
+          "query_id": "q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Matches two supporting queries (cute + for women) and targets audience-theme overlap.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "cute car accessories for women",
+          "query_id": "q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Tests women-focused interest around a specific surface mentioned in supporting data.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "rear view mirror accessories for women",
+          "query_id": "q4",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Validates a concrete style within the broader cute/feminine cluster.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "boho car seat covers",
+          "query_id": "q5",
+          "query_type": "direct"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::crop top",
+      "bundle_summary": "Advance two non-IP niches: (1) women\u2019s festival/EDM/rave crop tops, supported by explicit festival and dubstep crop-top signals; (2) athletic/cheer/gym-style crop tops, supported by cheer/baseball-jersey crop top and gym audience interest. Multiple named IP crop-top terms are quarantined. Most generic shirt terms and broad occasions are held as ingredients.",
+      "bundle_warnings": [
+        "Multiple named IP terms detected (Silent Hill, JJK, Berkeley, Zelda) \u2014 quarantined and excluded from validation directions."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "05_crotop_01",
+          "05_crotop_02",
+          "05_crotop_03",
+          "05_crotop_05",
+          "05_crotop_08",
+          "05_crotop_13",
+          "05_crotop_14",
+          "05_crotop_15",
+          "05_crotop_16",
+          "05_crotop_17",
+          "05_crotop_18",
+          "05_crotop_19"
+        ],
+        "insufficient_evidence": [],
+        "irrelevant": [],
+        "quarantine_ip": [
+          "05_crotop_09",
+          "05_crotop_10",
+          "05_crotop_11",
+          "05_crotop_12"
+        ],
+        "seller_supply_or_digital": [],
+        "supports": [
+          "05_crotop_04",
+          "05_crotop_06",
+          "05_crotop_07",
+          "05_crotop_20"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Women attending music festivals/EDM events",
+          "concise_evidence": "Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h1",
+          "label": "Women\u2019s festival/EDM/rave crop tops (festival-goer audience; EDM/dubstep theme)",
+          "likely_validation_surfaces": [
+            "Etsy SERP saturation for festival/rave crop tops",
+            "Listing-title and tag patterns referencing festival/rave/EDM without named IP",
+            "Bestseller badges and review volume in non-IP festival crop tops"
+          ],
+          "linked_query_ids": [
+            "q1",
+            "q2",
+            "q3"
+          ],
+          "supporting_candidate_ids": [
+            "05_crotop_20",
+            "05_crotop_07"
+          ],
+          "theme_identity_or_occasion": "Festival/rave occasion; EDM/dubstep music culture",
+          "uncertainty": "Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP."
+        },
+        {
+          "audience_or_buyer": "Cheerleaders, dance teams, gym/fitness enthusiasts",
+          "concise_evidence": "\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h2",
+          "label": "Athletic/cheer/gym-style crop tops (cheerleading/baseball-jersey aesthetic)",
+          "likely_validation_surfaces": [
+            "Etsy SERP for cheer/cheerleading crop tops",
+            "Presence of baseball-jersey style crop tops from POD-friendly sellers",
+            "Tag density around cheer/dance/gym without school/team trademarks"
+          ],
+          "linked_query_ids": [
+            "q4",
+            "q5",
+            "q6"
+          ],
+          "supporting_candidate_ids": [
+            "05_crotop_06",
+            "05_crotop_04"
+          ],
+          "theme_identity_or_occasion": "Athletic/cheer aesthetic for practice/spirit wear",
+          "uncertainty": "Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist."
+        }
+      ],
+      "seed_keyword": "crop top",
+      "validation_queries": [
+        {
+          "concise_reason": "Direct festival crop-top demand signal; check breadth, competition, and bestseller presence.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "womens festival crop top",
+          "query_id": "q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Common synonym for festival/EDM attire; validates niche beyond the exact seed phrase.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "rave crop top",
+          "query_id": "q2",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Tests music-genre-specific demand within EDM without invoking named artists/labels.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "dubstep crop top",
+          "query_id": "q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct long-tail signal combining cheer and jersey-style aesthetic.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "cheer crop top baseball jersey",
+          "query_id": "q4",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Captures broader cheer aesthetic variants beyond the exact long-tail.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "cheerleading crop top",
+          "query_id": "q5",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Validates general athletic/fitness demand for crop tops adjacent to cheer aesthetics.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "gym crop top",
+          "query_id": "q6",
+          "query_type": "rewritten"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::goth",
+      "bundle_summary": "Two defensible directions emerge: (1) goth/horror-themed phone cases have direct search demand; (2) a pastel goth audience cluster appears across multiple apparel-focused queries and merits validation on POD-friendly surfaces. Most other candidates are seller-supply or digital-only and do not support POD validation.",
+      "bundle_warnings": [
+        "Many candidates are seller-supply or digital-only and cannot validate POD niches (png, svg, 3D-printed frames, apparel/jewelry/accessories, furniture applique, vtuber assets).",
+        "Potential presence of licensed horror IP within phone case results requires careful non-IP validation."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "06_got_03",
+          "06_got_04"
+        ],
+        "insufficient_evidence": [],
+        "irrelevant": [
+          "06_got_13",
+          "06_got_14",
+          "06_got_16"
+        ],
+        "quarantine_ip": [],
+        "seller_supply_or_digital": [
+          "06_got_01",
+          "06_got_02",
+          "06_got_05",
+          "06_got_06",
+          "06_got_08",
+          "06_got_09",
+          "06_got_10",
+          "06_got_11",
+          "06_got_12",
+          "06_got_19",
+          "06_got_20"
+        ],
+        "supports": [
+          "06_got_17",
+          "06_got_15",
+          "06_got_18",
+          "06_got_07"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Shoppers who like goth and horror aesthetics and want themed protective phone cases",
+          "concise_evidence": "Direct product queries show demand for goth phone case (moderate volume/competition) and horror phone case (broader adjacent theme), indicating active niche interest.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H1",
+          "label": "Goth and horror themed phone cases",
+          "likely_validation_surfaces": [
+            "Etsy SERPs for 'goth phone case' and 'horror phone case'",
+            "Top-converting listing themes, imagery, and tag clusters",
+            "Shop/market saturation and pricing for goth/horror cases"
+          ],
+          "linked_query_ids": [
+            "Q1",
+            "Q2"
+          ],
+          "supporting_candidate_ids": [
+            "06_got_17",
+            "06_got_15"
+          ],
+          "theme_identity_or_occasion": "Goth and horror aesthetics",
+          "uncertainty": "Results may skew toward licensed horror IP; need to verify presence of generic, non-IP designs."
+        },
+        {
+          "audience_or_buyer": "Shoppers identifying with pastel goth/soft goth aesthetics",
+          "concise_evidence": "Multiple pastel goth apparel queries indicate a coherent subculture with purchase intent; needs validation on POD surfaces beyond apparel.",
+          "confidence": "low",
+          "decision": "rewrite_and_validate",
+          "hypothesis_id": "H2",
+          "label": "Pastel goth aesthetic audience with potential POD demand",
+          "likely_validation_surfaces": [
+            "Etsy SERPs for 'pastel goth phone case' and 'pastel goth poster'",
+            "Tag/keyword density around pastel goth on POD-friendly items",
+            "Listing volume and non-apparel placements in this aesthetic"
+          ],
+          "linked_query_ids": [
+            "Q3",
+            "Q4"
+          ],
+          "supporting_candidate_ids": [
+            "06_got_18",
+            "06_got_07"
+          ],
+          "theme_identity_or_occasion": "Pastel goth subculture (cute/dark aesthetic)",
+          "uncertainty": "Current evidence is apparel-heavy; demand may not translate to POD items like cases/prints."
+        }
+      ],
+      "seed_keyword": "goth",
+      "validation_queries": [
+        {
+          "concise_reason": "Direct match to supporting candidate; validates volume, competition, and non-IP prevalence.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "goth phone case",
+          "query_id": "Q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Adjacent theme strengthening the goth phone case niche; checks breadth and saturation.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "horror phone case",
+          "query_id": "Q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Tests whether pastel goth interest appears on a POD-friendly surface.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "pastel goth phone case",
+          "query_id": "Q3",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Validates pastel goth presence in wall art/prints beyond apparel.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "pastel goth poster",
+          "query_id": "Q4",
+          "query_type": "rewritten"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::housewarming gift",
+      "bundle_summary": "Two coherent directions emerge: (1) wine/bar-themed housewarming gifts for couples/hosts, supported by multiple alcohol-related customizable items and an occasion-specific audience term; (2) modern/unique home-decor signage suitable as housewarming gifts, centered on WiFi password signs and general modern/unique home decor phrases. Broad gift terms, baskets/boxes, and party cups are treated as ingredients; low-signal foreign-language variants are held.",
+      "bundle_warnings": [],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "07_hougif_02",
+          "07_hougif_03",
+          "07_hougif_10",
+          "07_hougif_15",
+          "07_hougif_16"
+        ],
+        "insufficient_evidence": [
+          "07_hougif_05",
+          "07_hougif_06",
+          "07_hougif_07",
+          "07_hougif_12"
+        ],
+        "irrelevant": [
+          "07_hougif_01",
+          "07_hougif_04"
+        ],
+        "quarantine_ip": [],
+        "seller_supply_or_digital": [],
+        "supports": [
+          "07_hougif_11",
+          "07_hougif_13",
+          "07_hougif_20",
+          "07_hougif_17",
+          "07_hougif_18",
+          "07_hougif_14",
+          "07_hougif_08",
+          "07_hougif_19",
+          "07_hougif_09"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Couples, new homeowners, party hosts",
+          "concise_evidence": "Multiple alcohol-related customizable product intents (wine stopper, tumbler, bottle label) co-occur with housewarming audience/occasion queries (for couple, gift basket).",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h1",
+          "label": "Wine/bar-themed housewarming gifts for couples and hosts",
+          "likely_validation_surfaces": [
+            "Etsy search results and top listings for wine-themed housewarming gifts",
+            "Autocomplete/co-search terms linking housewarming with wine/host gifts",
+            "Category filters for barware/wine accessories used as gifts"
+          ],
+          "linked_query_ids": [
+            "q1",
+            "q2",
+            "q3"
+          ],
+          "supporting_candidate_ids": [
+            "07_hougif_11",
+            "07_hougif_13",
+            "07_hougif_20",
+            "07_hougif_17",
+            "07_hougif_18"
+          ],
+          "theme_identity_or_occasion": "Housewarming gifts with wine/bar theme (labels, stoppers, tumblers)",
+          "uncertainty": "Not all product formats are strictly POD; need to verify presence of printable/customized designs positioned specifically for housewarming."
+        },
+        {
+          "audience_or_buyer": "New homeowners and gift-givers seeking decor-forward gifts",
+          "concise_evidence": "WiFi password sign aligns with modern/entryway signage; supported by demand for unique/modern home decor and common house-themed phrase \u2018home sweet home\u2019.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "h2",
+          "label": "Modern/unique home-decor signage as housewarming gifts",
+          "likely_validation_surfaces": [
+            "Etsy search pages for WiFi password signs and related decor",
+            "Listing titles/tags combining housewarming with modern/unique decor",
+            "Shop sections for entryway/kitchen signage positioned as gifts"
+          ],
+          "linked_query_ids": [
+            "q4",
+            "q5",
+            "q6"
+          ],
+          "supporting_candidate_ids": [
+            "07_hougif_14",
+            "07_hougif_08",
+            "07_hougif_19",
+            "07_hougif_09"
+          ],
+          "theme_identity_or_occasion": "Modern/unique home decor with signage focus (e.g., WiFi password sign, Home Sweet Home) suitable for housewarming",
+          "uncertainty": "Need to confirm enough sellers position these decor items explicitly as housewarming gifts, not just generic decor."
+        }
+      ],
+      "seed_keyword": "housewarming gift",
+      "validation_queries": [
+        {
+          "concise_reason": "Directly tests coupling of housewarming intent with wine/bar gift theme.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "wine themed housewarming gift",
+          "query_id": "q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Validates audience (couple) combined with wine gifting for housewarming.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "housewarming gift for couple wine",
+          "query_id": "q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Checks if specific wine accessory is positioned for housewarming gifting.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h1"
+          ],
+          "query": "custom wine stopper housewarming gift",
+          "query_id": "q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Targets signage item explicitly framed as a housewarming gift.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "wifi password sign housewarming gift",
+          "query_id": "q4",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Tests if modern decor is marketed for housewarming gifting.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "modern wall decor housewarming gift",
+          "query_id": "q5",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Checks positioning of unique home decor as housewarming gifts.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "h2"
+          ],
+          "query": "unique home decor housewarming gift",
+          "query_id": "q6",
+          "query_type": "direct"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "hold_no_queries",
+      "bundle_id": "wf0_batch_20260614_132001::iron lung",
+      "bundle_summary": "The bundle is dominated by named IP signals (Iron Lung game/movie, Markiplier, Project Hail Mary). Remaining candidates are broad product surfaces or generic aesthetics (Y2K, 90s, anime poster, horror movie merch, office desk decor) and do not form a coherent, non-generic niche independent of the named reference. Per iron lung pilot rules, no defensible generic hypothesis can advance. No validation queries created.",
+      "bundle_warnings": [
+        "Named IP detected; quarantined all Iron Lung/Markiplier/Project Hail Mary references.",
+        "Generic surfaces and single-theme aesthetics cannot form a niche without independent multi-candidate support."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "08_irolun_01",
+          "08_irolun_03",
+          "08_irolun_04",
+          "08_irolun_13",
+          "08_irolun_14",
+          "08_irolun_15",
+          "08_irolun_16",
+          "08_irolun_17",
+          "08_irolun_18",
+          "08_irolun_19",
+          "08_irolun_20"
+        ],
+        "insufficient_evidence": [],
+        "irrelevant": [],
+        "quarantine_ip": [
+          "08_irolun_02",
+          "08_irolun_05",
+          "08_irolun_06",
+          "08_irolun_07",
+          "08_irolun_08",
+          "08_irolun_09",
+          "08_irolun_10",
+          "08_irolun_11",
+          "08_irolun_12"
+        ],
+        "seller_supply_or_digital": [],
+        "supports": []
+      },
+      "hypotheses": [],
+      "seed_keyword": "iron lung",
+      "validation_queries": []
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::mexico",
+      "bundle_summary": "Advancing four coherent, non-IP hypotheses clustered around Mexico/Mexican-heritage identity, Gulf of Mexico geography, New Mexico state pride, and Mexico destination-occasion accessories. Quarantined FIFA World Cup 2026 and named-person political content. Digital-only SVG and non-POD seller-supply evidence excluded from validation support. Several broad product-surface terms held as ingredients.",
+      "bundle_warnings": [
+        "Named-event and named-person content quarantined (World Cup 2026; Trump).",
+        "Digital-only and non-POD seller-supply evidence excluded from support (generic SVG terms; Mexico soccer SVG bundle; blown glass).",
+        "Some surfaces in supporting signals (e.g., sneakers, jerseys) may not be widely available in POD; validation queries focus on broadly available apparel/decor surfaces."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "09_mex_02",
+          "09_mex_13",
+          "09_mex_14",
+          "09_mex_15",
+          "09_mex_04"
+        ],
+        "insufficient_evidence": [
+          "09_mex_16"
+        ],
+        "irrelevant": [],
+        "quarantine_ip": [
+          "09_mex_08",
+          "09_mex_03"
+        ],
+        "seller_supply_or_digital": [
+          "09_mex_01",
+          "09_mex_12",
+          "09_mex_19"
+        ],
+        "supports": [
+          "09_mex_06",
+          "09_mex_07",
+          "09_mex_10",
+          "09_mex_05",
+          "09_mex_09",
+          "09_mex_17",
+          "09_mex_18",
+          "09_mex_11",
+          "09_mex_20"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Mexican heritage/diaspora and fans expressing national pride in casual wear or sports-inspired apparel",
+          "concise_evidence": "Demand for Mexico flag themed wearables (women\u2019s sneakers) and combined Mexico\u2013Puerto Rico flag motifs plus a Mexico baseball jersey query indicate interest in national-identity and sport-fan apparel.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H1",
+          "label": "Mexico flag pride wearables and fan-leaning styles (flag motifs and sports-adjacent)",
+          "likely_validation_surfaces": [
+            "t-shirts",
+            "hoodies",
+            "caps",
+            "decals",
+            "posters"
+          ],
+          "linked_query_ids": [
+            "Q1",
+            "Q2"
+          ],
+          "supporting_candidate_ids": [
+            "09_mex_06",
+            "09_mex_07",
+            "09_mex_10"
+          ],
+          "theme_identity_or_occasion": "National/bi-national flag identity and sport-fan styling tied to Mexico",
+          "uncertainty": "Footwear may be outside many POD catalogs; baseball jerseys can be specialized. Validation should focus on broadly available apparel surfaces."
+        },
+        {
+          "audience_or_buyer": "Couples planning Mexico destination weddings; graduates and families celebrating Guanajuato/Mexican heritage",
+          "concise_evidence": "Specific intent for Tulum, Mexico save-the-dates and Mexico/Guanajuato graduation sashes suggests targeted occasion-based personalization tied to Mexican locations and identity.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H2",
+          "label": "Mexico destination and heritage celebration accessories (Tulum weddings, Guanajuato graduation)",
+          "likely_validation_surfaces": [
+            "invitations/cards",
+            "prints",
+            "banners",
+            "apparel",
+            "sashes/stoles"
+          ],
+          "linked_query_ids": [
+            "Q3",
+            "Q4"
+          ],
+          "supporting_candidate_ids": [
+            "09_mex_05",
+            "09_mex_09"
+          ],
+          "theme_identity_or_occasion": "Location-specific occasions (Tulum weddings) and cultural/heritage graduation accessories",
+          "uncertainty": "Some accessory types (e.g., sashes) may have limited POD fulfillment; focus validation on commonly available print surfaces for occasions."
+        },
+        {
+          "audience_or_buyer": "People with ties to Gulf coasts (travelers, anglers, locals) seeking Gulf-themed designs",
+          "concise_evidence": "Explicit interest in \u201cgulf of mexico shirt\u201d supported by broader \u201cgulf of mexico\u201d thematic search indicates a market for Gulf-centric designs across apparel and decor.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H3",
+          "label": "Gulf of Mexico themed apparel and geographic art",
+          "likely_validation_surfaces": [
+            "t-shirts",
+            "long-sleeves",
+            "hats",
+            "maps/posters",
+            "stickers"
+          ],
+          "linked_query_ids": [
+            "Q5",
+            "Q6"
+          ],
+          "supporting_candidate_ids": [
+            "09_mex_17",
+            "09_mex_18"
+          ],
+          "theme_identity_or_occasion": "Geographic/place-based affinity for the Gulf of Mexico expressed on apparel and wall art",
+          "uncertainty": "Broader term includes non-merch info-seeking; validation should confirm merch-intent subqueries (e.g., apparel, wall art)."
+        },
+        {
+          "audience_or_buyer": "Residents and admirers of New Mexico\u2019s landscapes seeking state pride art/apparel",
+          "concise_evidence": "Interest in the phrase \u201cnew mexico strong\u201d and in \u201ctexas and new mexico mountain art\u201d supports a New Mexico pride and landscape-art niche.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H4",
+          "label": "New Mexico state pride artwork and apparel (mountain/landscape motifs)",
+          "likely_validation_surfaces": [
+            "wall art/posters",
+            "t-shirts",
+            "hoodies",
+            "stickers"
+          ],
+          "linked_query_ids": [
+            "Q7",
+            "Q8"
+          ],
+          "supporting_candidate_ids": [
+            "09_mex_11",
+            "09_mex_20"
+          ],
+          "theme_identity_or_occasion": "State pride and mountain/landscape aesthetics tied to New Mexico",
+          "uncertainty": "Cross-state phrasing may dilute focus; validation should compare purely New Mexico terms vs. multi-state variants."
+        }
+      ],
+      "seed_keyword": "mexico",
+      "validation_queries": [
+        {
+          "concise_reason": "Direct, high-intent apparel query aligned with flag-identity wearables.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "mexico flag shirt",
+          "query_id": "Q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Targets sports-fan apparel tied to Mexico without referencing specific leagues or events.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "mexico baseball fan shirt",
+          "query_id": "Q2",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Core destination-wedding stationery term consistent with Tulum interest.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "tulum save the date",
+          "query_id": "Q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct query validating heritage-focused graduation accessories.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "guanajuato graduation sash",
+          "query_id": "Q4",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Exact apparel term already showing demand; confirms merch intent.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H3"
+          ],
+          "query": "gulf of mexico shirt",
+          "query_id": "Q5",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Tests decor surface interest for the same geographic theme.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H3"
+          ],
+          "query": "gulf of mexico wall art",
+          "query_id": "Q6",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Aligns landscape aesthetic with New Mexico focus for wall art validation.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H4"
+          ],
+          "query": "new mexico mountain art",
+          "query_id": "Q7",
+          "query_type": "rewritten"
+        },
+        {
+          "concise_reason": "Validates state-pride apparel phrasing linked to observed interest.",
+          "confidence": "medium",
+          "linked_hypothesis_ids": [
+            "H4"
+          ],
+          "query": "new mexico strong shirt",
+          "query_id": "Q8",
+          "query_type": "rewritten"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "advance_some",
+      "bundle_id": "wf0_batch_20260614_132001::phone case",
+      "bundle_summary": "Several defensible, non-IP thematic directions exist for phone cases, notably seasonal holiday (Halloween/Christmas) and kawaii/decoden/anime aesthetics. A significant portion of candidates are named IP or brand references and are quarantined. Generic product/model terms remain ingredients, not standalone niches.",
+      "bundle_warnings": [
+        "Multiple candidates are named brands/franchises and quarantined (e.g., JoJo\u2019s Bizarre Adventure, Honkai Star Rail, Twenty One Pilots, BaubleBar, Grinch, Project Hail Mary).",
+        "Generic product/model terms (custom/tough/iPhone 17/Motorola Edge) are ingredients only and not standalone niches."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [],
+        "ingredient_only": [
+          "10_phocas_02",
+          "10_phocas_04",
+          "10_phocas_07",
+          "10_phocas_14",
+          "10_phocas_19"
+        ],
+        "insufficient_evidence": [
+          "10_phocas_05",
+          "10_phocas_16"
+        ],
+        "irrelevant": [
+          "10_phocas_20"
+        ],
+        "quarantine_ip": [
+          "10_phocas_06",
+          "10_phocas_08",
+          "10_phocas_09",
+          "10_phocas_10",
+          "10_phocas_11",
+          "10_phocas_12",
+          "10_phocas_15"
+        ],
+        "seller_supply_or_digital": [],
+        "supports": [
+          "10_phocas_13",
+          "10_phocas_18",
+          "10_phocas_03",
+          "10_phocas_17",
+          "10_phocas_01"
+        ]
+      },
+      "hypotheses": [
+        {
+          "audience_or_buyer": "Holiday/seasonal shoppers looking for themed cases (spooky Halloween, festive Christmas)",
+          "concise_evidence": "Multiple high-click seasonal queries specifically for phone cases: 'halloween phone case' and variant, plus 'christmas phone case'.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H1",
+          "label": "Seasonal holiday-themed phone cases (Halloween and Christmas)",
+          "likely_validation_surfaces": [
+            "Etsy SERPs for seasonal phone case terms",
+            "Top listing theme cohesion and sell-through signals",
+            "Seasonality/trend timing around Q4 holidays"
+          ],
+          "linked_query_ids": [
+            "Q1",
+            "Q2"
+          ],
+          "supporting_candidate_ids": [
+            "10_phocas_13",
+            "10_phocas_18",
+            "10_phocas_03"
+          ],
+          "theme_identity_or_occasion": "Seasonal/holiday aesthetics for phone cases",
+          "uncertainty": "Competition is moderate-high; holiday demand is time-bound and trend-sensitive."
+        },
+        {
+          "audience_or_buyer": "Shoppers into kawaii/J-fashion/anime-inspired cute aesthetics",
+          "concise_evidence": "'decoden phone case' and 'anime phone case' both show strong interest, aligning within a cohesive kawaii/J-pop aesthetic.",
+          "confidence": "medium",
+          "decision": "direct_validate",
+          "hypothesis_id": "H2",
+          "label": "Kawaii/decoden/anime aesthetic phone cases",
+          "likely_validation_surfaces": [
+            "Etsy SERPs for decoden and anime phone case terms",
+            "Aesthetic clustering of top listings (kawaii, pastel, charms)",
+            "Review language indicating style fit"
+          ],
+          "linked_query_ids": [
+            "Q3",
+            "Q4"
+          ],
+          "supporting_candidate_ids": [
+            "10_phocas_17",
+            "10_phocas_01"
+          ],
+          "theme_identity_or_occasion": "Decoden embellishment and anime/kawaii visual styles applied to phone cases",
+          "uncertainty": "Must avoid specific anime/franchise IP; aesthetic is broad and competitive."
+        }
+      ],
+      "seed_keyword": "phone case",
+      "validation_queries": [
+        {
+          "concise_reason": "Direct high-click seasonal term validating H1.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "halloween phone case",
+          "query_id": "Q1",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct high-click seasonal term validating H1.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H1"
+          ],
+          "query": "christmas phone case",
+          "query_id": "Q2",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct aesthetic term validating decoden niche.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "decoden phone case",
+          "query_id": "Q3",
+          "query_type": "direct"
+        },
+        {
+          "concise_reason": "Direct umbrella aesthetic term supporting kawaii/anime demand.",
+          "confidence": "high",
+          "linked_hypothesis_ids": [
+            "H2"
+          ],
+          "query": "anime phone case",
+          "query_id": "Q4",
+          "query_type": "direct"
+        }
+      ]
+    },
+    {
+      "bundle_decision": "hold_no_queries",
+      "bundle_id": "wf0_batch_20260614_132001::vintage",
+      "bundle_summary": "Most candidates are non-POD physical goods (jewelry, apparel, furniture) or very broad product-surface terms (wall art, prints, home decor) without a distinct theme/audience cluster. The only tight cluster (wallpaper vintage) remains a product-surface modifier with no independent thematic support. Multiple named-brand/IP terms appear and must be quarantined. No defensible, non-generic, multi-candidate POD niche emerges.",
+      "bundle_warnings": [
+        "Heavy presence of non-POD product categories (rings, dresses, wallets, furniture).",
+        "Multiple named-brand/IP queries detected and quarantined (e.g., Winnie the Pooh, Coach, Morgan & Co).",
+        "Broad \u2018vintage\u2019 surface terms lack specific, non-generic thematic corroboration."
+      ],
+      "candidate_dispositions": {
+        "duplicate_or_redundant": [
+          "11_vin_20"
+        ],
+        "ingredient_only": [
+          "11_vin_03",
+          "11_vin_14",
+          "11_vin_15",
+          "11_vin_18",
+          "11_vin_19"
+        ],
+        "insufficient_evidence": [
+          "11_vin_11"
+        ],
+        "irrelevant": [
+          "11_vin_01",
+          "11_vin_04",
+          "11_vin_06",
+          "11_vin_07",
+          "11_vin_09",
+          "11_vin_12",
+          "11_vin_13",
+          "11_vin_16",
+          "11_vin_17"
+        ],
+        "quarantine_ip": [
+          "11_vin_02",
+          "11_vin_05",
+          "11_vin_08",
+          "11_vin_10"
+        ],
+        "seller_supply_or_digital": [],
+        "supports": []
+      },
+      "hypotheses": [],
+      "seed_keyword": "vintage",
+      "validation_queries": []
+    }
+  ]
+}

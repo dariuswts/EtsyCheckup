@@ -1,0 +1,17 @@
+[
+  {
+    "artifact_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\global_ranking_outputs\\raw_responses\\global_rank_raw_response_attempt_001.json",
+    "attempt_number": 1,
+    "model": "gpt-5",
+    "reasoning_effort": "medium",
+    "status": "fail",
+    "timeout_seconds": 300,
+    "timestamp": "2026-06-14T11:22:54.084570+00:00",
+    "usage": {
+      "input_tokens": 14490,
+      "output_tokens": 8630,
+      "reasoning_tokens": 4800,
+      "total_tokens": 23120
+    }
+  }
+]

@@ -1,0 +1,229 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "wf0_batch_20260614_132001::mexico",
+  "bundle_summary": "Advancing four coherent, non-IP hypotheses clustered around Mexico/Mexican-heritage identity, Gulf of Mexico geography, New Mexico state pride, and Mexico destination-occasion accessories. Quarantined FIFA World Cup 2026 and named-person political content. Digital-only SVG and non-POD seller-supply evidence excluded from validation support. Several broad product-surface terms held as ingredients.",
+  "bundle_warnings": [
+    "Named-event and named-person content quarantined (World Cup 2026; Trump).",
+    "Digital-only and non-POD seller-supply evidence excluded from support (generic SVG terms; Mexico soccer SVG bundle; blown glass).",
+    "Some surfaces in supporting signals (e.g., sneakers, jerseys) may not be widely available in POD; validation queries focus on broadly available apparel/decor surfaces."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "09_mex_02",
+      "09_mex_13",
+      "09_mex_14",
+      "09_mex_15",
+      "09_mex_04"
+    ],
+    "insufficient_evidence": [
+      "09_mex_16"
+    ],
+    "irrelevant": [],
+    "quarantine_ip": [
+      "09_mex_08",
+      "09_mex_03"
+    ],
+    "seller_supply_or_digital": [
+      "09_mex_01",
+      "09_mex_12",
+      "09_mex_19"
+    ],
+    "supports": [
+      "09_mex_06",
+      "09_mex_07",
+      "09_mex_10",
+      "09_mex_05",
+      "09_mex_09",
+      "09_mex_17",
+      "09_mex_18",
+      "09_mex_11",
+      "09_mex_20"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "Mexican heritage/diaspora and fans expressing national pride in casual wear or sports-inspired apparel",
+      "concise_evidence": "Demand for Mexico flag themed wearables (women\u2019s sneakers) and combined Mexico\u2013Puerto Rico flag motifs plus a Mexico baseball jersey query indicate interest in national-identity and sport-fan apparel.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H1",
+      "label": "Mexico flag pride wearables and fan-leaning styles (flag motifs and sports-adjacent)",
+      "likely_validation_surfaces": [
+        "t-shirts",
+        "hoodies",
+        "caps",
+        "decals",
+        "posters"
+      ],
+      "linked_query_ids": [
+        "Q1",
+        "Q2"
+      ],
+      "supporting_candidate_ids": [
+        "09_mex_06",
+        "09_mex_07",
+        "09_mex_10"
+      ],
+      "theme_identity_or_occasion": "National/bi-national flag identity and sport-fan styling tied to Mexico",
+      "uncertainty": "Footwear may be outside many POD catalogs; baseball jerseys can be specialized. Validation should focus on broadly available apparel surfaces."
+    },
+    {
+      "audience_or_buyer": "Couples planning Mexico destination weddings; graduates and families celebrating Guanajuato/Mexican heritage",
+      "concise_evidence": "Specific intent for Tulum, Mexico save-the-dates and Mexico/Guanajuato graduation sashes suggests targeted occasion-based personalization tied to Mexican locations and identity.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H2",
+      "label": "Mexico destination and heritage celebration accessories (Tulum weddings, Guanajuato graduation)",
+      "likely_validation_surfaces": [
+        "invitations/cards",
+        "prints",
+        "banners",
+        "apparel",
+        "sashes/stoles"
+      ],
+      "linked_query_ids": [
+        "Q3",
+        "Q4"
+      ],
+      "supporting_candidate_ids": [
+        "09_mex_05",
+        "09_mex_09"
+      ],
+      "theme_identity_or_occasion": "Location-specific occasions (Tulum weddings) and cultural/heritage graduation accessories",
+      "uncertainty": "Some accessory types (e.g., sashes) may have limited POD fulfillment; focus validation on commonly available print surfaces for occasions."
+    },
+    {
+      "audience_or_buyer": "People with ties to Gulf coasts (travelers, anglers, locals) seeking Gulf-themed designs",
+      "concise_evidence": "Explicit interest in \u201cgulf of mexico shirt\u201d supported by broader \u201cgulf of mexico\u201d thematic search indicates a market for Gulf-centric designs across apparel and decor.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H3",
+      "label": "Gulf of Mexico themed apparel and geographic art",
+      "likely_validation_surfaces": [
+        "t-shirts",
+        "long-sleeves",
+        "hats",
+        "maps/posters",
+        "stickers"
+      ],
+      "linked_query_ids": [
+        "Q5",
+        "Q6"
+      ],
+      "supporting_candidate_ids": [
+        "09_mex_17",
+        "09_mex_18"
+      ],
+      "theme_identity_or_occasion": "Geographic/place-based affinity for the Gulf of Mexico expressed on apparel and wall art",
+      "uncertainty": "Broader term includes non-merch info-seeking; validation should confirm merch-intent subqueries (e.g., apparel, wall art)."
+    },
+    {
+      "audience_or_buyer": "Residents and admirers of New Mexico\u2019s landscapes seeking state pride art/apparel",
+      "concise_evidence": "Interest in the phrase \u201cnew mexico strong\u201d and in \u201ctexas and new mexico mountain art\u201d supports a New Mexico pride and landscape-art niche.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H4",
+      "label": "New Mexico state pride artwork and apparel (mountain/landscape motifs)",
+      "likely_validation_surfaces": [
+        "wall art/posters",
+        "t-shirts",
+        "hoodies",
+        "stickers"
+      ],
+      "linked_query_ids": [
+        "Q7",
+        "Q8"
+      ],
+      "supporting_candidate_ids": [
+        "09_mex_11",
+        "09_mex_20"
+      ],
+      "theme_identity_or_occasion": "State pride and mountain/landscape aesthetics tied to New Mexico",
+      "uncertainty": "Cross-state phrasing may dilute focus; validation should compare purely New Mexico terms vs. multi-state variants."
+    }
+  ],
+  "seed_keyword": "mexico",
+  "validation_queries": [
+    {
+      "concise_reason": "Direct, high-intent apparel query aligned with flag-identity wearables.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "mexico flag shirt",
+      "query_id": "Q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Targets sports-fan apparel tied to Mexico without referencing specific leagues or events.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "mexico baseball fan shirt",
+      "query_id": "Q2",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Core destination-wedding stationery term consistent with Tulum interest.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "tulum save the date",
+      "query_id": "Q3",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct query validating heritage-focused graduation accessories.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "guanajuato graduation sash",
+      "query_id": "Q4",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Exact apparel term already showing demand; confirms merch intent.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H3"
+      ],
+      "query": "gulf of mexico shirt",
+      "query_id": "Q5",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Tests decor surface interest for the same geographic theme.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H3"
+      ],
+      "query": "gulf of mexico wall art",
+      "query_id": "Q6",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Aligns landscape aesthetic with New Mexico focus for wall art validation.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H4"
+      ],
+      "query": "new mexico mountain art",
+      "query_id": "Q7",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Validates state-pride apparel phrasing linked to observed interest.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H4"
+      ],
+      "query": "new mexico strong shirt",
+      "query_id": "Q8",
+      "query_type": "rewritten"
+    }
+  ]
+}

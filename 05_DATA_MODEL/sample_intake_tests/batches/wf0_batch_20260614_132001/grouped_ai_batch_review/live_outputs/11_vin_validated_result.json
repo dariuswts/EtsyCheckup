@@ -1,0 +1,47 @@
+{
+  "bundle_decision": "hold_no_queries",
+  "bundle_id": "wf0_batch_20260614_132001::vintage",
+  "bundle_summary": "Most candidates are non-POD physical goods (jewelry, apparel, furniture) or very broad product-surface terms (wall art, prints, home decor) without a distinct theme/audience cluster. The only tight cluster (wallpaper vintage) remains a product-surface modifier with no independent thematic support. Multiple named-brand/IP terms appear and must be quarantined. No defensible, non-generic, multi-candidate POD niche emerges.",
+  "bundle_warnings": [
+    "Heavy presence of non-POD product categories (rings, dresses, wallets, furniture).",
+    "Multiple named-brand/IP queries detected and quarantined (e.g., Winnie the Pooh, Coach, Morgan & Co).",
+    "Broad \u2018vintage\u2019 surface terms lack specific, non-generic thematic corroboration."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [
+      "11_vin_20"
+    ],
+    "ingredient_only": [
+      "11_vin_03",
+      "11_vin_14",
+      "11_vin_15",
+      "11_vin_18",
+      "11_vin_19"
+    ],
+    "insufficient_evidence": [
+      "11_vin_11"
+    ],
+    "irrelevant": [
+      "11_vin_01",
+      "11_vin_04",
+      "11_vin_06",
+      "11_vin_07",
+      "11_vin_09",
+      "11_vin_12",
+      "11_vin_13",
+      "11_vin_16",
+      "11_vin_17"
+    ],
+    "quarantine_ip": [
+      "11_vin_02",
+      "11_vin_05",
+      "11_vin_08",
+      "11_vin_10"
+    ],
+    "seller_supply_or_digital": [],
+    "supports": []
+  },
+  "hypotheses": [],
+  "seed_keyword": "vintage",
+  "validation_queries": []
+}

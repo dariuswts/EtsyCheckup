@@ -1,0 +1,133 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "wf0_batch_20260614_132001::goth",
+  "bundle_summary": "Two defensible directions emerge: (1) goth/horror-themed phone cases have direct search demand; (2) a pastel goth audience cluster appears across multiple apparel-focused queries and merits validation on POD-friendly surfaces. Most other candidates are seller-supply or digital-only and do not support POD validation.",
+  "bundle_warnings": [
+    "Many candidates are seller-supply or digital-only and cannot validate POD niches (png, svg, 3D-printed frames, apparel/jewelry/accessories, furniture applique, vtuber assets).",
+    "Potential presence of licensed horror IP within phone case results requires careful non-IP validation."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "06_got_03",
+      "06_got_04"
+    ],
+    "insufficient_evidence": [],
+    "irrelevant": [
+      "06_got_13",
+      "06_got_14",
+      "06_got_16"
+    ],
+    "quarantine_ip": [],
+    "seller_supply_or_digital": [
+      "06_got_01",
+      "06_got_02",
+      "06_got_05",
+      "06_got_06",
+      "06_got_08",
+      "06_got_09",
+      "06_got_10",
+      "06_got_11",
+      "06_got_12",
+      "06_got_19",
+      "06_got_20"
+    ],
+    "supports": [
+      "06_got_17",
+      "06_got_15",
+      "06_got_18",
+      "06_got_07"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "Shoppers who like goth and horror aesthetics and want themed protective phone cases",
+      "concise_evidence": "Direct product queries show demand for goth phone case (moderate volume/competition) and horror phone case (broader adjacent theme), indicating active niche interest.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H1",
+      "label": "Goth and horror themed phone cases",
+      "likely_validation_surfaces": [
+        "Etsy SERPs for 'goth phone case' and 'horror phone case'",
+        "Top-converting listing themes, imagery, and tag clusters",
+        "Shop/market saturation and pricing for goth/horror cases"
+      ],
+      "linked_query_ids": [
+        "Q1",
+        "Q2"
+      ],
+      "supporting_candidate_ids": [
+        "06_got_17",
+        "06_got_15"
+      ],
+      "theme_identity_or_occasion": "Goth and horror aesthetics",
+      "uncertainty": "Results may skew toward licensed horror IP; need to verify presence of generic, non-IP designs."
+    },
+    {
+      "audience_or_buyer": "Shoppers identifying with pastel goth/soft goth aesthetics",
+      "concise_evidence": "Multiple pastel goth apparel queries indicate a coherent subculture with purchase intent; needs validation on POD surfaces beyond apparel.",
+      "confidence": "low",
+      "decision": "rewrite_and_validate",
+      "hypothesis_id": "H2",
+      "label": "Pastel goth aesthetic audience with potential POD demand",
+      "likely_validation_surfaces": [
+        "Etsy SERPs for 'pastel goth phone case' and 'pastel goth poster'",
+        "Tag/keyword density around pastel goth on POD-friendly items",
+        "Listing volume and non-apparel placements in this aesthetic"
+      ],
+      "linked_query_ids": [
+        "Q3",
+        "Q4"
+      ],
+      "supporting_candidate_ids": [
+        "06_got_18",
+        "06_got_07"
+      ],
+      "theme_identity_or_occasion": "Pastel goth subculture (cute/dark aesthetic)",
+      "uncertainty": "Current evidence is apparel-heavy; demand may not translate to POD items like cases/prints."
+    }
+  ],
+  "seed_keyword": "goth",
+  "validation_queries": [
+    {
+      "concise_reason": "Direct match to supporting candidate; validates volume, competition, and non-IP prevalence.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "goth phone case",
+      "query_id": "Q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Adjacent theme strengthening the goth phone case niche; checks breadth and saturation.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "horror phone case",
+      "query_id": "Q2",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Tests whether pastel goth interest appears on a POD-friendly surface.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "pastel goth phone case",
+      "query_id": "Q3",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Validates pastel goth presence in wall art/prints beyond apparel.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "pastel goth poster",
+      "query_id": "Q4",
+      "query_type": "rewritten"
+    }
+  ]
+}

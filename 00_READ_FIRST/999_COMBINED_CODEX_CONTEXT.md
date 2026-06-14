@@ -347,3 +347,28 @@ Next implementation should repair WF0 batch coherence first: clean seed parsing,
   - `python tools\build_wf0_diverse_ai_candidates.py --mode seed-bundle-preflight --batch-dir 05_DATA_MODEL\sample_intake_tests\batches\wf0_batch_20260613_220121 --per-seed-cap 40 --generic-noise-cap 0 --broad-ingredient-cap 2 --exploratory-cap 8 --cross-seed-generic-threshold 4 --batch-repeat-cap 2 --seed-ip-quarantine on --write-comparison-report`
 - No live OpenAI/API, paid API, scraping, Etsy, EverBee API, Printify, Ideogram, n8n, database, publishing, product/design generation, WF1/WF2/WF3/WF4 logic change, or scoring action was run.
 
+## 2026-06-15 - WF1 Grouped EverBee Evidence v2 Preflight
+
+WF1 now has an additive grouped-evidence preflight path for the active EverBee normalization batch `WF1_everbee_normalization_20260614_234128`.
+
+Current v2 files:
+- `tools/build_wf1_grouped_everbee_evidence_bundles.py`
+- `tools/ai_review_wf1_grouped_everbee_evidence.py`
+- batch-local outputs under `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/ai_grouped_evidence_review_v2/`
+
+Active-batch preflight result:
+- 15 queue phrases with evidence.
+- 15 grouped bundles.
+- 38,140 normalized rows.
+- 37,123 listing-level deduped rows.
+- 1,017 duplicate audit rows.
+- 15 filename matches with `strong_normalized` confidence.
+- 360 selected evidence rows, 24 per phrase.
+- No token-budget warnings.
+
+Boundary:
+- This is local preflight only.
+- No live OpenAI/API call was made.
+- No EverBee scraping/API, Apify, Etsy, Printify, Ideogram, n8n, database, product/design generation, WF2 queue fabrication, or WF3 scoring was run.
+- Raw EverBee inbox files and v1 WF1 outputs remain preserved.
+

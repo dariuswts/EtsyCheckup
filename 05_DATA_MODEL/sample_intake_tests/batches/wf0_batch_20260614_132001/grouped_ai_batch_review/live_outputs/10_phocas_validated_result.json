@@ -1,0 +1,135 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "wf0_batch_20260614_132001::phone case",
+  "bundle_summary": "Several defensible, non-IP thematic directions exist for phone cases, notably seasonal holiday (Halloween/Christmas) and kawaii/decoden/anime aesthetics. A significant portion of candidates are named IP or brand references and are quarantined. Generic product/model terms remain ingredients, not standalone niches.",
+  "bundle_warnings": [
+    "Multiple candidates are named brands/franchises and quarantined (e.g., JoJo\u2019s Bizarre Adventure, Honkai Star Rail, Twenty One Pilots, BaubleBar, Grinch, Project Hail Mary).",
+    "Generic product/model terms (custom/tough/iPhone 17/Motorola Edge) are ingredients only and not standalone niches."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "10_phocas_02",
+      "10_phocas_04",
+      "10_phocas_07",
+      "10_phocas_14",
+      "10_phocas_19"
+    ],
+    "insufficient_evidence": [
+      "10_phocas_05",
+      "10_phocas_16"
+    ],
+    "irrelevant": [
+      "10_phocas_20"
+    ],
+    "quarantine_ip": [
+      "10_phocas_06",
+      "10_phocas_08",
+      "10_phocas_09",
+      "10_phocas_10",
+      "10_phocas_11",
+      "10_phocas_12",
+      "10_phocas_15"
+    ],
+    "seller_supply_or_digital": [],
+    "supports": [
+      "10_phocas_13",
+      "10_phocas_18",
+      "10_phocas_03",
+      "10_phocas_17",
+      "10_phocas_01"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "Holiday/seasonal shoppers looking for themed cases (spooky Halloween, festive Christmas)",
+      "concise_evidence": "Multiple high-click seasonal queries specifically for phone cases: 'halloween phone case' and variant, plus 'christmas phone case'.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H1",
+      "label": "Seasonal holiday-themed phone cases (Halloween and Christmas)",
+      "likely_validation_surfaces": [
+        "Etsy SERPs for seasonal phone case terms",
+        "Top listing theme cohesion and sell-through signals",
+        "Seasonality/trend timing around Q4 holidays"
+      ],
+      "linked_query_ids": [
+        "Q1",
+        "Q2"
+      ],
+      "supporting_candidate_ids": [
+        "10_phocas_13",
+        "10_phocas_18",
+        "10_phocas_03"
+      ],
+      "theme_identity_or_occasion": "Seasonal/holiday aesthetics for phone cases",
+      "uncertainty": "Competition is moderate-high; holiday demand is time-bound and trend-sensitive."
+    },
+    {
+      "audience_or_buyer": "Shoppers into kawaii/J-fashion/anime-inspired cute aesthetics",
+      "concise_evidence": "'decoden phone case' and 'anime phone case' both show strong interest, aligning within a cohesive kawaii/J-pop aesthetic.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H2",
+      "label": "Kawaii/decoden/anime aesthetic phone cases",
+      "likely_validation_surfaces": [
+        "Etsy SERPs for decoden and anime phone case terms",
+        "Aesthetic clustering of top listings (kawaii, pastel, charms)",
+        "Review language indicating style fit"
+      ],
+      "linked_query_ids": [
+        "Q3",
+        "Q4"
+      ],
+      "supporting_candidate_ids": [
+        "10_phocas_17",
+        "10_phocas_01"
+      ],
+      "theme_identity_or_occasion": "Decoden embellishment and anime/kawaii visual styles applied to phone cases",
+      "uncertainty": "Must avoid specific anime/franchise IP; aesthetic is broad and competitive."
+    }
+  ],
+  "seed_keyword": "phone case",
+  "validation_queries": [
+    {
+      "concise_reason": "Direct high-click seasonal term validating H1.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "halloween phone case",
+      "query_id": "Q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct high-click seasonal term validating H1.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "christmas phone case",
+      "query_id": "Q2",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct aesthetic term validating decoden niche.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "decoden phone case",
+      "query_id": "Q3",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct umbrella aesthetic term supporting kawaii/anime demand.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "anime phone case",
+      "query_id": "Q4",
+      "query_type": "direct"
+    }
+  ]
+}

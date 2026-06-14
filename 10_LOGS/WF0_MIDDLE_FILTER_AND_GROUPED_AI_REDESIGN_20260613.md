@@ -39,19 +39,19 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 ## New Middle Filter
 
 - broad_expansion_candidate: `1187`
-- generic_noise_hold: `348`
-- hard_excluded: `76`
+- generic_noise_hold: `372`
+- hard_excluded: `81`
 - ip_quarantine: `914`
-- reviewable_candidate: `5522`
+- reviewable_candidate: `5493`
 - Selected rows: `440`
 - Paid-review candidate count: `440`
 - Bundle count: `11`
 - Paid-review bundle count: `11`
 - Quarantined bundle count: `2`
-- Cross-seed generic rows suppressed/held: `95`
+- Cross-seed generic rows suppressed/held: `104`
 - Repeated candidates suppressed: `31`
 - Near-duplicate rows suppressed: `374`
-- Estimated grouped payload tokens: `93417`
+- Estimated grouped payload tokens: `93395`
 - Candidate slot-group distribution:
 - broad_expansion_ingredient: `22`
 - demand_leader: `88`
@@ -62,10 +62,10 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - reviewable_backfill: `3`
 - theme_audience_occasion: `52`
 - Candidate-type distribution:
-- adjacent_discovery: `84`
+- adjacent_discovery: `92`
 - broad_seed_expansion: `22`
-- direct_product_query: `166`
-- theme_or_identity_query: `130`
+- direct_product_query: `157`
+- theme_or_identity_query: `131`
 - uncertain_semantic_fit: `38`
 - Selected rows per seed:
 - bachelorette: `40`
@@ -139,14 +139,14 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - pink blanket (blanket)
 - brown blanket (blanket)
 - custom blanket kid (blanket)
+- art print (california poppy)
 - custom shirt (crop top)
 - cute stickers (iron lung)
+- canvas print (iron lung)
 - personalized cups (housewarming gift)
 - custom cups (bachelorette)
 - gym shirt (crop top)
 - personalized shirt (bachelorette)
-- personalized shirt (crop top)
-- white shirt (crop top)
 
 ## Hard-Exclusion Examples
 - print on demand (goth)
@@ -237,6 +237,13 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - gift for grandma (blanket)
 
 ## Suppressed Due Cross-Seed Genericity
+- print (housewarming gift)
+- print (iron lung)
+- print (mexico)
+- keychain (car accessories)
+- keychain (goth)
+- keychain (iron lung)
+- keychain (mexico)
 - personalized gift (housewarming gift)
 - anniversary gift (housewarming gift)
 - personalized gift (bachelorette)
@@ -250,13 +257,6 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - earrings (mexico)
 - earrings (vintage)
 - gift for her (housewarming gift)
-- gift for him (housewarming gift)
-- gift for mom (housewarming gift)
-- gift for her (blanket)
-- gift for her (iron lung)
-- gift for him (blanket)
-- gift for him (california poppy)
-- gift for him (car accessories)
 
 ## Long-Tail Value Examples
 - last toast on the coast bachelorette (bachelorette)
@@ -274,8 +274,8 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - winnie the pooh baby blanket (blanket)
 - rustic home decor (blanket)
 - coming home outfit (blanket)
-- crochet baby blanket patterns (blanket)
 - newborn girl outfit (blanket)
+- baby hospital outfit (blanket)
 - couch throw blanket 70quot x 80quot (blanket)
 - baby girl going home (blanket)
 - doll lace flat sheet (blanket)
@@ -297,10 +297,10 @@ This is a deterministic/no-API WF0 triage report. Selected rows are evidence for
 - woven blanket (blanket)
 - throw blanket (blanket)
 - winnie the pooh baby blanket (blanket)
-- crochet baby blanket patterns (blanket)
 - couch throw blanket 70quot x 80quot (blanket)
 - fart blanket (blanket)
 - crane woven blanket (blanket)
+- michael jackson blanket (blanket)
 
 ## Diagnostics
 - Every paid-review seed reached the cap with backfill; inspect quality before live review.

@@ -1,0 +1,153 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "wf0_batch_20260614_132001::crop top",
+  "bundle_summary": "Advance two non-IP niches: (1) women\u2019s festival/EDM/rave crop tops, supported by explicit festival and dubstep crop-top signals; (2) athletic/cheer/gym-style crop tops, supported by cheer/baseball-jersey crop top and gym audience interest. Multiple named IP crop-top terms are quarantined. Most generic shirt terms and broad occasions are held as ingredients.",
+  "bundle_warnings": [
+    "Multiple named IP terms detected (Silent Hill, JJK, Berkeley, Zelda) \u2014 quarantined and excluded from validation directions."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "05_crotop_01",
+      "05_crotop_02",
+      "05_crotop_03",
+      "05_crotop_05",
+      "05_crotop_08",
+      "05_crotop_13",
+      "05_crotop_14",
+      "05_crotop_15",
+      "05_crotop_16",
+      "05_crotop_17",
+      "05_crotop_18",
+      "05_crotop_19"
+    ],
+    "insufficient_evidence": [],
+    "irrelevant": [],
+    "quarantine_ip": [
+      "05_crotop_09",
+      "05_crotop_10",
+      "05_crotop_11",
+      "05_crotop_12"
+    ],
+    "seller_supply_or_digital": [],
+    "supports": [
+      "05_crotop_04",
+      "05_crotop_06",
+      "05_crotop_07",
+      "05_crotop_20"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "Women attending music festivals/EDM events",
+      "concise_evidence": "Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "h1",
+      "label": "Women\u2019s festival/EDM/rave crop tops (festival-goer audience; EDM/dubstep theme)",
+      "likely_validation_surfaces": [
+        "Etsy SERP saturation for festival/rave crop tops",
+        "Listing-title and tag patterns referencing festival/rave/EDM without named IP",
+        "Bestseller badges and review volume in non-IP festival crop tops"
+      ],
+      "linked_query_ids": [
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "supporting_candidate_ids": [
+        "05_crotop_20",
+        "05_crotop_07"
+      ],
+      "theme_identity_or_occasion": "Festival/rave occasion; EDM/dubstep music culture",
+      "uncertainty": "Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP."
+    },
+    {
+      "audience_or_buyer": "Cheerleaders, dance teams, gym/fitness enthusiasts",
+      "concise_evidence": "\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "h2",
+      "label": "Athletic/cheer/gym-style crop tops (cheerleading/baseball-jersey aesthetic)",
+      "likely_validation_surfaces": [
+        "Etsy SERP for cheer/cheerleading crop tops",
+        "Presence of baseball-jersey style crop tops from POD-friendly sellers",
+        "Tag density around cheer/dance/gym without school/team trademarks"
+      ],
+      "linked_query_ids": [
+        "q4",
+        "q5",
+        "q6"
+      ],
+      "supporting_candidate_ids": [
+        "05_crotop_06",
+        "05_crotop_04"
+      ],
+      "theme_identity_or_occasion": "Athletic/cheer aesthetic for practice/spirit wear",
+      "uncertainty": "Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist."
+    }
+  ],
+  "seed_keyword": "crop top",
+  "validation_queries": [
+    {
+      "concise_reason": "Direct festival crop-top demand signal; check breadth, competition, and bestseller presence.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h1"
+      ],
+      "query": "womens festival crop top",
+      "query_id": "q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Common synonym for festival/EDM attire; validates niche beyond the exact seed phrase.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h1"
+      ],
+      "query": "rave crop top",
+      "query_id": "q2",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Tests music-genre-specific demand within EDM without invoking named artists/labels.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h1"
+      ],
+      "query": "dubstep crop top",
+      "query_id": "q3",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct long-tail signal combining cheer and jersey-style aesthetic.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h2"
+      ],
+      "query": "cheer crop top baseball jersey",
+      "query_id": "q4",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Captures broader cheer aesthetic variants beyond the exact long-tail.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h2"
+      ],
+      "query": "cheerleading crop top",
+      "query_id": "q5",
+      "query_type": "rewritten"
+    },
+    {
+      "concise_reason": "Validates general athletic/fitness demand for crop tops adjacent to cheer aesthetics.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "h2"
+      ],
+      "query": "gym crop top",
+      "query_id": "q6",
+      "query_type": "rewritten"
+    }
+  ]
+}

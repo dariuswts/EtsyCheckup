@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781433928,
+  "created_at": 1781433901,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_0c868c07f0dc414d006a2e862d3d10819d83b410b37ed37762",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_0c868c07f0dc414d006a2e862e33bc819daa640d3fa7461278",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"wf0_batch_20260614_132001::housewarming gift\",\"seed_keyword\":\"housewarming gift\",\"bundle_decision\":\"advance_some\",\"bundle_summary\":\"Two coherent directions emerge: (1) wine/bar-themed housewarming gifts for couples/hosts, supported by multiple alcohol-related customizable items and an occasion-specific audience term; (2) modern/unique home-decor signage suitable as housewarming gifts, centered on WiFi password signs and general modern/unique home decor phrases. Broad gift terms, baskets/boxes, and party cups are treated as ingredients; low-signal foreign-language variants are held.\",\"hypotheses\":[{\"hypothesis_id\":\"h1\",\"label\":\"Wine/bar-themed housewarming gifts for couples and hosts\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"07_hougif_11\",\"07_hougif_13\",\"07_hougif_20\",\"07_hougif_17\",\"07_hougif_18\"],\"audience_or_buyer\":\"Couples, new homeowners, party hosts\",\"theme_identity_or_occasion\":\"Housewarming gifts with wine/bar theme (labels, stoppers, tumblers)\",\"likely_validation_surfaces\":[\"Etsy search results and top listings for wine-themed housewarming gifts\",\"Autocomplete/co-search terms linking housewarming with wine/host gifts\",\"Category filters for barware/wine accessories used as gifts\"],\"linked_query_ids\":[\"q1\",\"q2\",\"q3\"],\"concise_evidence\":\"Multiple alcohol-related customizable product intents (wine stopper, tumbler, bottle label) co-occur with housewarming audience/occasion queries (for couple, gift basket).\",\"uncertainty\":\"Not all product formats are strictly POD; need to verify presence of printable/customized designs positioned specifically for housewarming.\"},{\"hypothesis_id\":\"h2\",\"label\":\"Modern/unique home-decor signage as housewarming gifts\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"07_hougif_14\",\"07_hougif_08\",\"07_hougif_19\",\"07_hougif_09\"],\"audience_or_buyer\":\"New homeowners and gift-givers seeking decor-forward gifts\",\"theme_identity_or_occasion\":\"Modern/unique home decor with signage focus (e.g., WiFi password sign, Home Sweet Home) suitable for housewarming\",\"likely_validation_surfaces\":[\"Etsy search pages for WiFi password signs and related decor\",\"Listing titles/tags combining housewarming with modern/unique decor\",\"Shop sections for entryway/kitchen signage positioned as gifts\"],\"linked_query_ids\":[\"q4\",\"q5\",\"q6\"],\"concise_evidence\":\"WiFi password sign aligns with modern/entryway signage; supported by demand for unique/modern home decor and common house-themed phrase \u2018home sweet home\u2019.\",\"uncertainty\":\"Need to confirm enough sellers position these decor items explicitly as housewarming gifts, not just generic decor.\"}],\"validation_queries\":[{\"query_id\":\"q1\",\"query\":\"wine themed housewarming gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"high\",\"concise_reason\":\"Directly tests coupling of housewarming intent with wine/bar gift theme.\"},{\"query_id\":\"q2\",\"query\":\"housewarming gift for couple wine\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"medium\",\"concise_reason\":\"Validates audience (couple) combined with wine gifting for housewarming.\"},{\"query_id\":\"q3\",\"query\":\"custom wine stopper housewarming gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"medium\",\"concise_reason\":\"Checks if specific wine accessory is positioned for housewarming gifting.\"},{\"query_id\":\"q4\",\"query\":\"wifi password sign housewarming gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"high\",\"concise_reason\":\"Targets signage item explicitly framed as a housewarming gift.\"},{\"query_id\":\"q5\",\"query\":\"modern wall decor housewarming gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"medium\",\"concise_reason\":\"Tests if modern decor is marketed for housewarming gifting.\"},{\"query_id\":\"q6\",\"query\":\"unique home decor housewarming gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"medium\",\"concise_reason\":\"Checks positioning of unique home decor as housewarming gifts.\"}],\"candidate_dispositions\":{\"supports\":[\"07_hougif_11\",\"07_hougif_13\",\"07_hougif_20\",\"07_hougif_17\",\"07_hougif_18\",\"07_hougif_14\",\"07_hougif_08\",\"07_hougif_19\",\"07_hougif_09\"],\"ingredient_only\":[\"07_hougif_02\",\"07_hougif_03\",\"07_hougif_10\",\"07_hougif_15\",\"07_hougif_16\"],\"duplicate_or_redundant\":[],\"irrelevant\":[\"07_hougif_01\",\"07_hougif_04\"],\"insufficient_evidence\":[\"07_hougif_05\",\"07_hougif_06\",\"07_hougif_07\",\"07_hougif_12\"],\"seller_supply_or_digital\":[],\"quarantine_ip\":[]},\"bundle_warnings\":[]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_0c868c07f0dc414d006a2e86406218819d845be8c43d4d2424",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 4149,
+    "input_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "output_tokens": 3020,
+    "output_tokens_details": {
+      "reasoning_tokens": 1856
+    },
+    "total_tokens": 7169
+  },
+  "user": null
+}

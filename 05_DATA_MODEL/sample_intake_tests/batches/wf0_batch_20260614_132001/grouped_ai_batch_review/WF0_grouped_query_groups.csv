@@ -1,0 +1,44 @@
+query_group_id,normalized_query,source_phrase_count,source_query_candidate_ids,source_phrases,source_seeds,lineage_count
+qg_0001,anime phone case,1,wf0_batch_20260614_132001::phone case::Q4::H2,anime phone case,phone case,1
+qg_0002,baby blanket gift for new mom,1,wf0_batch_20260614_132001::blanket::Q1::H1,baby blanket gift for new mom,blanket,1
+qg_0003,baby shower blanket gift,1,wf0_batch_20260614_132001::blanket::Q2::H1,baby shower blanket gift,blanket,1
+qg_0004,boho car seat covers,1,wf0_batch_20260614_132001::car accessories::q5::h2,boho car seat covers,car accessories,1
+qg_0005,car visor photo clip,1,wf0_batch_20260614_132001::car accessories::q2::h1,car visor photo clip,car accessories,1
+qg_0006,carmel by the sea bachelorette,1,wf0_batch_20260614_132001::bachelorette::Q6::H3,carmel by the sea bachelorette,bachelorette,1
+qg_0007,cheer crop top baseball jersey,1,wf0_batch_20260614_132001::crop top::q4::h2,cheer crop top baseball jersey,crop top,1
+qg_0008,cheerleading crop top,1,wf0_batch_20260614_132001::crop top::q5::h2,cheerleading crop top,crop top,1
+qg_0009,christmas phone case,1,wf0_batch_20260614_132001::phone case::Q2::H1,christmas phone case,phone case,1
+qg_0010,custom wine stopper housewarming gift,1,wf0_batch_20260614_132001::housewarming gift::q3::h1,custom wine stopper housewarming gift,housewarming gift,1
+qg_0011,cute car accessories for women,1,wf0_batch_20260614_132001::car accessories::q3::h2,cute car accessories for women,car accessories,1
+qg_0012,decoden phone case,1,wf0_batch_20260614_132001::phone case::Q3::H2,decoden phone case,phone case,1
+qg_0013,dubstep crop top,1,wf0_batch_20260614_132001::crop top::q3::h1,dubstep crop top,crop top,1
+qg_0014,girls gone mild bachelorette,1,wf0_batch_20260614_132001::bachelorette::Q2::H1,girls gone mild bachelorette,bachelorette,1
+qg_0015,girls gone mild bachelorette theme,1,wf0_batch_20260614_132001::bachelorette::Q1::H1,girls gone mild bachelorette theme,bachelorette,1
+qg_0016,goth phone case,1,wf0_batch_20260614_132001::goth::Q1::H1,goth phone case,goth,1
+qg_0017,guanajuato graduation sash,1,wf0_batch_20260614_132001::mexico::Q4::H2,guanajuato graduation sash,mexico,1
+qg_0018,gulf of mexico shirt,1,wf0_batch_20260614_132001::mexico::Q5::H3,gulf of mexico shirt,mexico,1
+qg_0019,gulf of mexico wall art,1,wf0_batch_20260614_132001::mexico::Q6::H3,gulf of mexico wall art,mexico,1
+qg_0020,gym crop top,1,wf0_batch_20260614_132001::crop top::q6::h2,gym crop top,crop top,1
+qg_0021,halloween phone case,1,wf0_batch_20260614_132001::phone case::Q1::H1,halloween phone case,phone case,1
+qg_0022,horror phone case,1,wf0_batch_20260614_132001::goth::Q2::H1,horror phone case,goth,1
+qg_0023,housewarming gift for couple wine,1,wf0_batch_20260614_132001::housewarming gift::q2::h1,housewarming gift for couple wine,housewarming gift,1
+qg_0024,last toast on the coast bachelorette,1,wf0_batch_20260614_132001::bachelorette::Q5::H3,last toast on the coast bachelorette,bachelorette,1
+qg_0025,mexico baseball fan shirt,1,wf0_batch_20260614_132001::mexico::Q2::H1,mexico baseball fan shirt,mexico,1
+qg_0026,mexico flag shirt,1,wf0_batch_20260614_132001::mexico::Q1::H1,mexico flag shirt,mexico,1
+qg_0027,modern wall decor housewarming gift,1,wf0_batch_20260614_132001::housewarming gift::q5::h2,modern wall decor housewarming gift,housewarming gift,1
+qg_0028,new mexico mountain art,1,wf0_batch_20260614_132001::mexico::Q7::H4,new mexico mountain art,mexico,1
+qg_0029,new mexico strong shirt,1,wf0_batch_20260614_132001::mexico::Q8::H4,new mexico strong shirt,mexico,1
+qg_0030,pastel goth phone case,1,wf0_batch_20260614_132001::goth::Q3::H2,pastel goth phone case,goth,1
+qg_0031,pastel goth poster,1,wf0_batch_20260614_132001::goth::Q4::H2,pastel goth poster,goth,1
+qg_0032,personalized car visor photo clip,1,wf0_batch_20260614_132001::car accessories::q1::h1,personalized car visor photo clip,car accessories,1
+qg_0033,rave crop top,1,wf0_batch_20260614_132001::crop top::q2::h1,rave crop top,crop top,1
+qg_0034,rear view mirror accessories for women,1,wf0_batch_20260614_132001::car accessories::q4::h2,rear view mirror accessories for women,car accessories,1
+qg_0035,rustic throw blanket for living room,1,wf0_batch_20260614_132001::blanket::Q3::H2,rustic throw blanket for living room,blanket,1
+qg_0036,tulum save the date,1,wf0_batch_20260614_132001::mexico::Q3::H2,tulum save the date,mexico,1
+qg_0037,unique home decor housewarming gift,1,wf0_batch_20260614_132001::housewarming gift::q6::h2,unique home decor housewarming gift,housewarming gift,1
+qg_0038,vino before vows bachelorette,1,wf0_batch_20260614_132001::bachelorette::Q3::H2,vino before vows bachelorette,bachelorette,1
+qg_0039,vino before vows bachelorette banner,1,wf0_batch_20260614_132001::bachelorette::Q4::H2,vino before vows bachelorette banner,bachelorette,1
+qg_0040,wifi password sign housewarming gift,1,wf0_batch_20260614_132001::housewarming gift::q4::h2,wifi password sign housewarming gift,housewarming gift,1
+qg_0041,wine themed housewarming gift,1,wf0_batch_20260614_132001::housewarming gift::q1::h1,wine themed housewarming gift,housewarming gift,1
+qg_0042,womens festival crop top,1,wf0_batch_20260614_132001::crop top::q1::h1,womens festival crop top,crop top,1
+qg_0043,woven throw blanket rustic decor,1,wf0_batch_20260614_132001::blanket::Q4::H2,woven throw blanket rustic decor,blanket,1

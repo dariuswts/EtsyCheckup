@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781433900,
+  "created_at": 1781433870,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_0d6c1314a3120720006a2e860e84c481929b5b46c8e2bf1a74",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_0d6c1314a3120720006a2e860f3b50819286b355bf2a35a551",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"wf0_batch_20260614_132001::goth\",\"seed_keyword\":\"goth\",\"bundle_decision\":\"advance_some\",\"bundle_summary\":\"Two defensible directions emerge: (1) goth/horror-themed phone cases have direct search demand; (2) a pastel goth audience cluster appears across multiple apparel-focused queries and merits validation on POD-friendly surfaces. Most other candidates are seller-supply or digital-only and do not support POD validation.\",\"hypotheses\":[{\"hypothesis_id\":\"H1\",\"label\":\"Goth and horror themed phone cases\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"06_got_17\",\"06_got_15\"],\"audience_or_buyer\":\"Shoppers who like goth and horror aesthetics and want themed protective phone cases\",\"theme_identity_or_occasion\":\"Goth and horror aesthetics\",\"likely_validation_surfaces\":[\"Etsy SERPs for 'goth phone case' and 'horror phone case'\",\"Top-converting listing themes, imagery, and tag clusters\",\"Shop/market saturation and pricing for goth/horror cases\"],\"linked_query_ids\":[\"Q1\",\"Q2\"],\"concise_evidence\":\"Direct product queries show demand for goth phone case (moderate volume/competition) and horror phone case (broader adjacent theme), indicating active niche interest.\",\"uncertainty\":\"Results may skew toward licensed horror IP; need to verify presence of generic, non-IP designs.\"},{\"hypothesis_id\":\"H2\",\"label\":\"Pastel goth aesthetic audience with potential POD demand\",\"decision\":\"rewrite_and_validate\",\"confidence\":\"low\",\"supporting_candidate_ids\":[\"06_got_18\",\"06_got_07\"],\"audience_or_buyer\":\"Shoppers identifying with pastel goth/soft goth aesthetics\",\"theme_identity_or_occasion\":\"Pastel goth subculture (cute/dark aesthetic)\",\"likely_validation_surfaces\":[\"Etsy SERPs for 'pastel goth phone case' and 'pastel goth poster'\",\"Tag/keyword density around pastel goth on POD-friendly items\",\"Listing volume and non-apparel placements in this aesthetic\"],\"linked_query_ids\":[\"Q3\",\"Q4\"],\"concise_evidence\":\"Multiple pastel goth apparel queries indicate a coherent subculture with purchase intent; needs validation on POD surfaces beyond apparel.\",\"uncertainty\":\"Current evidence is apparel-heavy; demand may not translate to POD items like cases/prints.\"}],\"validation_queries\":[{\"query_id\":\"Q1\",\"query\":\"goth phone case\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"high\",\"concise_reason\":\"Direct match to supporting candidate; validates volume, competition, and non-IP prevalence.\"},{\"query_id\":\"Q2\",\"query\":\"horror phone case\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"medium\",\"concise_reason\":\"Adjacent theme strengthening the goth phone case niche; checks breadth and saturation.\"},{\"query_id\":\"Q3\",\"query\":\"pastel goth phone case\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"medium\",\"concise_reason\":\"Tests whether pastel goth interest appears on a POD-friendly surface.\"},{\"query_id\":\"Q4\",\"query\":\"pastel goth poster\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"medium\",\"concise_reason\":\"Validates pastel goth presence in wall art/prints beyond apparel.\"}],\"candidate_dispositions\":{\"supports\":[\"06_got_17\",\"06_got_15\",\"06_got_18\",\"06_got_07\"],\"ingredient_only\":[\"06_got_03\",\"06_got_04\"],\"duplicate_or_redundant\":[],\"irrelevant\":[\"06_got_13\",\"06_got_14\",\"06_got_16\"],\"insufficient_evidence\":[],\"seller_supply_or_digital\":[\"06_got_01\",\"06_got_02\",\"06_got_05\",\"06_got_06\",\"06_got_08\",\"06_got_09\",\"06_got_10\",\"06_got_11\",\"06_got_12\",\"06_got_19\",\"06_got_20\"],\"quarantine_ip\":[]},\"bundle_warnings\":[\"Many candidates are seller-supply or digital-only and cannot validate POD niches (png, svg, 3D-printed frames, apparel/jewelry/accessories, furniture applique, vtuber assets).\",\"Potential presence of licensed horror IP within phone case results requires careful non-IP validation.\"]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_0d6c1314a3120720006a2e862595a081928046e533f9c4fe46",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 4163,
+    "input_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "output_tokens": 3281,
+    "output_tokens_details": {
+      "reasoning_tokens": 2304
+    },
+    "total_tokens": 7444
+  },
+  "user": null
+}

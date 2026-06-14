@@ -1,0 +1,1902 @@
+{
+  "query_groups": [
+    {
+      "evidence": [
+        "'decoden phone case' and 'anime phone case' both show strong interest, aligning within a cohesive kawaii/J-pop aesthetic."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 11285.0,
+            "sum": 14892.0
+          },
+          "competition": {
+            "max": 15088.0,
+            "sum": 19978.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 14.0,
+            "sum": 27.0
+          },
+          "google_search_volume": {
+            "max": 6600.0,
+            "sum": 10200.0
+          },
+          "search_volume": {
+            "max": 7822.0,
+            "sum": 10453.0
+          }
+        }
+      ],
+      "normalized_query": "anime phone case",
+      "query_group_id": "qg_0001",
+      "source_phrases": [
+        "anime phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::phone case::Q4::H2"
+      ],
+      "source_seeds": [
+        "phone case"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Must avoid specific anime/franchise IP; aesthetic is broad and competitive."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct product intent for baby blankets plus clear gifting occasions (new mom, baby shower) and recipient (grandma) indicate a coherent non-IP gifting niche."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 9138.0,
+            "sum": 19085.0
+          },
+          "competition": {
+            "max": 549864.0,
+            "sum": 1555401.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 358.0
+          },
+          "google_search_volume": {
+            "max": 40500.0,
+            "sum": 58400.0
+          },
+          "search_volume": {
+            "max": 11652.0,
+            "sum": 21400.0
+          }
+        }
+      ],
+      "normalized_query": "baby blanket gift for new mom",
+      "query_group_id": "qg_0002",
+      "source_phrases": [
+        "baby blanket gift for new mom"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::blanket::Q1::H1"
+      ],
+      "source_seeds": [
+        "blanket"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Scope could be broad; ensure queries capture blanket-focused gift intent rather than general gift baskets or favors."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct product intent for baby blankets plus clear gifting occasions (new mom, baby shower) and recipient (grandma) indicate a coherent non-IP gifting niche."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 9138.0,
+            "sum": 19085.0
+          },
+          "competition": {
+            "max": 549864.0,
+            "sum": 1555401.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 358.0
+          },
+          "google_search_volume": {
+            "max": 40500.0,
+            "sum": 58400.0
+          },
+          "search_volume": {
+            "max": 11652.0,
+            "sum": 21400.0
+          }
+        }
+      ],
+      "normalized_query": "baby shower blanket gift",
+      "query_group_id": "qg_0003",
+      "source_phrases": [
+        "baby shower blanket gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::blanket::Q2::H1"
+      ],
+      "source_seeds": [
+        "blanket"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Scope could be broad; ensure queries capture blanket-focused gift intent rather than general gift baskets or favors."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple audience/style queries (cute, for women, rear-view mirror focus, boho seat covers) form a coherent cluster within car accessories."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3909.0,
+            "sum": 6949.0
+          },
+          "competition": {
+            "max": 55698.0,
+            "sum": 81576.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 63.0,
+            "sum": 224.0
+          },
+          "google_search_volume": {
+            "max": 3600.0,
+            "sum": 6480.0
+          },
+          "search_volume": {
+            "max": 3611.0,
+            "sum": 6154.0
+          }
+        }
+      ],
+      "normalized_query": "boho car seat covers",
+      "query_group_id": "qg_0004",
+      "source_phrases": [
+        "boho car seat covers"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::car accessories::q5::h2"
+      ],
+      "source_seeds": [
+        "car accessories"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Highly competitive styles and fast-changing aesthetics; need to verify specific styles/sub-niches with real query volume."
+      ]
+    },
+    {
+      "evidence": [
+        "Two coherent long-tail queries explicitly for photo-based visor/clip accessories indicate targeted demand within car accessories."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 150.0,
+            "sum": 163.0
+          },
+          "competition": {
+            "max": 2280.0,
+            "sum": 2592.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 62.0,
+            "sum": 121.0
+          },
+          "google_search_volume": {
+            "max": 320.0,
+            "sum": 320.0
+          },
+          "search_volume": {
+            "max": 133.0,
+            "sum": 154.0
+          }
+        }
+      ],
+      "normalized_query": "car visor photo clip",
+      "query_group_id": "qg_0005",
+      "source_phrases": [
+        "car visor photo clip"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::car accessories::q2::h1"
+      ],
+      "source_seeds": [
+        "car accessories"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Low absolute volume; need to confirm broader cross-terms and seasonality."
+      ]
+    },
+    {
+      "evidence": [
+        "'Last toast on the coast' shows solid Etsy demand; a specific locale query (Carmel-by-the-Sea bachelorette) corroborates coastal destination interest."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 799.0,
+            "sum": 862.0
+          },
+          "competition": {
+            "max": 10727.0,
+            "sum": 10740.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 57.0,
+            "sum": 58.0
+          },
+          "google_search_volume": {
+            "max": 1000.0,
+            "sum": 1040.0
+          },
+          "search_volume": {
+            "max": 769.0,
+            "sum": 812.0
+          }
+        }
+      ],
+      "normalized_query": "carmel by the sea bachelorette",
+      "query_group_id": "qg_0006",
+      "source_phrases": [
+        "carmel by the sea bachelorette"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q6::H3"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Location breadth vs. single-town concentration is unclear; need to confirm applicability beyond the cited locale."
+      ]
+    },
+    {
+      "evidence": [
+        "\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3154.0,
+            "sum": 3218.0
+          },
+          "competition": {
+            "max": 297198.0,
+            "sum": 297198.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": 1830000.0,
+            "sum": 1830000.0
+          },
+          "search_volume": {
+            "max": 2560.0,
+            "sum": 2621.0
+          }
+        }
+      ],
+      "normalized_query": "cheer crop top baseball jersey",
+      "query_group_id": "qg_0007",
+      "source_phrases": [
+        "cheer crop top baseball jersey"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q4::h2"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist."
+      ]
+    },
+    {
+      "evidence": [
+        "\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3154.0,
+            "sum": 3218.0
+          },
+          "competition": {
+            "max": 297198.0,
+            "sum": 297198.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": 1830000.0,
+            "sum": 1830000.0
+          },
+          "search_volume": {
+            "max": 2560.0,
+            "sum": 2621.0
+          }
+        }
+      ],
+      "normalized_query": "cheerleading crop top",
+      "query_group_id": "qg_0008",
+      "source_phrases": [
+        "cheerleading crop top"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q5::h2"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple high-click seasonal queries specifically for phone cases: 'halloween phone case' and variant, plus 'christmas phone case'."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 8259.0,
+            "sum": 17612.0
+          },
+          "competition": {
+            "max": 65383.0,
+            "sum": 138439.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 64.0,
+            "sum": 162.0
+          },
+          "google_search_volume": {
+            "max": 2400.0,
+            "sum": 2400.0
+          },
+          "search_volume": {
+            "max": 5510.0,
+            "sum": 12004.0
+          }
+        }
+      ],
+      "normalized_query": "christmas phone case",
+      "query_group_id": "qg_0009",
+      "source_phrases": [
+        "christmas phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::phone case::Q2::H1"
+      ],
+      "source_seeds": [
+        "phone case"
+      ],
+      "supporting_candidate_count": 3,
+      "uncertainty": [
+        "Competition is moderate-high; holiday demand is time-bound and trend-sensitive."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple alcohol-related customizable product intents (wine stopper, tumbler, bottle label) co-occur with housewarming audience/occasion queries (for couple, gift basket)."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1189.0,
+            "sum": 4152.0
+          },
+          "competition": {
+            "max": 55636.0,
+            "sum": 112103.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 90.0,
+            "sum": 332.0
+          },
+          "google_search_volume": {
+            "max": 1900.0,
+            "sum": 6260.0
+          },
+          "search_volume": {
+            "max": 1190.0,
+            "sum": 3830.0
+          }
+        }
+      ],
+      "normalized_query": "custom wine stopper housewarming gift",
+      "query_group_id": "qg_0010",
+      "source_phrases": [
+        "custom wine stopper housewarming gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q3::h1"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 5,
+      "uncertainty": [
+        "Not all product formats are strictly POD; need to verify presence of printable/customized designs positioned specifically for housewarming."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple audience/style queries (cute, for women, rear-view mirror focus, boho seat covers) form a coherent cluster within car accessories."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3909.0,
+            "sum": 6949.0
+          },
+          "competition": {
+            "max": 55698.0,
+            "sum": 81576.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 63.0,
+            "sum": 224.0
+          },
+          "google_search_volume": {
+            "max": 3600.0,
+            "sum": 6480.0
+          },
+          "search_volume": {
+            "max": 3611.0,
+            "sum": 6154.0
+          }
+        }
+      ],
+      "normalized_query": "cute car accessories for women",
+      "query_group_id": "qg_0011",
+      "source_phrases": [
+        "cute car accessories for women"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::car accessories::q3::h2"
+      ],
+      "source_seeds": [
+        "car accessories"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Highly competitive styles and fast-changing aesthetics; need to verify specific styles/sub-niches with real query volume."
+      ]
+    },
+    {
+      "evidence": [
+        "'decoden phone case' and 'anime phone case' both show strong interest, aligning within a cohesive kawaii/J-pop aesthetic."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 11285.0,
+            "sum": 14892.0
+          },
+          "competition": {
+            "max": 15088.0,
+            "sum": 19978.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 14.0,
+            "sum": 27.0
+          },
+          "google_search_volume": {
+            "max": 6600.0,
+            "sum": 10200.0
+          },
+          "search_volume": {
+            "max": 7822.0,
+            "sum": 10453.0
+          }
+        }
+      ],
+      "normalized_query": "decoden phone case",
+      "query_group_id": "qg_0012",
+      "source_phrases": [
+        "decoden phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::phone case::Q3::H2"
+      ],
+      "source_seeds": [
+        "phone case"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Must avoid specific anime/franchise IP; aesthetic is broad and competitive."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 183.0,
+            "sum": 222.0
+          },
+          "competition": {
+            "max": 14292.0,
+            "sum": 14292.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 123.0,
+            "sum": 149.0
+          }
+        }
+      ],
+      "normalized_query": "dubstep crop top",
+      "query_group_id": "qg_0013",
+      "source_phrases": [
+        "dubstep crop top"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q3::h1"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP."
+      ]
+    },
+    {
+      "evidence": [
+        "Two distinct keywords explicitly reference the Girls Gone Mild bachelorette theme with measurable clicks and low-to-moderate competition."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 215.0,
+            "sum": 316.0
+          },
+          "competition": {
+            "max": 5470.0,
+            "sum": 6146.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 69.0,
+            "sum": 109.0
+          },
+          "google_search_volume": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "search_volume": {
+            "max": 226.0,
+            "sum": 333.0
+          }
+        }
+      ],
+      "normalized_query": "girls gone mild bachelorette",
+      "query_group_id": "qg_0014",
+      "source_phrases": [
+        "girls gone mild bachelorette"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q2::H1"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Scope of sub-themes and seasonality are unclear; CTR may be inflated on small volumes."
+      ]
+    },
+    {
+      "evidence": [
+        "Two distinct keywords explicitly reference the Girls Gone Mild bachelorette theme with measurable clicks and low-to-moderate competition."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 215.0,
+            "sum": 316.0
+          },
+          "competition": {
+            "max": 5470.0,
+            "sum": 6146.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 69.0,
+            "sum": 109.0
+          },
+          "google_search_volume": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "search_volume": {
+            "max": 226.0,
+            "sum": 333.0
+          }
+        }
+      ],
+      "normalized_query": "girls gone mild bachelorette theme",
+      "query_group_id": "qg_0015",
+      "source_phrases": [
+        "girls gone mild bachelorette theme"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q1::H1"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Scope of sub-themes and seasonality are unclear; CTR may be inflated on small volumes."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct product queries show demand for goth phone case (moderate volume/competition) and horror phone case (broader adjacent theme), indicating active niche interest."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 2321.0,
+            "sum": 3047.0
+          },
+          "competition": {
+            "max": 10981.0,
+            "sum": 19605.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 57.0,
+            "sum": 96.0
+          },
+          "google_search_volume": {
+            "max": 720.0,
+            "sum": 1310.0
+          },
+          "search_volume": {
+            "max": 1797.0,
+            "sum": 2412.0
+          }
+        }
+      ],
+      "normalized_query": "goth phone case",
+      "query_group_id": "qg_0016",
+      "source_phrases": [
+        "goth phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::goth::Q1::H1"
+      ],
+      "source_seeds": [
+        "goth"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Results may skew toward licensed horror IP; need to verify presence of generic, non-IP designs."
+      ]
+    },
+    {
+      "evidence": [
+        "Specific intent for Tulum, Mexico save-the-dates and Mexico/Guanajuato graduation sashes suggests targeted occasion-based personalization tied to Mexican locations and identity."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 234.0,
+            "sum": 283.0
+          },
+          "competition": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "erank_keyword_difficulty": {
+            "max": null,
+            "sum": null
+          },
+          "google_search_volume": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "search_volume": {
+            "max": 157.0,
+            "sum": 255.0
+          }
+        }
+      ],
+      "normalized_query": "guanajuato graduation sash",
+      "query_group_id": "qg_0017",
+      "source_phrases": [
+        "guanajuato graduation sash"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q4::H2"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Some accessory types (e.g., sashes) may have limited POD fulfillment; focus validation on commonly available print surfaces for occasions."
+      ]
+    },
+    {
+      "evidence": [
+        "Explicit interest in \u201cgulf of mexico shirt\u201d supported by broader \u201cgulf of mexico\u201d thematic search indicates a market for Gulf-centric designs across apparel and decor."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 774.0,
+            "sum": 1344.0
+          },
+          "competition": {
+            "max": 11385.0,
+            "sum": 18364.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 68.0,
+            "sum": 118.0
+          },
+          "google_search_volume": {
+            "max": 165000.0,
+            "sum": 167400.0
+          },
+          "search_volume": {
+            "max": 693.0,
+            "sum": 1198.0
+          }
+        }
+      ],
+      "normalized_query": "gulf of mexico shirt",
+      "query_group_id": "qg_0018",
+      "source_phrases": [
+        "gulf of mexico shirt"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q5::H3"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Broader term includes non-merch info-seeking; validation should confirm merch-intent subqueries (e.g., apparel, wall art)."
+      ]
+    },
+    {
+      "evidence": [
+        "Explicit interest in \u201cgulf of mexico shirt\u201d supported by broader \u201cgulf of mexico\u201d thematic search indicates a market for Gulf-centric designs across apparel and decor."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 774.0,
+            "sum": 1344.0
+          },
+          "competition": {
+            "max": 11385.0,
+            "sum": 18364.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 68.0,
+            "sum": 118.0
+          },
+          "google_search_volume": {
+            "max": 165000.0,
+            "sum": 167400.0
+          },
+          "search_volume": {
+            "max": 693.0,
+            "sum": 1198.0
+          }
+        }
+      ],
+      "normalized_query": "gulf of mexico wall art",
+      "query_group_id": "qg_0019",
+      "source_phrases": [
+        "gulf of mexico wall art"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q6::H3"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Broader term includes non-merch info-seeking; validation should confirm merch-intent subqueries (e.g., apparel, wall art)."
+      ]
+    },
+    {
+      "evidence": [
+        "\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3154.0,
+            "sum": 3218.0
+          },
+          "competition": {
+            "max": 297198.0,
+            "sum": 297198.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": 1830000.0,
+            "sum": 1830000.0
+          },
+          "search_volume": {
+            "max": 2560.0,
+            "sum": 2621.0
+          }
+        }
+      ],
+      "normalized_query": "gym crop top",
+      "query_group_id": "qg_0020",
+      "source_phrases": [
+        "gym crop top"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q6::h2"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple high-click seasonal queries specifically for phone cases: 'halloween phone case' and variant, plus 'christmas phone case'."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 8259.0,
+            "sum": 17612.0
+          },
+          "competition": {
+            "max": 65383.0,
+            "sum": 138439.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 64.0,
+            "sum": 162.0
+          },
+          "google_search_volume": {
+            "max": 2400.0,
+            "sum": 2400.0
+          },
+          "search_volume": {
+            "max": 5510.0,
+            "sum": 12004.0
+          }
+        }
+      ],
+      "normalized_query": "halloween phone case",
+      "query_group_id": "qg_0021",
+      "source_phrases": [
+        "halloween phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::phone case::Q1::H1"
+      ],
+      "source_seeds": [
+        "phone case"
+      ],
+      "supporting_candidate_count": 3,
+      "uncertainty": [
+        "Competition is moderate-high; holiday demand is time-bound and trend-sensitive."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct product queries show demand for goth phone case (moderate volume/competition) and horror phone case (broader adjacent theme), indicating active niche interest."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 2321.0,
+            "sum": 3047.0
+          },
+          "competition": {
+            "max": 10981.0,
+            "sum": 19605.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 57.0,
+            "sum": 96.0
+          },
+          "google_search_volume": {
+            "max": 720.0,
+            "sum": 1310.0
+          },
+          "search_volume": {
+            "max": 1797.0,
+            "sum": 2412.0
+          }
+        }
+      ],
+      "normalized_query": "horror phone case",
+      "query_group_id": "qg_0022",
+      "source_phrases": [
+        "horror phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::goth::Q2::H1"
+      ],
+      "source_seeds": [
+        "goth"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Results may skew toward licensed horror IP; need to verify presence of generic, non-IP designs."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple alcohol-related customizable product intents (wine stopper, tumbler, bottle label) co-occur with housewarming audience/occasion queries (for couple, gift basket)."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1189.0,
+            "sum": 4152.0
+          },
+          "competition": {
+            "max": 55636.0,
+            "sum": 112103.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 90.0,
+            "sum": 332.0
+          },
+          "google_search_volume": {
+            "max": 1900.0,
+            "sum": 6260.0
+          },
+          "search_volume": {
+            "max": 1190.0,
+            "sum": 3830.0
+          }
+        }
+      ],
+      "normalized_query": "housewarming gift for couple wine",
+      "query_group_id": "qg_0023",
+      "source_phrases": [
+        "housewarming gift for couple wine"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q2::h1"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 5,
+      "uncertainty": [
+        "Not all product formats are strictly POD; need to verify presence of printable/customized designs positioned specifically for housewarming."
+      ]
+    },
+    {
+      "evidence": [
+        "'Last toast on the coast' shows solid Etsy demand; a specific locale query (Carmel-by-the-Sea bachelorette) corroborates coastal destination interest."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 799.0,
+            "sum": 862.0
+          },
+          "competition": {
+            "max": 10727.0,
+            "sum": 10740.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 57.0,
+            "sum": 58.0
+          },
+          "google_search_volume": {
+            "max": 1000.0,
+            "sum": 1040.0
+          },
+          "search_volume": {
+            "max": 769.0,
+            "sum": 812.0
+          }
+        }
+      ],
+      "normalized_query": "last toast on the coast bachelorette",
+      "query_group_id": "qg_0024",
+      "source_phrases": [
+        "last toast on the coast bachelorette"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q5::H3"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Location breadth vs. single-town concentration is unclear; need to confirm applicability beyond the cited locale."
+      ]
+    },
+    {
+      "evidence": [
+        "Demand for Mexico flag themed wearables (women\u2019s sneakers) and combined Mexico\u2013Puerto Rico flag motifs plus a Mexico baseball jersey query indicate interest in national-identity and sport-fan apparel."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 125.0,
+            "sum": 252.0
+          },
+          "competition": {
+            "max": 139.0,
+            "sum": 139.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 1.0,
+            "sum": 1.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 176.0,
+            "sum": 262.0
+          }
+        }
+      ],
+      "normalized_query": "mexico baseball fan shirt",
+      "query_group_id": "qg_0025",
+      "source_phrases": [
+        "mexico baseball fan shirt"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q2::H1"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 3,
+      "uncertainty": [
+        "Footwear may be outside many POD catalogs; baseball jerseys can be specialized. Validation should focus on broadly available apparel surfaces."
+      ]
+    },
+    {
+      "evidence": [
+        "Demand for Mexico flag themed wearables (women\u2019s sneakers) and combined Mexico\u2013Puerto Rico flag motifs plus a Mexico baseball jersey query indicate interest in national-identity and sport-fan apparel."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 125.0,
+            "sum": 252.0
+          },
+          "competition": {
+            "max": 139.0,
+            "sum": 139.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 1.0,
+            "sum": 1.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 176.0,
+            "sum": 262.0
+          }
+        }
+      ],
+      "normalized_query": "mexico flag shirt",
+      "query_group_id": "qg_0026",
+      "source_phrases": [
+        "mexico flag shirt"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q1::H1"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 3,
+      "uncertainty": [
+        "Footwear may be outside many POD catalogs; baseball jerseys can be specialized. Validation should focus on broadly available apparel surfaces."
+      ]
+    },
+    {
+      "evidence": [
+        "WiFi password sign aligns with modern/entryway signage; supported by demand for unique/modern home decor and common house-themed phrase \u2018home sweet home\u2019."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1177.0,
+            "sum": 3009.0
+          },
+          "competition": {
+            "max": 1428535.0,
+            "sum": 3018465.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 333.0
+          },
+          "google_search_volume": {
+            "max": 49500.0,
+            "sum": 56380.0
+          },
+          "search_volume": {
+            "max": 1012.0,
+            "sum": 2674.0
+          }
+        }
+      ],
+      "normalized_query": "modern wall decor housewarming gift",
+      "query_group_id": "qg_0027",
+      "source_phrases": [
+        "modern wall decor housewarming gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q5::h2"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Need to confirm enough sellers position these decor items explicitly as housewarming gifts, not just generic decor."
+      ]
+    },
+    {
+      "evidence": [
+        "Interest in the phrase \u201cnew mexico strong\u201d and in \u201ctexas and new mexico mountain art\u201d supports a New Mexico pride and landscape-art niche."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 164.0,
+            "sum": 227.0
+          },
+          "competition": {
+            "max": 59.0,
+            "sum": 59.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 7.0,
+            "sum": 7.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 110.0,
+            "sum": 153.0
+          }
+        }
+      ],
+      "normalized_query": "new mexico mountain art",
+      "query_group_id": "qg_0028",
+      "source_phrases": [
+        "new mexico mountain art"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q7::H4"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Cross-state phrasing may dilute focus; validation should compare purely New Mexico terms vs. multi-state variants."
+      ]
+    },
+    {
+      "evidence": [
+        "Interest in the phrase \u201cnew mexico strong\u201d and in \u201ctexas and new mexico mountain art\u201d supports a New Mexico pride and landscape-art niche."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 164.0,
+            "sum": 227.0
+          },
+          "competition": {
+            "max": 59.0,
+            "sum": 59.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 7.0,
+            "sum": 7.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 110.0,
+            "sum": 153.0
+          }
+        }
+      ],
+      "normalized_query": "new mexico strong shirt",
+      "query_group_id": "qg_0029",
+      "source_phrases": [
+        "new mexico strong shirt"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q8::H4"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Cross-state phrasing may dilute focus; validation should compare purely New Mexico terms vs. multi-state variants."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple pastel goth apparel queries indicate a coherent subculture with purchase intent; needs validation on POD surfaces beyond apparel."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 573.0,
+            "sum": 673.0
+          },
+          "competition": {
+            "max": 14745.0,
+            "sum": 14745.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 73.0,
+            "sum": 73.0
+          },
+          "google_search_volume": {
+            "max": 8100.0,
+            "sum": 8100.0
+          },
+          "search_volume": {
+            "max": 522.0,
+            "sum": 623.0
+          }
+        }
+      ],
+      "normalized_query": "pastel goth phone case",
+      "query_group_id": "qg_0030",
+      "source_phrases": [
+        "pastel goth phone case"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::goth::Q3::H2"
+      ],
+      "source_seeds": [
+        "goth"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Current evidence is apparel-heavy; demand may not translate to POD items like cases/prints."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple pastel goth apparel queries indicate a coherent subculture with purchase intent; needs validation on POD surfaces beyond apparel."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 573.0,
+            "sum": 673.0
+          },
+          "competition": {
+            "max": 14745.0,
+            "sum": 14745.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 73.0,
+            "sum": 73.0
+          },
+          "google_search_volume": {
+            "max": 8100.0,
+            "sum": 8100.0
+          },
+          "search_volume": {
+            "max": 522.0,
+            "sum": 623.0
+          }
+        }
+      ],
+      "normalized_query": "pastel goth poster",
+      "query_group_id": "qg_0031",
+      "source_phrases": [
+        "pastel goth poster"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::goth::Q4::H2"
+      ],
+      "source_seeds": [
+        "goth"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Current evidence is apparel-heavy; demand may not translate to POD items like cases/prints."
+      ]
+    },
+    {
+      "evidence": [
+        "Two coherent long-tail queries explicitly for photo-based visor/clip accessories indicate targeted demand within car accessories."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 150.0,
+            "sum": 163.0
+          },
+          "competition": {
+            "max": 2280.0,
+            "sum": 2592.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 62.0,
+            "sum": 121.0
+          },
+          "google_search_volume": {
+            "max": 320.0,
+            "sum": 320.0
+          },
+          "search_volume": {
+            "max": 133.0,
+            "sum": 154.0
+          }
+        }
+      ],
+      "normalized_query": "personalized car visor photo clip",
+      "query_group_id": "qg_0032",
+      "source_phrases": [
+        "personalized car visor photo clip"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::car accessories::q1::h1"
+      ],
+      "source_seeds": [
+        "car accessories"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Low absolute volume; need to confirm broader cross-terms and seasonality."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 183.0,
+            "sum": 222.0
+          },
+          "competition": {
+            "max": 14292.0,
+            "sum": 14292.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 123.0,
+            "sum": 149.0
+          }
+        }
+      ],
+      "normalized_query": "rave crop top",
+      "query_group_id": "qg_0033",
+      "source_phrases": [
+        "rave crop top"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q2::h1"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple audience/style queries (cute, for women, rear-view mirror focus, boho seat covers) form a coherent cluster within car accessories."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 3909.0,
+            "sum": 6949.0
+          },
+          "competition": {
+            "max": 55698.0,
+            "sum": 81576.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 63.0,
+            "sum": 224.0
+          },
+          "google_search_volume": {
+            "max": 3600.0,
+            "sum": 6480.0
+          },
+          "search_volume": {
+            "max": 3611.0,
+            "sum": 6154.0
+          }
+        }
+      ],
+      "normalized_query": "rear view mirror accessories for women",
+      "query_group_id": "qg_0034",
+      "source_phrases": [
+        "rear view mirror accessories for women"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::car accessories::q4::h2"
+      ],
+      "source_seeds": [
+        "car accessories"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Highly competitive styles and fast-changing aesthetics; need to verify specific styles/sub-niches with real query volume."
+      ]
+    },
+    {
+      "evidence": [
+        "Two coherent decor themes (rustic, living room) align with blanket surfaces (throw, woven), indicating decor-driven blanket demand."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 7149.0,
+            "sum": 17213.0
+          },
+          "competition": {
+            "max": 5645362.0,
+            "sum": 7644745.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 358.0
+          },
+          "google_search_volume": {
+            "max": 74000.0,
+            "sum": 97800.0
+          },
+          "search_volume": {
+            "max": 6407.0,
+            "sum": 15887.0
+          }
+        }
+      ],
+      "normalized_query": "rustic throw blanket for living room",
+      "query_group_id": "qg_0035",
+      "source_phrases": [
+        "rustic throw blanket for living room"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::blanket::Q3::H2"
+      ],
+      "source_seeds": [
+        "blanket"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "High KD on broad decor terms; need to confirm blanket-specific sub-intent and viable long-tails."
+      ]
+    },
+    {
+      "evidence": [
+        "Specific intent for Tulum, Mexico save-the-dates and Mexico/Guanajuato graduation sashes suggests targeted occasion-based personalization tied to Mexican locations and identity."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 234.0,
+            "sum": 283.0
+          },
+          "competition": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "erank_keyword_difficulty": {
+            "max": null,
+            "sum": null
+          },
+          "google_search_volume": {
+            "max": 0.0,
+            "sum": 0.0
+          },
+          "search_volume": {
+            "max": 157.0,
+            "sum": 255.0
+          }
+        }
+      ],
+      "normalized_query": "tulum save the date",
+      "query_group_id": "qg_0036",
+      "source_phrases": [
+        "tulum save the date"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::mexico::Q3::H2"
+      ],
+      "source_seeds": [
+        "mexico"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Some accessory types (e.g., sashes) may have limited POD fulfillment; focus validation on commonly available print surfaces for occasions."
+      ]
+    },
+    {
+      "evidence": [
+        "WiFi password sign aligns with modern/entryway signage; supported by demand for unique/modern home decor and common house-themed phrase \u2018home sweet home\u2019."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1177.0,
+            "sum": 3009.0
+          },
+          "competition": {
+            "max": 1428535.0,
+            "sum": 3018465.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 333.0
+          },
+          "google_search_volume": {
+            "max": 49500.0,
+            "sum": 56380.0
+          },
+          "search_volume": {
+            "max": 1012.0,
+            "sum": 2674.0
+          }
+        }
+      ],
+      "normalized_query": "unique home decor housewarming gift",
+      "query_group_id": "qg_0037",
+      "source_phrases": [
+        "unique home decor housewarming gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q6::h2"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Need to confirm enough sellers position these decor items explicitly as housewarming gifts, not just generic decor."
+      ]
+    },
+    {
+      "evidence": [
+        "Two separate queries use the exact themed phrase Vino Before Vows with clicks and manageable competition."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 100.0,
+            "sum": 163.0
+          },
+          "competition": {
+            "max": 2855.0,
+            "sum": 3217.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 72.0,
+            "sum": 118.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 106.0,
+            "sum": 149.0
+          }
+        }
+      ],
+      "normalized_query": "vino before vows bachelorette",
+      "query_group_id": "qg_0038",
+      "source_phrases": [
+        "vino before vows bachelorette"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q3::H2"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Google volume missing; needs validation on recency and breadth beyond banners."
+      ]
+    },
+    {
+      "evidence": [
+        "Two separate queries use the exact themed phrase Vino Before Vows with clicks and manageable competition."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 100.0,
+            "sum": 163.0
+          },
+          "competition": {
+            "max": 2855.0,
+            "sum": 3217.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 72.0,
+            "sum": 118.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 106.0,
+            "sum": 149.0
+          }
+        }
+      ],
+      "normalized_query": "vino before vows bachelorette banner",
+      "query_group_id": "qg_0039",
+      "source_phrases": [
+        "vino before vows bachelorette banner"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::bachelorette::Q4::H2"
+      ],
+      "source_seeds": [
+        "bachelorette"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Google volume missing; needs validation on recency and breadth beyond banners."
+      ]
+    },
+    {
+      "evidence": [
+        "WiFi password sign aligns with modern/entryway signage; supported by demand for unique/modern home decor and common house-themed phrase \u2018home sweet home\u2019."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1177.0,
+            "sum": 3009.0
+          },
+          "competition": {
+            "max": 1428535.0,
+            "sum": 3018465.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 333.0
+          },
+          "google_search_volume": {
+            "max": 49500.0,
+            "sum": 56380.0
+          },
+          "search_volume": {
+            "max": 1012.0,
+            "sum": 2674.0
+          }
+        }
+      ],
+      "normalized_query": "wifi password sign housewarming gift",
+      "query_group_id": "qg_0040",
+      "source_phrases": [
+        "wifi password sign housewarming gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q4::h2"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "Need to confirm enough sellers position these decor items explicitly as housewarming gifts, not just generic decor."
+      ]
+    },
+    {
+      "evidence": [
+        "Multiple alcohol-related customizable product intents (wine stopper, tumbler, bottle label) co-occur with housewarming audience/occasion queries (for couple, gift basket)."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 1189.0,
+            "sum": 4152.0
+          },
+          "competition": {
+            "max": 55636.0,
+            "sum": 112103.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 90.0,
+            "sum": 332.0
+          },
+          "google_search_volume": {
+            "max": 1900.0,
+            "sum": 6260.0
+          },
+          "search_volume": {
+            "max": 1190.0,
+            "sum": 3830.0
+          }
+        }
+      ],
+      "normalized_query": "wine themed housewarming gift",
+      "query_group_id": "qg_0041",
+      "source_phrases": [
+        "wine themed housewarming gift"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::housewarming gift::q1::h1"
+      ],
+      "source_seeds": [
+        "housewarming gift"
+      ],
+      "supporting_candidate_count": 5,
+      "uncertainty": [
+        "Not all product formats are strictly POD; need to verify presence of printable/customized designs positioned specifically for housewarming."
+      ]
+    },
+    {
+      "evidence": [
+        "Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 183.0,
+            "sum": 222.0
+          },
+          "competition": {
+            "max": 14292.0,
+            "sum": 14292.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 100.0
+          },
+          "google_search_volume": {
+            "max": null,
+            "sum": null
+          },
+          "search_volume": {
+            "max": 123.0,
+            "sum": 149.0
+          }
+        }
+      ],
+      "normalized_query": "womens festival crop top",
+      "query_group_id": "qg_0042",
+      "source_phrases": [
+        "womens festival crop top"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::crop top::q1::h1"
+      ],
+      "source_seeds": [
+        "crop top"
+      ],
+      "supporting_candidate_count": 2,
+      "uncertainty": [
+        "Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP."
+      ]
+    },
+    {
+      "evidence": [
+        "Two coherent decor themes (rustic, living room) align with blanket surfaces (throw, woven), indicating decor-driven blanket demand."
+      ],
+      "metrics": [
+        {
+          "clicks": {
+            "max": 7149.0,
+            "sum": 17213.0
+          },
+          "competition": {
+            "max": 5645362.0,
+            "sum": 7644745.0
+          },
+          "erank_keyword_difficulty": {
+            "max": 100.0,
+            "sum": 358.0
+          },
+          "google_search_volume": {
+            "max": 74000.0,
+            "sum": 97800.0
+          },
+          "search_volume": {
+            "max": 6407.0,
+            "sum": 15887.0
+          }
+        }
+      ],
+      "normalized_query": "woven throw blanket rustic decor",
+      "query_group_id": "qg_0043",
+      "source_phrases": [
+        "woven throw blanket rustic decor"
+      ],
+      "source_query_candidate_ids": [
+        "wf0_batch_20260614_132001::blanket::Q4::H2"
+      ],
+      "source_seeds": [
+        "blanket"
+      ],
+      "supporting_candidate_count": 4,
+      "uncertainty": [
+        "High KD on broad decor terms; need to confirm blanket-specific sub-intent and viable long-tails."
+      ]
+    }
+  ],
+  "schema_version": "wf0_grouped_global_ranking_payload_v1",
+  "selection_bounds": {
+    "max_selected": 20,
+    "min_selected": 10
+  },
+  "source_batch_id": "wf0_batch_20260614_132001"
+}

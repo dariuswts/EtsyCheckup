@@ -1,0 +1,186 @@
+{
+  "bundle_decision": "advance_some",
+  "bundle_id": "wf0_batch_20260614_132001::bachelorette",
+  "bundle_summary": "Advance three niche bachelorette-party themes supported by multiple specific, non-generic phrases: Girls Gone Mild; Vino Before Vows (wine-themed); and Coastal/Seaside destination (Last Toast on the Coast + Carmel-by-the-Sea). Broad occasion/product surfaces and unrelated adjacencies are held as ingredients or rejected.",
+  "bundle_warnings": [
+    "Multiple entries are generic occasion/product surfaces and were held as ingredients.",
+    "Some queries contain typos or low volumes; CTR inflation possible on small sample sizes."
+  ],
+  "candidate_dispositions": {
+    "duplicate_or_redundant": [],
+    "ingredient_only": [
+      "01_bac_03",
+      "01_bac_04",
+      "01_bac_10",
+      "01_bac_13",
+      "01_bac_14",
+      "01_bac_15",
+      "01_bac_16",
+      "01_bac_17",
+      "01_bac_18",
+      "01_bac_19"
+    ],
+    "insufficient_evidence": [
+      "01_bac_05",
+      "01_bac_12"
+    ],
+    "irrelevant": [
+      "01_bac_01",
+      "01_bac_02"
+    ],
+    "quarantine_ip": [],
+    "seller_supply_or_digital": [],
+    "supports": [
+      "01_bac_06",
+      "01_bac_09",
+      "01_bac_07",
+      "01_bac_20",
+      "01_bac_08",
+      "01_bac_11"
+    ]
+  },
+  "hypotheses": [
+    {
+      "audience_or_buyer": "Maid of honor/bridesmaids planning a low-key, wholesome bachelorette",
+      "concise_evidence": "Two distinct keywords explicitly reference the Girls Gone Mild bachelorette theme with measurable clicks and low-to-moderate competition.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H1",
+      "label": "Girls Gone Mild bachelorette theme demand",
+      "likely_validation_surfaces": [
+        "t-shirts",
+        "crewnecks",
+        "hats",
+        "tote bags",
+        "banners",
+        "stickers",
+        "drinkware"
+      ],
+      "linked_query_ids": [
+        "Q1",
+        "Q2"
+      ],
+      "supporting_candidate_ids": [
+        "01_bac_06",
+        "01_bac_09"
+      ],
+      "theme_identity_or_occasion": "Bachelorette party theme \u2013 Girls Gone Mild",
+      "uncertainty": "Scope of sub-themes and seasonality are unclear; CTR may be inflated on small volumes."
+    },
+    {
+      "audience_or_buyer": "Wine-loving bridal parties planning a themed event",
+      "concise_evidence": "Two separate queries use the exact themed phrase Vino Before Vows with clicks and manageable competition.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H2",
+      "label": "Wine-themed bachelorette: Vino Before Vows",
+      "likely_validation_surfaces": [
+        "banners",
+        "t-shirts",
+        "tote bags",
+        "wine bags",
+        "koozies",
+        "cups"
+      ],
+      "linked_query_ids": [
+        "Q3",
+        "Q4"
+      ],
+      "supporting_candidate_ids": [
+        "01_bac_07",
+        "01_bac_20"
+      ],
+      "theme_identity_or_occasion": "Bachelorette party theme \u2013 wine/vineyard focus (Vino Before Vows)",
+      "uncertainty": "Google volume missing; needs validation on recency and breadth beyond banners."
+    },
+    {
+      "audience_or_buyer": "Bridal groups traveling to seaside towns or planning coastal-themed events",
+      "concise_evidence": "'Last toast on the coast' shows solid Etsy demand; a specific locale query (Carmel-by-the-Sea bachelorette) corroborates coastal destination interest.",
+      "confidence": "medium",
+      "decision": "direct_validate",
+      "hypothesis_id": "H3",
+      "label": "Coastal/seaside destination bachelorette themes",
+      "likely_validation_surfaces": [
+        "t-shirts",
+        "totes",
+        "banners",
+        "caps",
+        "drinkware",
+        "itineraries/signage"
+      ],
+      "linked_query_ids": [
+        "Q5",
+        "Q6"
+      ],
+      "supporting_candidate_ids": [
+        "01_bac_08",
+        "01_bac_11"
+      ],
+      "theme_identity_or_occasion": "Bachelorette party theme \u2013 coastal destination (Last Toast on the Coast, Carmel-by-the-Sea)",
+      "uncertainty": "Location breadth vs. single-town concentration is unclear; need to confirm applicability beyond the cited locale."
+    }
+  ],
+  "seed_keyword": "bachelorette",
+  "validation_queries": [
+    {
+      "concise_reason": "Exact-theme discovery to verify breadth of listings and related products.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "girls gone mild bachelorette theme",
+      "query_id": "Q1",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Variant phrasing already showing clicks; checks consistency and surface diversity.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H1"
+      ],
+      "query": "girls gone mild bachelorette",
+      "query_id": "Q2",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Exact phrase with demonstrated clicks; validates across product types beyond banners.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "vino before vows bachelorette",
+      "query_id": "Q3",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Drills into the strongest observed surface to confirm commercial density.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H2"
+      ],
+      "query": "vino before vows bachelorette banner",
+      "query_id": "Q4",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Direct high-signal phrase to validate scale and product spread.",
+      "confidence": "high",
+      "linked_hypothesis_ids": [
+        "H3"
+      ],
+      "query": "last toast on the coast bachelorette",
+      "query_id": "Q5",
+      "query_type": "direct"
+    },
+    {
+      "concise_reason": "Location-specific corroboration for coastal/destination theme viability.",
+      "confidence": "medium",
+      "linked_hypothesis_ids": [
+        "H3"
+      ],
+      "query": "carmel by the sea bachelorette",
+      "query_id": "Q6",
+      "query_type": "direct"
+    }
+  ]
+}

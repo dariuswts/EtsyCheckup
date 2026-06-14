@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781433796,
+  "created_at": 1781433765,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_05f24b3d02a1c367006a2e85a579e0819caf3d06ff6eac4822",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_05f24b3d02a1c367006a2e85a62a78819cb779bdd7d5d43f34",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"wf0_batch_20260614_132001::blanket\",\"seed_keyword\":\"blanket\",\"bundle_decision\":\"advance_some\",\"bundle_summary\":\"Advance two generic, non-IP directions: (1) baby/new-parent gifting blankets; (2) rustic/living-room decor throw or woven blankets. Quarantined named IP/brand terms and excluded crochet-focused evidence as seller-supply/handmade oriented. Several niche fragments held as ingredients due to insufficient independent support.\",\"hypotheses\":[{\"hypothesis_id\":\"H1\",\"label\":\"Baby/new-parent gifting blankets (baby showers, new mom, gifts for grandma)\",\"decision\":\"rewrite_and_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"02_bla_04\",\"02_bla_16\",\"02_bla_08\",\"02_bla_18\"],\"audience_or_buyer\":\"New parents, gift-givers (baby shower hosts, family such as grandma)\",\"theme_identity_or_occasion\":\"Baby-focused gifting occasions (new mom gifts, baby showers, family gifts)\",\"likely_validation_surfaces\":[\"Etsy search/autosuggest for baby blanket gifting queries\",\"Non-IP competitor listings for baby/new parent blanket gifts\",\"Category browse in Baby & Child > Blankets\"],\"linked_query_ids\":[\"Q1\",\"Q2\"],\"concise_evidence\":\"Direct product intent for baby blankets plus clear gifting occasions (new mom, baby shower) and recipient (grandma) indicate a coherent non-IP gifting niche.\",\"uncertainty\":\"Scope could be broad; ensure queries capture blanket-focused gift intent rather than general gift baskets or favors.\"},{\"hypothesis_id\":\"H2\",\"label\":\"Rustic/living-room decor throw and woven blankets\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"02_bla_20\",\"02_bla_09\",\"02_bla_14\",\"02_bla_13\"],\"audience_or_buyer\":\"Home decor shoppers seeking rustic/cozy aesthetics for living rooms\",\"theme_identity_or_occasion\":\"Rustic home decor aesthetic for living room styling\",\"likely_validation_surfaces\":[\"Etsy search for rustic throw/woven blankets\",\"Competitor analysis in Home & Living > Home Decor > Blankets & Throws\",\"Autosuggest and related-search panels for rustic blankets\"],\"linked_query_ids\":[\"Q3\",\"Q4\"],\"concise_evidence\":\"Two coherent decor themes (rustic, living room) align with blanket surfaces (throw, woven), indicating decor-driven blanket demand.\",\"uncertainty\":\"High KD on broad decor terms; need to confirm blanket-specific sub-intent and viable long-tails.\"}],\"validation_queries\":[{\"query_id\":\"Q1\",\"query\":\"baby blanket gift for new mom\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"medium\",\"concise_reason\":\"Directly ties blanket to new-mom gifting intent.\"},{\"query_id\":\"Q2\",\"query\":\"baby shower blanket gift\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H1\"],\"confidence\":\"medium\",\"concise_reason\":\"Targets baby-shower occasion with blanket explicitly.\"},{\"query_id\":\"Q3\",\"query\":\"rustic throw blanket for living room\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"medium\",\"concise_reason\":\"Combines rustic theme with living-room use and blanket surface.\"},{\"query_id\":\"Q4\",\"query\":\"woven throw blanket rustic decor\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"H2\"],\"confidence\":\"medium\",\"concise_reason\":\"Connects woven/throw blanket surface to rustic decor intent.\"}],\"candidate_dispositions\":{\"supports\":[\"02_bla_04\",\"02_bla_08\",\"02_bla_09\",\"02_bla_13\",\"02_bla_14\",\"02_bla_16\",\"02_bla_18\",\"02_bla_20\"],\"ingredient_only\":[\"02_bla_02\",\"02_bla_05\",\"02_bla_12\"],\"duplicate_or_redundant\":[],\"irrelevant\":[\"02_bla_07\"],\"insufficient_evidence\":[\"02_bla_06\"],\"seller_supply_or_digital\":[\"02_bla_03\",\"02_bla_15\",\"02_bla_17\"],\"quarantine_ip\":[\"02_bla_01\",\"02_bla_10\",\"02_bla_11\",\"02_bla_19\"]},\"bundle_warnings\":[\"Named IP/brand or celebrity references quarantined: lord of the rings, bloomies blanket, michael jackson blanket, winnie the pooh baby blanket.\",\"Crochet-related demand likely handmade/seller-supply; excluded from validation surfaces.\",\"Some broad decor/gifting terms carry high KD; validation should seek long-tail blanket-specific intent.\"]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_05f24b3d02a1c367006a2e85bacdc8819c985846a87526f0fc",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 4092,
+    "input_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "output_tokens": 3043,
+    "output_tokens_details": {
+      "reasoning_tokens": 2048
+    },
+    "total_tokens": 7135
+  },
+  "user": null
+}

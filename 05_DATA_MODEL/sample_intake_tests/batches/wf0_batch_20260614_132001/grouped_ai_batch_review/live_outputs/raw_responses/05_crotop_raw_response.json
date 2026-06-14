@@ -1,0 +1,303 @@
+{
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1781433869,
+  "created_at": 1781433845,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "id": "resp_00552d159f06b614006a2e85f52270819dbfcd73e622dd50b5",
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 6000,
+  "max_tool_calls": null,
+  "metadata": {},
+  "model": "gpt-5-2025-08-07",
+  "moderation": null,
+  "object": "response",
+  "output": [
+    {
+      "content": [],
+      "id": "rs_00552d159f06b614006a2e85f589a8819d9d6b4ebb7375eaad",
+      "summary": [],
+      "type": "reasoning"
+    },
+    {
+      "content": [
+        {
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\"bundle_id\":\"wf0_batch_20260614_132001::crop top\",\"seed_keyword\":\"crop top\",\"bundle_decision\":\"advance_some\",\"bundle_summary\":\"Advance two non-IP niches: (1) women\u2019s festival/EDM/rave crop tops, supported by explicit festival and dubstep crop-top signals; (2) athletic/cheer/gym-style crop tops, supported by cheer/baseball-jersey crop top and gym audience interest. Multiple named IP crop-top terms are quarantined. Most generic shirt terms and broad occasions are held as ingredients.\",\"hypotheses\":[{\"hypothesis_id\":\"h1\",\"label\":\"Women\u2019s festival/EDM/rave crop tops (festival-goer audience; EDM/dubstep theme)\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"05_crotop_20\",\"05_crotop_07\"],\"audience_or_buyer\":\"Women attending music festivals/EDM events\",\"theme_identity_or_occasion\":\"Festival/rave occasion; EDM/dubstep music culture\",\"likely_validation_surfaces\":[\"Etsy SERP saturation for festival/rave crop tops\",\"Listing-title and tag patterns referencing festival/rave/EDM without named IP\",\"Bestseller badges and review volume in non-IP festival crop tops\"],\"linked_query_ids\":[\"q1\",\"q2\",\"q3\"],\"concise_evidence\":\"Direct signal for \u201cwomens festival crop top\u201d and a niche long-tail \u201chot girls love dubstep crop top\u201d indicate coherent festival/EDM demand beyond generic crop-top surfaces.\",\"uncertainty\":\"Dubstep phrase volume is modest; need to confirm breadth beyond a few listings and avoid any artist/label IP.\"},{\"hypothesis_id\":\"h2\",\"label\":\"Athletic/cheer/gym-style crop tops (cheerleading/baseball-jersey aesthetic)\",\"decision\":\"direct_validate\",\"confidence\":\"medium\",\"supporting_candidate_ids\":[\"05_crotop_06\",\"05_crotop_04\"],\"audience_or_buyer\":\"Cheerleaders, dance teams, gym/fitness enthusiasts\",\"theme_identity_or_occasion\":\"Athletic/cheer aesthetic for practice/spirit wear\",\"likely_validation_surfaces\":[\"Etsy SERP for cheer/cheerleading crop tops\",\"Presence of baseball-jersey style crop tops from POD-friendly sellers\",\"Tag density around cheer/dance/gym without school/team trademarks\"],\"linked_query_ids\":[\"q4\",\"q5\",\"q6\"],\"concise_evidence\":\"\u201ccheer crop top baseball jersey\u201d aligns with an athletic team aesthetic; \u201cgym\u201d interest suggests broader athletic demand that often includes crop tops.\",\"uncertainty\":\"Must verify that results are generic and not school/team trademarked; ensure enough non-team, non-licensed listings exist.\"}],\"validation_queries\":[{\"query_id\":\"q1\",\"query\":\"womens festival crop top\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"medium\",\"concise_reason\":\"Direct festival crop-top demand signal; check breadth, competition, and bestseller presence.\"},{\"query_id\":\"q2\",\"query\":\"rave crop top\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"medium\",\"concise_reason\":\"Common synonym for festival/EDM attire; validates niche beyond the exact seed phrase.\"},{\"query_id\":\"q3\",\"query\":\"dubstep crop top\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h1\"],\"confidence\":\"medium\",\"concise_reason\":\"Tests music-genre-specific demand within EDM without invoking named artists/labels.\"},{\"query_id\":\"q4\",\"query\":\"cheer crop top baseball jersey\",\"query_type\":\"direct\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"medium\",\"concise_reason\":\"Direct long-tail signal combining cheer and jersey-style aesthetic.\"},{\"query_id\":\"q5\",\"query\":\"cheerleading crop top\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"medium\",\"concise_reason\":\"Captures broader cheer aesthetic variants beyond the exact long-tail.\"},{\"query_id\":\"q6\",\"query\":\"gym crop top\",\"query_type\":\"rewritten\",\"linked_hypothesis_ids\":[\"h2\"],\"confidence\":\"medium\",\"concise_reason\":\"Validates general athletic/fitness demand for crop tops adjacent to cheer aesthetics.\"}],\"candidate_dispositions\":{\"supports\":[\"05_crotop_04\",\"05_crotop_06\",\"05_crotop_07\",\"05_crotop_20\"],\"ingredient_only\":[\"05_crotop_01\",\"05_crotop_02\",\"05_crotop_03\",\"05_crotop_05\",\"05_crotop_08\",\"05_crotop_13\",\"05_crotop_14\",\"05_crotop_15\",\"05_crotop_16\",\"05_crotop_17\",\"05_crotop_18\",\"05_crotop_19\"],\"duplicate_or_redundant\":[],\"irrelevant\":[],\"insufficient_evidence\":[],\"seller_supply_or_digital\":[],\"quarantine_ip\":[\"05_crotop_09\",\"05_crotop_10\",\"05_crotop_11\",\"05_crotop_12\"]},\"bundle_warnings\":[\"Multiple named IP terms detected (Silent Hill, JJK, Berkeley, Zelda) \u2014 quarantined and excluded from validation directions.\"]}",
+          "type": "output_text"
+        }
+      ],
+      "id": "msg_00552d159f06b614006a2e8605e018819da2606d49f1c31b10",
+      "role": "assistant",
+      "status": "completed",
+      "type": "message"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "context": "current_turn",
+    "effort": "low",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "status": "completed",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "description": null,
+      "name": "wf0_grouped_ai_pilot",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "bundle_decision": {
+            "enum": [
+              "advance_some",
+              "hold_no_queries",
+              "quarantine_bundle",
+              "reject_bundle"
+            ],
+            "type": "string"
+          },
+          "bundle_id": {
+            "type": "string"
+          },
+          "bundle_summary": {
+            "type": "string"
+          },
+          "bundle_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "candidate_dispositions": {
+            "additionalProperties": false,
+            "properties": {
+              "duplicate_or_redundant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ingredient_only": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "insufficient_evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "irrelevant": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "quarantine_ip": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "seller_supply_or_digital": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "supports": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "supports",
+              "ingredient_only",
+              "duplicate_or_redundant",
+              "irrelevant",
+              "insufficient_evidence",
+              "seller_supply_or_digital",
+              "quarantine_ip"
+            ],
+            "type": "object"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "audience_or_buyer": {
+                  "type": "string"
+                },
+                "concise_evidence": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "decision": {
+                  "enum": [
+                    "direct_validate",
+                    "rewrite_and_validate",
+                    "hold_as_ingredient",
+                    "reject",
+                    "quarantine_ip"
+                  ],
+                  "type": "string"
+                },
+                "hypothesis_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "likely_validation_surfaces": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "linked_query_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "supporting_candidate_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "theme_identity_or_occasion": {
+                  "type": "string"
+                },
+                "uncertainty": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "hypothesis_id",
+                "label",
+                "decision",
+                "confidence",
+                "supporting_candidate_ids",
+                "audience_or_buyer",
+                "theme_identity_or_occasion",
+                "likely_validation_surfaces",
+                "linked_query_ids",
+                "concise_evidence",
+                "uncertainty"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "type": "array"
+          },
+          "seed_keyword": {
+            "type": "string"
+          },
+          "validation_queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "concise_reason": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "enum": [
+                    "high",
+                    "medium",
+                    "low"
+                  ],
+                  "type": "string"
+                },
+                "linked_hypothesis_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "query": {
+                  "type": "string"
+                },
+                "query_id": {
+                  "type": "string"
+                },
+                "query_type": {
+                  "enum": [
+                    "direct",
+                    "rewritten"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query_id",
+                "query",
+                "query_type",
+                "linked_hypothesis_ids",
+                "confidence",
+                "concise_reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bundle_id",
+          "seed_keyword",
+          "bundle_decision",
+          "bundle_summary",
+          "hypotheses",
+          "validation_queries",
+          "candidate_dispositions",
+          "bundle_warnings"
+        ],
+        "type": "object"
+      },
+      "strict": true,
+      "type": "json_schema"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 4163,
+    "input_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "output_tokens": 3028,
+    "output_tokens_details": {
+      "reasoning_tokens": 1856
+    },
+    "total_tokens": 7191
+  },
+  "user": null
+}

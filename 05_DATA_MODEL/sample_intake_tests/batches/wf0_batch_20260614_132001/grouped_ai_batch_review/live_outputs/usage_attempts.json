@@ -1,0 +1,134 @@
+[
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\01_bac_raw_response.json",
+    "seed": "bachelorette",
+    "usage": {
+      "input_tokens": 4064,
+      "output_tokens": 3161,
+      "reasoning_tokens": 1984,
+      "total_tokens": 7225
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\02_bla_raw_response.json",
+    "seed": "blanket",
+    "usage": {
+      "input_tokens": 4092,
+      "output_tokens": 3043,
+      "reasoning_tokens": 2048,
+      "total_tokens": 7135
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\03_calpop_raw_response.json",
+    "seed": "california poppy",
+    "usage": {
+      "input_tokens": 4111,
+      "output_tokens": 2283,
+      "reasoning_tokens": 1920,
+      "total_tokens": 6394
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\04_caracc_raw_response.json",
+    "seed": "car accessories",
+    "usage": {
+      "input_tokens": 4048,
+      "output_tokens": 3014,
+      "reasoning_tokens": 2048,
+      "total_tokens": 7062
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\05_crotop_raw_response.json",
+    "seed": "crop top",
+    "usage": {
+      "input_tokens": 4163,
+      "output_tokens": 3028,
+      "reasoning_tokens": 1856,
+      "total_tokens": 7191
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\06_got_raw_response.json",
+    "seed": "goth",
+    "usage": {
+      "input_tokens": 4163,
+      "output_tokens": 3281,
+      "reasoning_tokens": 2304,
+      "total_tokens": 7444
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\07_hougif_raw_response.json",
+    "seed": "housewarming gift",
+    "usage": {
+      "input_tokens": 4149,
+      "output_tokens": 3020,
+      "reasoning_tokens": 1856,
+      "total_tokens": 7169
+    }
+  },
+  {
+    "accepted": false,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\08_irolun_raw_response.json",
+    "seed": "iron lung",
+    "usage": {
+      "input_tokens": 4353,
+      "output_tokens": 1428,
+      "reasoning_tokens": 960,
+      "total_tokens": 5781
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\09_mex_raw_response.json",
+    "seed": "mexico",
+    "usage": {
+      "input_tokens": 4127,
+      "output_tokens": 4318,
+      "reasoning_tokens": 2752,
+      "total_tokens": 8445
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\10_phocas_raw_response.json",
+    "seed": "phone case",
+    "usage": {
+      "input_tokens": 4033,
+      "output_tokens": 2912,
+      "reasoning_tokens": 1984,
+      "total_tokens": 6945
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\11_vin_raw_response.json",
+    "seed": "vintage",
+    "usage": {
+      "input_tokens": 4046,
+      "output_tokens": 2387,
+      "reasoning_tokens": 1984,
+      "total_tokens": 6433
+    }
+  },
+  {
+    "accepted": true,
+    "raw_response_path": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\grouped_ai_batch_review\\live_outputs\\raw_responses\\08_irolun_raw_response.json",
+    "seed": "iron lung",
+    "usage": {
+      "input_tokens": 4353,
+      "output_tokens": 1413,
+      "reasoning_tokens": 1024,
+      "total_tokens": 5766
+    }
+  }
+]

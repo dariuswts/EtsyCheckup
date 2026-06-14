@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bundle_assessment": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_quality": {
+          "enum": [
+            "strong",
+            "mixed",
+            "weak",
+            "unsafe"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "overall_decision": {
+          "enum": [
+            "advance",
+            "needs_more_validation",
+            "hold",
+            "reject"
+          ]
+        }
+      },
+      "required": [
+        "evidence_quality",
+        "overall_decision",
+        "notes"
+      ],
+      "type": "object"
+    },
+    "bundle_id": {
+      "type": "string"
+    },
+    "directions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "enum": [
+              "advance_strong",
+              "advance_possible",
+              "needs_more_validation",
+              "hold",
+              "reject"
+            ]
+          },
+          "direction_id": {
+            "type": "string"
+          },
+          "direction_label": {
+            "type": "string"
+          },
+          "human_review_notes": {
+            "type": "string"
+          },
+          "risk_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "supporting_evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "direction_id",
+          "direction_label",
+          "decision",
+          "supporting_evidence_ids",
+          "risk_flags",
+          "human_review_notes"
+        ],
+        "type": "object"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "query_group_id": {
+      "type": "string"
+    },
+    "queue_phrase": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "wf1_everbee_grouped_review_v2"
+    }
+  },
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "query_group_id",
+    "queue_phrase",
+    "directions",
+    "bundle_assessment"
+  ],
+  "title": "wf1_everbee_grouped_review_v2",
+  "type": "object"
+}

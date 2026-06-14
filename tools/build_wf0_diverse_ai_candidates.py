@@ -66,6 +66,7 @@ PRODUCT_SURFACE_TERMS = {
     "doormat", "doormats", "phone case", "phone cases", "keychain", "keychains",
     "sign", "signs", "earrings", "wallet", "wallets", "pins", "pin",
 }
+SINGLE_TOKEN_PRODUCT_SURFACE_TERMS = {term for term in PRODUCT_SURFACE_TERMS if " " not in term}
 
 MATERIAL_SURFACE_GROUPS = {
     "shirt": {"shirt", "shirts", "tshirt", "tshirts", "t-shirt", "t-shirts", "tee", "tees"},
@@ -151,6 +152,8 @@ SELLER_SUPPLY_DIGITAL_TOKENS = {
     "clipart", "mockup", "mockups", "font", "fonts", "plr",
 }
 CRAFT_PATTERN_TOKENS = {"crochet", "knit", "knitting", "sewing", "embroidery"}
+CRAFT_PATTERN_TOKENS.update({"quilt", "quilting"})
+PATTERN_TOKENS = {"pattern", "patterns"}
 SELLER_FILE_TOKENS = {"file", "files", "download", "downloads", "digital"}
 VECTOR_FILE_TOKENS = {"svg", "png", "dxf", "eps"}
 PACKAGING_SUPPLY_PHRASES = {
@@ -448,11 +451,13 @@ def seller_supply_digital_match(phrase: str) -> tuple[bool, str]:
     row_tokens = token_set(phrase)
     hits = matched_terms(phrase, SELLER_SUPPLY_DIGITAL_PHRASES)
     hits.extend(sorted(row_tokens & SELLER_SUPPLY_DIGITAL_TOKENS))
-    if "pattern" in row_tokens and (row_tokens & CRAFT_PATTERN_TOKENS):
-        hits.extend(sorted(f"{token} pattern" for token in (row_tokens & CRAFT_PATTERN_TOKENS)))
-    if {"cross", "stitch", "pattern"}.issubset(row_tokens):
-        hits.append("cross stitch pattern")
-    if {"pattern", "pdf"}.issubset(row_tokens):
+    pattern_terms = row_tokens & PATTERN_TOKENS
+    if pattern_terms and (row_tokens & CRAFT_PATTERN_TOKENS):
+        pattern_word = "patterns" if "patterns" in pattern_terms else "pattern"
+        hits.extend(sorted(f"{token} {pattern_word}" for token in (row_tokens & CRAFT_PATTERN_TOKENS)))
+    if {"cross", "stitch"}.issubset(row_tokens) and pattern_terms:
+        hits.append("cross stitch patterns" if "patterns" in pattern_terms else "cross stitch pattern")
+    if pattern_terms and "pdf" in row_tokens:
         hits.append("pattern pdf")
     if "dtf" in row_tokens and (row_tokens & {"design", "file", "files", "transfer", "transfers"}):
         hits.extend(sorted(f"dtf {token}" for token in (row_tokens & {"design", "file", "files", "transfer", "transfers"})))
@@ -527,7 +532,14 @@ def surface_group(phrase: str) -> str:
 
 
 def meaningful_tokens(phrase: str) -> list[str]:
-    generic = GENERIC_COMMERCE_TOKENS | GENERIC_OCCASION_TOKENS | GENERIC_COLOR_ADJECTIVE_TOKENS | RECIPIENT_ONLY_TOKENS | STOP_FILLER_TOKENS | BARE_SURFACE_TOKENS
+    generic = (
+        GENERIC_COMMERCE_TOKENS
+        | GENERIC_OCCASION_TOKENS
+        | GENERIC_COLOR_ADJECTIVE_TOKENS
+        | RECIPIENT_ONLY_TOKENS
+        | STOP_FILLER_TOKENS
+        | SINGLE_TOKEN_PRODUCT_SURFACE_TERMS
+    )
     return [token for token in tokens(phrase) if token not in generic and len(token) > 1]
 
 

@@ -1,0 +1,17 @@
+# WF1 Ranked EverBee Links
+
+1. [anime phone case](https://app.everbee.io/product-analytics?search_term=anime%20phone%20case)
+2. [halloween phone case](https://app.everbee.io/product-analytics?search_term=halloween%20phone%20case)
+3. [christmas phone case](https://app.everbee.io/product-analytics?search_term=christmas%20phone%20case)
+4. [decoden phone case](https://app.everbee.io/product-analytics?search_term=decoden%20phone%20case)
+5. [boho car seat covers](https://app.everbee.io/product-analytics?search_term=boho%20car%20seat%20covers)
+6. [rustic throw blanket for living room](https://app.everbee.io/product-analytics?search_term=rustic%20throw%20blanket%20for%20living%20room)
+7. [baby shower blanket gift](https://app.everbee.io/product-analytics?search_term=baby%20shower%20blanket%20gift)
+8. [gym crop top](https://app.everbee.io/product-analytics?search_term=gym%20crop%20top)
+9. [goth phone case](https://app.everbee.io/product-analytics?search_term=goth%20phone%20case)
+10. [wifi password sign housewarming gift](https://app.everbee.io/product-analytics?search_term=wifi%20password%20sign%20housewarming%20gift)
+11. [wine themed housewarming gift](https://app.everbee.io/product-analytics?search_term=wine%20themed%20housewarming%20gift)
+12. [gulf of mexico shirt](https://app.everbee.io/product-analytics?search_term=gulf%20of%20mexico%20shirt)
+13. [mexico flag shirt](https://app.everbee.io/product-analytics?search_term=mexico%20flag%20shirt)
+14. [last toast on the coast bachelorette](https://app.everbee.io/product-analytics?search_term=last%20toast%20on%20the%20coast%20bachelorette)
+15. [girls gone mild bachelorette](https://app.everbee.io/product-analytics?search_term=girls%20gone%20mild%20bachelorette)

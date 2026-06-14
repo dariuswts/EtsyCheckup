@@ -155,12 +155,15 @@ class WF0DiverseCandidateTests(unittest.TestCase):
             "dtf transfer", "stl 3d model", "stl file download", "print on demand",
             "tumbler wrap", "mockup", "digital download", "svg file", "png file",
             "dxf file", "eps file", "canva template", "editable template", "gift bag filler",
+            "crochet patterns", "crochet baby blanket pattern", "crochet baby blanket patterns",
+            "knit pattern", "knitting patterns", "sewing patterns", "cross stitch patterns",
+            "embroidery patterns", "quilt pattern", "quilting patterns",
         ]:
             self.assertTrue(diverse.hard_exclusion(base_row(phrase), batch_id)[0], phrase)
         for phrase in [
             "floral pattern shirt", "leopard print shirt", "vintage print", "art print",
             "canvas print", "3d printed picture frame", "iron on patch", "embroidered shirt",
-            "garden design shirt",
+            "garden design shirt", "leopard pattern shirt", "patterned blanket",
         ]:
             self.assertFalse(diverse.hard_exclusion(base_row(phrase), batch_id)[0], phrase)
         self.assertFalse(diverse.hard_exclusion(base_row("redwood garden shirt"), batch_id)[0])
@@ -181,6 +184,13 @@ class WF0DiverseCandidateTests(unittest.TestCase):
             hold_terms = ["custom blanket", "personalized blanket"]
             rows = [base_row(term, "blanket") for term in bare_terms + eligible_terms + hold_terms]
             rows.append(base_row("car", "car"))
+            rows.extend([
+                base_row("pin", "bachelorette"),
+                base_row("pins", "bachelorette"),
+                base_row("goth pin", "goth"),
+                base_row("nurse pins", "bachelorette"),
+                base_row("custom pins", "bachelorette"),
+            ])
             write_csv(batch / "ai_review_pool.csv", rows)
             diverse.build_diverse_candidates(batch, write_comparison_report=False)
             full_rows = read_csv(batch / "ai_deterministic_candidate_full_audit.csv")
@@ -196,6 +206,11 @@ class WF0DiverseCandidateTests(unittest.TestCase):
                 self.assertIn(full[term]["deterministic_lane"], {"reviewable_candidate", "broad_expansion_candidate"}, term)
             for term in hold_terms:
                 self.assertEqual(full[term]["deterministic_lane"], "generic_noise_hold", term)
+            self.assertEqual(full["pin"]["deterministic_lane"], "generic_noise_hold")
+            self.assertEqual(full["pins"]["deterministic_lane"], "generic_noise_hold")
+            self.assertIn(full["goth pin"]["deterministic_lane"], {"reviewable_candidate", "broad_expansion_candidate"})
+            self.assertEqual(full["nurse pins"]["deterministic_lane"], "reviewable_candidate")
+            self.assertEqual(full["custom pins"]["deterministic_lane"], "generic_noise_hold")
 
     def test_exact_duplicates_get_unique_stable_ids_and_only_representative_selected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

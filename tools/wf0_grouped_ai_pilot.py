@@ -10,6 +10,7 @@ and must not be run without explicit approval and --confirm-live.
 
 from __future__ import annotations
 
+import sys
 import argparse
 import csv
 import datetime as dt
@@ -17,6 +18,7 @@ import hashlib
 import json
 import os
 import re
+import socket
 import time
 import urllib.error
 import urllib.parse
@@ -68,6 +70,7 @@ OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 DEFAULT_GROUPED_MODEL = os.environ.get("OPENAI_GROUPED_MODEL", "gpt-5")
 DEFAULT_MAX_OUTPUT_TOKENS = 6000
 DEFAULT_REASONING_EFFORT = "low"
+DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS = 300
 REASONING_EFFORTS = {"minimal", "low", "medium", "high"}
 TOKEN_APPROX_CHARS_PER_TOKEN = 4
 MAX_ESTIMATED_INPUT_TOKENS_PER_BUNDLE = 12000
@@ -294,6 +297,15 @@ Select only the strongest existing source search phrases for WF1 EverBee validat
 When at least 10 defensible query groups exist, select between 10 and 20. Do not always select 20. If fewer than 10 are defensible, select all defensible groups and explain that the pool did not support 10.
 
 Every query group must appear exactly once in selected_queries or held_queries. No product concepts, designs, listing copy, pricing, mockups, Etsy actions, Printify actions, or publishing actions."""
+
+
+GLOBAL_RANK_REPAIR_PROMPT = """You are repairing one structurally invalid WF0 global ranking response.
+
+This is not a new ranking pass. Use only the compact repair request data.
+
+Preserve the existing selected entries and their global ranks unless repairing the structural error genuinely requires a change. Disposition every structurally affected query group exactly once as selected or held. If a structurally affected query is selected, maintain unique contiguous global ranks and keep the selected total within the requested bounds. If held, use a valid held reason code.
+
+Return the complete corrected ranking object, not a patch fragment. Every query group from the original ranking input must appear exactly once across selected_queries and held_queries. Do not invent queries, IDs, source evidence, seeds, or downstream product/listing content."""
 
 
 GLOBAL_RANK_SCHEMA: dict[str, Any] = {
@@ -1021,6 +1033,7 @@ def global_rank_live_command(batch: Path, resume: bool = False) -> str:
         "--model", DEFAULT_GROUPED_MODEL,
         "--max-output-tokens", str(DEFAULT_MAX_OUTPUT_TOKENS),
         "--reasoning-effort", DEFAULT_REASONING_EFFORT,
+        "--request-timeout-seconds", str(DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS),
         "--confirm-live",
     ]
     if resume:
@@ -1042,6 +1055,7 @@ def grouped_run_all_command(batch: Path) -> str:
         "--model", DEFAULT_GROUPED_MODEL,
         "--max-output-tokens", str(DEFAULT_MAX_OUTPUT_TOKENS),
         "--reasoning-effort", DEFAULT_REASONING_EFFORT,
+        "--request-timeout-seconds", str(DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS),
         "--confirm-live", "--resume",
     ])
 
@@ -2154,7 +2168,15 @@ def validate_global_ranking_result(ranking: dict[str, Any], payload: dict[str, A
     return {"status": "pass" if not errors else "fail", "errors": errors, "selected_count": len(selected), "held_count": len(held)}
 
 
-def call_global_rank_openai(payload: dict[str, Any], api_key: str, model: str, max_output_tokens: int, reasoning_effort: str, raw_response_path: Path) -> tuple[dict[str, Any], dict[str, int]]:
+def call_global_rank_openai(
+    payload: dict[str, Any],
+    api_key: str,
+    model: str,
+    max_output_tokens: int,
+    reasoning_effort: str,
+    raw_response_path: Path,
+    request_timeout_seconds: int = DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS,
+) -> tuple[dict[str, Any], dict[str, int]]:
     body = {
         "model": model,
         "input": [
@@ -2171,7 +2193,7 @@ def call_global_rank_openai(payload: dict[str, Any], api_key: str, model: str, m
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=90) as response:
+    with urllib.request.urlopen(request, timeout=request_timeout_seconds) as response:
         response_json = json.loads(response.read().decode("utf-8"))
     usage = usage_from_response(response_json)
     write_raw_response(raw_response_path, response_json)
@@ -2179,7 +2201,311 @@ def call_global_rank_openai(payload: dict[str, Any], api_key: str, model: str, m
     return parsed, usage
 
 
-def run_global_rank_live(batch_dir: str | Path, model: str, max_output_tokens: int, reasoning_effort: str, confirm_live: bool, resume: bool, overwrite: bool) -> dict[str, Any]:
+def call_global_rank_repair_openai(
+    repair_payload: dict[str, Any],
+    api_key: str,
+    model: str,
+    max_output_tokens: int,
+    reasoning_effort: str,
+    raw_response_path: Path,
+    request_timeout_seconds: int = DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS,
+) -> tuple[dict[str, Any], dict[str, int]]:
+    body = {
+        "model": model,
+        "input": [
+            {"role": "system", "content": GLOBAL_RANK_REPAIR_PROMPT},
+            {"role": "user", "content": json.dumps(repair_payload, indent=2, sort_keys=True)},
+        ],
+        "text": {"format": {"type": "json_schema", "name": "wf0_grouped_global_rank_repair", "strict": True, "schema": GLOBAL_RANK_SCHEMA}},
+        "max_output_tokens": max_output_tokens,
+        "reasoning": {"effort": reasoning_effort},
+    }
+    request = urllib.request.Request(
+        OPENAI_RESPONSES_URL,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=request_timeout_seconds) as response:
+        response_json = json.loads(response.read().decode("utf-8"))
+    usage = usage_from_response(response_json)
+    write_raw_response(raw_response_path, response_json)
+    parsed = parse_grouped_response(response_json)
+    return parsed, usage
+
+
+def ranking_manifest_path(rank_dir: Path) -> Path:
+    return rank_dir / "ranking_attempt_manifest.json"
+
+
+def load_ranking_manifest(rank_dir: Path) -> list[dict[str, Any]]:
+    path = ranking_manifest_path(rank_dir)
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def write_ranking_manifest(rank_dir: Path, attempts: list[dict[str, Any]]) -> None:
+    ranking_manifest_path(rank_dir).write_text(json.dumps(attempts, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def next_ranking_attempt_number(rank_dir: Path) -> int:
+    attempts = load_ranking_manifest(rank_dir)
+    if attempts:
+        return max(int(item.get("attempt_number", 0) or 0) for item in attempts) + 1
+    existing_numbers: list[int] = []
+    for path in list((rank_dir / "raw_responses").glob("global_rank_raw_response_attempt_*.json")) + list(rank_dir.glob("global_rank_error_attempt_*.json")):
+        match = re.search(r"attempt_(\d+)", path.name)
+        if match:
+            existing_numbers.append(int(match.group(1)))
+    return (max(existing_numbers) + 1) if existing_numbers else 1
+
+
+def append_ranking_attempt(rank_dir: Path, attempt: dict[str, Any]) -> None:
+    attempts = load_ranking_manifest(rank_dir)
+    attempts.append(attempt)
+    write_ranking_manifest(rank_dir, attempts)
+
+
+def is_request_timeout_error(exc: BaseException) -> bool:
+    if isinstance(exc, (TimeoutError, socket.timeout)):
+        return True
+    if isinstance(exc, urllib.error.URLError):
+        reason = exc.reason
+        if isinstance(reason, (TimeoutError, socket.timeout)):
+            return True
+        return "timed out" in clean(reason).lower() or "timeout" in clean(reason).lower()
+    return False
+
+
+def ranking_timeout_summary(
+    rank_dir: Path,
+    attempt_number: int,
+    model: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    exc: BaseException,
+) -> dict[str, Any]:
+    error_path = rank_dir / f"global_rank_error_attempt_{attempt_number:03d}.json"
+    summary = {
+        "status": "fail",
+        "error_type": "request_timeout",
+        "timeout_seconds": timeout_seconds,
+        "raw_response_saved": False,
+        "ranking_accepted": False,
+        "wf1_updated": False,
+        "everbee_queue_written": False,
+        "error": f"{type(exc).__name__}: {exc}",
+        "artifact_path": str(error_path),
+    }
+    error_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    append_ranking_attempt(rank_dir, {
+        "attempt_number": attempt_number,
+        "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "model": model,
+        "reasoning_effort": reasoning_effort,
+        "timeout_seconds": timeout_seconds,
+        "status": "request_timeout",
+        "usage": zero_usage(),
+        "artifact_path": str(error_path),
+    })
+    return summary
+
+
+def repair_attempt_dir(rank_dir: Path) -> Path:
+    return rank_dir / "repair_attempts"
+
+
+def repair_manifest_path(rank_dir: Path) -> Path:
+    return rank_dir / "global_rank_repair_attempt_manifest.json"
+
+
+def load_repair_manifest(rank_dir: Path) -> list[dict[str, Any]]:
+    path = repair_manifest_path(rank_dir)
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    return data if isinstance(data, list) else []
+
+
+def write_repair_manifest(rank_dir: Path, attempts: list[dict[str, Any]]) -> None:
+    repair_manifest_path(rank_dir).write_text(json.dumps(attempts, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def append_repair_attempt(rank_dir: Path, attempt: dict[str, Any]) -> None:
+    attempts = load_repair_manifest(rank_dir)
+    attempts.append(attempt)
+    write_repair_manifest(rank_dir, attempts)
+
+
+def next_repair_attempt_number(rank_dir: Path) -> int:
+    attempts = load_repair_manifest(rank_dir)
+    if attempts:
+        return max(int(item.get("attempt_number", 0) or 0) for item in attempts) + 1
+    attempt_dir = repair_attempt_dir(rank_dir)
+    existing_numbers: list[int] = []
+    for path in attempt_dir.glob("global_rank_repair_*_attempt_*.json"):
+        match = re.search(r"attempt_(\d+)", path.name)
+        if match:
+            existing_numbers.append(int(match.group(1)))
+    return (max(existing_numbers) + 1) if existing_numbers else 1
+
+
+def ids_in_error(error: str) -> list[str]:
+    return re.findall(r"qg_\d+", error)
+
+
+def structural_issue_ids(validation: dict[str, Any], payload: dict[str, Any]) -> dict[str, list[str]]:
+    known_ids = {clean(group.get("query_group_id")) for group in payload.get("query_groups", []) if isinstance(group, dict)}
+    selected = validation.get("selected_ids", []) if isinstance(validation.get("selected_ids"), list) else []
+    held = validation.get("held_ids", []) if isinstance(validation.get("held_ids"), list) else []
+    all_ids = [clean(item) for item in selected + held if clean(item)]
+    missing = sorted(known_ids - set(all_ids))
+    unknown = sorted(set(all_ids) - known_ids)
+    duplicate = sorted(gid for gid, count in Counter(all_ids).items() if gid and count > 1)
+    for error in validation.get("errors", []):
+        text = clean(error)
+        ids = ids_in_error(text)
+        if text.startswith("group_disposition_mismatch"):
+            if "missing=" in text:
+                missing = sorted(set(missing) | {gid for gid in ids if gid in known_ids})
+            if "extra=" in text:
+                unknown = sorted(set(unknown) | {gid for gid in ids if gid not in known_ids})
+        elif text.startswith("duplicate_group_disposition"):
+            duplicate = sorted(set(duplicate) | set(ids))
+        elif text.startswith("unknown_"):
+            unknown = sorted(set(unknown) | set(ids))
+    return {"missing_group_ids": missing, "duplicate_group_ids": duplicate, "unknown_group_ids": unknown}
+
+
+def validation_with_disposition_ids(ranking: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    validation = validate_global_ranking_result(ranking, payload)
+    selected = ranking.get("selected_queries", []) if isinstance(ranking.get("selected_queries"), list) else []
+    held = ranking.get("held_queries", []) if isinstance(ranking.get("held_queries"), list) else []
+    validation["selected_ids"] = [clean(item.get("query_group_id")) for item in selected if isinstance(item, dict)]
+    validation["held_ids"] = [clean(item.get("query_group_id")) for item in held if isinstance(item, dict)]
+    return validation
+
+
+def latest_global_rank_raw_response(rank_dir: Path) -> Path | None:
+    raw_paths = sorted((rank_dir / "raw_responses").glob("global_rank_raw_response_attempt_*.json"))
+    if not raw_paths:
+        return None
+    return raw_paths[-1]
+
+
+def load_latest_invalid_ranking(rank_dir: Path, payload: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], str | None]:
+    result_path = rank_dir / GLOBAL_RANK_RESULT_NAME
+    raw_path = latest_global_rank_raw_response(rank_dir)
+    if result_path.exists():
+        ranking = json.loads(result_path.read_text(encoding="utf-8-sig"))
+        validation = validation_with_disposition_ids(ranking, payload)
+        if validation["status"] == "fail":
+            if raw_path is not None:
+                json.loads(raw_path.read_text(encoding="utf-8-sig"))
+            return ranking, validation, str(raw_path) if raw_path is not None else None
+    if raw_path is None:
+        raise SystemExit(f"Missing invalid raw ranking response under {rank_dir / 'raw_responses'}")
+    response_json = json.loads(raw_path.read_text(encoding="utf-8-sig"))
+    try:
+        ranking = parse_grouped_response(response_json)
+    except GroupedPilotResponseError as exc:
+        raise SystemExit(json.dumps({"status": "fail", "error": exc.audit(), "raw_response_path": str(raw_path)}, indent=2, sort_keys=True)) from exc
+    validation = validation_with_disposition_ids(ranking, payload)
+    if validation["status"] != "fail":
+        raise SystemExit("Most recent parsed ranking response is already valid; repair is not needed.")
+    return ranking, validation, str(raw_path)
+
+
+def build_global_rank_repair_payload(
+    batch: Path,
+    payload: dict[str, Any],
+    invalid_ranking: dict[str, Any],
+    validation: dict[str, Any],
+    raw_response_path: str | None,
+) -> dict[str, Any]:
+    issues = structural_issue_ids(validation, payload)
+    known_groups = {
+        clean(group.get("query_group_id")): group
+        for group in payload.get("query_groups", [])
+        if isinstance(group, dict)
+    }
+    affected_ids = sorted(set(issues["missing_group_ids"]) | set(issues["duplicate_group_ids"]) | set(issues["unknown_group_ids"]))
+    affected_source_groups = [known_groups[gid] for gid in affected_ids if gid in known_groups]
+    return {
+        "schema_version": "wf0_grouped_global_rank_repair_request_v1",
+        "source_batch_id": batch.name,
+        "selection_bounds": payload.get("selection_bounds", {"min_selected": GLOBAL_RANK_MIN_SELECTED, "max_selected": GLOBAL_RANK_MAX_SELECTED}),
+        "invalid_raw_response_path": raw_response_path,
+        "validator_errors": validation.get("errors", []),
+        "structural_issues": issues,
+        "existing_selected_queries": invalid_ranking.get("selected_queries", []),
+        "existing_held_queries": invalid_ranking.get("held_queries", []),
+        "affected_query_groups": affected_source_groups,
+        "strict_correction_instructions": [
+            "Preserve the existing selected entries and their global ranks unless repairing the structural error genuinely requires a change.",
+            "Disposition each missing, duplicate, or unknown group issue exactly once in the complete corrected ranking object.",
+            "For this failure, focus the repair on qg_0017 when it appears in structural_issues.missing_group_ids.",
+            "If qg_0017 or another affected group is selected, maintain unique contiguous global ranks and keep total selected between 10 and 20 when at least 10 defensible groups exist.",
+            "If an affected group is held, use one valid held reason code from the schema.",
+            "Return the complete corrected ranking object, not a patch fragment.",
+            "Every original query group must appear exactly once across selected_queries and held_queries.",
+            "Do not invent queries, IDs, source evidence, seeds, product concepts, listing copy, Etsy actions, or EverBee data.",
+        ],
+    }
+
+
+def repair_timeout_summary(
+    rank_dir: Path,
+    attempt_number: int,
+    model: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    exc: BaseException,
+    error_path: Path,
+) -> dict[str, Any]:
+    summary = {
+        "status": "fail",
+        "error_type": "request_timeout",
+        "timeout_seconds": timeout_seconds,
+        "raw_response_saved": False,
+        "ranking_accepted": False,
+        "wf1_updated": False,
+        "everbee_queue_written": False,
+        "error": f"{type(exc).__name__}: {exc}",
+        "artifact_path": str(error_path),
+    }
+    error_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    append_repair_attempt(rank_dir, {
+        "attempt_number": attempt_number,
+        "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "model": model,
+        "reasoning_effort": reasoning_effort,
+        "timeout_seconds": timeout_seconds,
+        "status": "request_timeout",
+        "usage": zero_usage(),
+        "artifact_path": str(error_path),
+    })
+    return summary
+
+
+def run_global_rank_live(
+    batch_dir: str | Path,
+    model: str,
+    max_output_tokens: int,
+    reasoning_effort: str,
+    confirm_live: bool,
+    resume: bool,
+    overwrite: bool,
+    request_timeout_seconds: int = DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
     if not confirm_live:
         raise SystemExit("grouped-global-rank-live requires --confirm-live. No API call was made.")
     if resume and overwrite:
@@ -2194,23 +2520,179 @@ def run_global_rank_live(batch_dir: str | Path, model: str, max_output_tokens: i
         build_validated_query_pool(batch)
     payload = json.loads(payload_path.read_text(encoding="utf-8"))
     rank_dir = out_dir / "global_ranking_outputs"
-    raw_path = rank_dir / "raw_responses" / "global_rank_raw_response.json"
     result_path = rank_dir / GLOBAL_RANK_RESULT_NAME
     if result_path.exists() and not resume and not overwrite:
         raise SystemExit(f"{result_path} already exists; use --resume or --overwrite.")
     if resume and result_path.exists():
         ranking = json.loads(result_path.read_text(encoding="utf-8"))
         validation = validate_global_ranking_result(ranking, payload)
-        return {"status": validation["status"], "resumed": True, "validation": validation, "external_services_used": "none", "ai_call_made": False}
+        if validation["status"] == "pass":
+            return {"status": validation["status"], "resumed": True, "validation": validation, "external_services_used": "none", "ai_call_made": False}
     rank_dir.mkdir(parents=True, exist_ok=True)
-    parsed, usage = call_global_rank_openai(payload, api_key, model, max_output_tokens, reasoning_effort, raw_path)
+    (rank_dir / "raw_responses").mkdir(parents=True, exist_ok=True)
+    attempt_number = next_ranking_attempt_number(rank_dir)
+    raw_path = rank_dir / "raw_responses" / f"global_rank_raw_response_attempt_{attempt_number:03d}.json"
+    try:
+        parsed, usage = call_global_rank_openai(payload, api_key, model, max_output_tokens, reasoning_effort, raw_path, request_timeout_seconds)
+    except (TimeoutError, socket.timeout, urllib.error.URLError) as exc:
+        if is_request_timeout_error(exc):
+            report = ranking_timeout_summary(rank_dir, attempt_number, model, reasoning_effort, request_timeout_seconds, exc)
+            (rank_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return report
+        raise
     validation = validate_global_ranking_result(parsed, payload)
     if validation["status"] == "pass":
         result_path.write_text(json.dumps(parsed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    report = {"status": validation["status"], "validation": validation, "usage": usage, "raw_response_path": str(raw_path), "ai_call_made": True}
+    report = {"status": validation["status"], "validation": validation, "usage": usage, "raw_response_path": str(raw_path), "ai_call_made": True, "ranking_accepted": validation["status"] == "pass", "wf1_updated": False, "everbee_queue_written": False}
+    append_ranking_attempt(rank_dir, {
+        "attempt_number": attempt_number,
+        "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "model": model,
+        "reasoning_effort": reasoning_effort,
+        "timeout_seconds": request_timeout_seconds,
+        "status": validation["status"],
+        "usage": usage,
+        "artifact_path": str(raw_path),
+    })
     (rank_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if validation["status"] != "pass":
         raise SystemExit(json.dumps(report, indent=2, sort_keys=True))
+    return report
+
+
+def run_global_rank_repair(
+    batch_dir: str | Path,
+    model: str,
+    max_output_tokens: int,
+    reasoning_effort: str,
+    confirm_live: bool,
+    resume: bool,
+    overwrite: bool,
+    request_timeout_seconds: int = DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
+    if not confirm_live:
+        raise SystemExit("grouped-global-rank-repair requires --confirm-live. No API call was made.")
+    if resume and overwrite:
+        raise SystemExit("--resume and --overwrite are incompatible.")
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise SystemExit("OPENAI_API_KEY is missing. grouped-global-rank-repair failed closed; no API call was made.")
+    batch = resolve_batch_dir(batch_dir)
+    out_dir = grouped_batch_output_dir(batch)
+    payload_path = out_dir / GLOBAL_RANK_PAYLOAD_NAME
+    if not payload_path.exists():
+        raise SystemExit(f"Missing ranking input payload: {payload_path}. Repair does not rebuild the global query pool.")
+    payload = json.loads(payload_path.read_text(encoding="utf-8-sig"))
+    rank_dir = out_dir / "global_ranking_outputs"
+    result_path = rank_dir / GLOBAL_RANK_RESULT_NAME
+    if result_path.exists():
+        existing = json.loads(result_path.read_text(encoding="utf-8-sig"))
+        existing_validation = validate_global_ranking_result(existing, payload)
+        if existing_validation["status"] == "pass":
+            if overwrite:
+                raise SystemExit(f"{result_path} already contains an accepted ranking; repair requires a failed ranking unless explicitly handled outside this mode.")
+            return {
+                "status": "pass",
+                "resumed": True,
+                "validation": existing_validation,
+                "ranking_accepted": True,
+                "wf1_updated": False,
+                "everbee_queue_written": False,
+                "external_services_used": "none",
+                "ai_call_made": False,
+            }
+        if not resume and not overwrite:
+            raise SystemExit(f"{result_path} exists but is invalid; use --resume or --overwrite for repair.")
+    rank_dir.mkdir(parents=True, exist_ok=True)
+    attempts_dir = repair_attempt_dir(rank_dir)
+    attempts_dir.mkdir(parents=True, exist_ok=True)
+    invalid_ranking, invalid_validation, raw_response_path = load_latest_invalid_ranking(rank_dir, payload)
+    repair_payload = build_global_rank_repair_payload(batch, payload, invalid_ranking, invalid_validation, raw_response_path)
+    attempt_number = next_repair_attempt_number(rank_dir)
+    request_path = attempts_dir / f"global_rank_repair_request_attempt_{attempt_number:03d}.json"
+    raw_path = attempts_dir / f"global_rank_repair_raw_response_attempt_{attempt_number:03d}.json"
+    parsed_path = attempts_dir / f"global_rank_repair_parsed_response_attempt_{attempt_number:03d}.json"
+    validation_path = attempts_dir / f"global_rank_repair_validation_attempt_{attempt_number:03d}.json"
+    usage_path = attempts_dir / f"global_rank_repair_usage_attempt_{attempt_number:03d}.json"
+    error_path = attempts_dir / f"global_rank_repair_error_attempt_{attempt_number:03d}.json"
+    request_path.write_text(json.dumps(repair_payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    try:
+        parsed, usage = call_global_rank_repair_openai(
+            repair_payload,
+            api_key,
+            model,
+            max_output_tokens,
+            reasoning_effort,
+            raw_path,
+            request_timeout_seconds,
+        )
+    except (TimeoutError, socket.timeout, urllib.error.URLError) as exc:
+        if is_request_timeout_error(exc):
+            report = repair_timeout_summary(rank_dir, attempt_number, model, reasoning_effort, request_timeout_seconds, exc, error_path)
+            report["repair_request_path"] = str(request_path)
+            validation_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            (rank_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            return report
+        raise
+    except GroupedPilotResponseError as exc:
+        usage = exc.usage
+        report = {
+            "status": "fail",
+            "error_type": exc.code,
+            "error": exc.audit(),
+            "usage": usage,
+            "repair_request_path": str(request_path),
+            "raw_response_path": str(raw_path),
+            "ranking_accepted": False,
+            "wf1_updated": False,
+            "everbee_queue_written": False,
+        }
+        usage_path.write_text(json.dumps(usage, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        error_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        validation_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        append_repair_attempt(rank_dir, {
+            "attempt_number": attempt_number,
+            "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "model": model,
+            "reasoning_effort": reasoning_effort,
+            "timeout_seconds": request_timeout_seconds,
+            "status": "response_error",
+            "usage": usage,
+            "artifact_path": str(error_path),
+        })
+        (rank_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return report
+    parsed_path.write_text(json.dumps(parsed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    usage_path.write_text(json.dumps(usage, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    validation = validate_global_ranking_result(parsed, payload)
+    report = {
+        "status": validation["status"],
+        "validation": validation,
+        "usage": usage,
+        "repair_request_path": str(request_path),
+        "raw_response_path": str(raw_path),
+        "parsed_response_path": str(parsed_path),
+        "validation_report_path": str(validation_path),
+        "ranking_accepted": validation["status"] == "pass",
+        "wf1_updated": False,
+        "everbee_queue_written": False,
+        "ai_call_made": True,
+    }
+    validation_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    append_repair_attempt(rank_dir, {
+        "attempt_number": attempt_number,
+        "timestamp": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "model": model,
+        "reasoning_effort": reasoning_effort,
+        "timeout_seconds": request_timeout_seconds,
+        "status": validation["status"],
+        "usage": usage,
+        "artifact_path": str(validation_path),
+    })
+    (rank_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if validation["status"] == "pass":
+        result_path.write_text(json.dumps(parsed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return report
     return report
 
 
@@ -2307,7 +2789,16 @@ def build_wf1_queue(batch_dir: str | Path, overwrite: bool = False) -> dict[str,
     return report
 
 
-def run_grouped_batch_all(batch_dir: str | Path, model: str, max_output_tokens: int, reasoning_effort: str, confirm_live: bool, resume: bool, overwrite: bool) -> dict[str, Any]:
+def run_grouped_batch_all(
+    batch_dir: str | Path,
+    model: str,
+    max_output_tokens: int,
+    reasoning_effort: str,
+    confirm_live: bool,
+    resume: bool,
+    overwrite: bool,
+    request_timeout_seconds: int = DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
     if not confirm_live:
         raise SystemExit("grouped-batch-run-all requires --confirm-live. No API call was made.")
     preflight = write_grouped_batch_preflight(batch_dir, max_output_tokens)
@@ -2315,7 +2806,7 @@ def run_grouped_batch_all(batch_dir: str | Path, model: str, max_output_tokens: 
     if live["accepted_bundle_count"] != preflight["eligible_seed_count"]:
         raise SystemExit("Not all grouped seed bundles are accepted; ranking and queue generation stopped.")
     pool = build_validated_query_pool(batch_dir)
-    rank = run_global_rank_live(batch_dir, model, max_output_tokens, reasoning_effort, confirm_live, resume, overwrite)
+    rank = run_global_rank_live(batch_dir, model, max_output_tokens, reasoning_effort, confirm_live, resume, overwrite, request_timeout_seconds)
     if rank.get("validation", {}).get("status") != "pass":
         raise SystemExit("Global ranking failed; queue generation stopped.")
     queue = build_wf1_queue(batch_dir, overwrite=overwrite)
@@ -2327,7 +2818,7 @@ def main() -> int:
     parser.add_argument("--mode", choices=[
         "grouped-pilot-preflight", "grouped-pilot-live", "grouped-pilot-validate", "grouped-pilot-evaluate", "grouped-pilot-revalidate-live",
         "grouped-batch-preflight", "grouped-batch-live", "grouped-batch-validate", "grouped-batch-build-query-pool",
-        "grouped-global-rank-preflight", "grouped-global-rank-live", "grouped-global-rank-validate",
+        "grouped-global-rank-preflight", "grouped-global-rank-live", "grouped-global-rank-repair", "grouped-global-rank-validate",
         "grouped-build-wf1-queue", "grouped-batch-run-all",
     ], required=True)
     parser.add_argument("--batch-dir", required=True)
@@ -2336,6 +2827,7 @@ def main() -> int:
     parser.add_argument("--model", default=DEFAULT_GROUPED_MODEL)
     parser.add_argument("--max-output-tokens", type=int, default=DEFAULT_MAX_OUTPUT_TOKENS)
     parser.add_argument("--reasoning-effort", choices=sorted(REASONING_EFFORTS), default=DEFAULT_REASONING_EFFORT)
+    parser.add_argument("--request-timeout-seconds", type=int, default=DEFAULT_GLOBAL_RANK_REQUEST_TIMEOUT_SECONDS)
     parser.add_argument("--confirm-live", action="store_true")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
@@ -2385,15 +2877,48 @@ def main() -> int:
     elif args.mode in {"grouped-batch-build-query-pool", "grouped-global-rank-preflight"}:
         result = build_validated_query_pool(args.batch_dir)
     elif args.mode == "grouped-global-rank-live":
-        result = run_global_rank_live(args.batch_dir, args.model, args.max_output_tokens, args.reasoning_effort, args.confirm_live, args.resume, args.overwrite)
+        result = run_global_rank_live(
+            args.batch_dir,
+            args.model,
+            args.max_output_tokens,
+            args.reasoning_effort,
+            args.confirm_live,
+            args.resume,
+            args.overwrite,
+            args.request_timeout_seconds,
+        )
+    elif args.mode == "grouped-global-rank-repair":
+        if "--model" not in sys.argv:
+            raise SystemExit("grouped-global-rank-repair requires an explicit --model. No API call was made.")
+        if "--reasoning-effort" not in sys.argv:
+            raise SystemExit("grouped-global-rank-repair requires an explicit --reasoning-effort. No API call was made.")
+        result = run_global_rank_repair(
+            args.batch_dir,
+            args.model,
+            args.max_output_tokens,
+            args.reasoning_effort,
+            args.confirm_live,
+            args.resume,
+            args.overwrite,
+            args.request_timeout_seconds,
+        )
     elif args.mode == "grouped-global-rank-validate":
         result = validate_global_rank(args.batch_dir)
     elif args.mode == "grouped-build-wf1-queue":
         result = build_wf1_queue(args.batch_dir, overwrite=args.overwrite)
     elif args.mode == "grouped-batch-run-all":
-        result = run_grouped_batch_all(args.batch_dir, args.model, args.max_output_tokens, args.reasoning_effort, args.confirm_live, args.resume, args.overwrite)
+        result = run_grouped_batch_all(
+            args.batch_dir,
+            args.model,
+            args.max_output_tokens,
+            args.reasoning_effort,
+            args.confirm_live,
+            args.resume,
+            args.overwrite,
+            args.request_timeout_seconds,
+        )
     print(json.dumps(result, indent=2, sort_keys=True))
-    live_modes = {"grouped-pilot-live", "grouped-batch-live", "grouped-global-rank-live", "grouped-batch-run-all"}
+    live_modes = {"grouped-pilot-live", "grouped-batch-live", "grouped-global-rank-live", "grouped-global-rank-repair", "grouped-batch-run-all"}
     print("External services used: none" if args.mode not in live_modes else "External services used: OpenAI only if live requests are sent")
     print("AI call made: false" if args.mode not in live_modes else "AI call made: true only after live safety checks pass")
     return 0

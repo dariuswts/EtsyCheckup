@@ -26,6 +26,8 @@ Source: EverBee CSV exports later.
 
 Purpose: validate AI/human-approved keywords against product/listing traction evidence.
 
+Current additive v2 path: normalized phrase-owned EverBee evidence can be converted into grouped evidence bundles under `ai_grouped_evidence_review_v2/`. The builder is local/offline, preserves queue lineage, assigns one deterministic lane per row, and creates sanitized bundle payloads for future explicit grouped AI review. Live AI review and global consolidation remain gated by explicit live commands and approval; no WF2 queue is written from preflight.
+
 ## WF2 - Opportunity Hypotheses
 
 Input: WF0 keyword evidence + WF1 EverBee evidence + human notes.

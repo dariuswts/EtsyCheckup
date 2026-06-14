@@ -386,3 +386,25 @@ Result on `wf0_batch_20260613_220121`:
 
 Boundary: This is WF0 triage only. No live OpenAI/API call, paid API, EverBee/Etsy/Printify/Ideogram/n8n/database/scraping/publishing/design generation, WF1/WF2/WF3/WF4 logic change, product concept, or scoring action was run or approved.
 
+## 2026-06-15 - WF1 Grouped EverBee Evidence Review v2 Preflight
+
+Decision: Add a spec-first, additive WF1 grouped EverBee evidence review v2 path while preserving v1 outputs and raw inbox files.
+
+Reason: The v1 WF1 AI preflight was row-oriented and capped at 10 rows per phrase. The v2 path prepares phrase-level evidence bundles with deterministic lanes, listing-family diversity, shop/surface/price/age coverage, sanitized payloads, strict schemas, and explicit live-mode gates.
+
+Created:
+- `tools/build_wf1_grouped_everbee_evidence_bundles.py`
+- `tools/ai_review_wf1_grouped_everbee_evidence.py`
+- `tools/tests/test_wf1_grouped_everbee_bundles.py`
+- `tools/tests/test_wf1_grouped_everbee_ai_review.py`
+- `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/ai_grouped_evidence_review_v2/`
+- `10_LOGS/WF1_GROUPED_EVERBEE_AI_REVIEW_V2_20260615.md`
+
+Active-batch result:
+- 15 queue phrases.
+- 15 grouped bundles.
+- 360 selected evidence rows at 24 per phrase.
+- Source counts preserved: 38,140 normalized rows; 37,123 deduped rows; 1,017 duplicate audit rows; 15 strong filename matches; 150 v1 AI input rows for comparison.
+
+Boundary: No live OpenAI/API call, EverBee scraping/API, Apify, Etsy, Printify, Ideogram, n8n, database, product/design generation, WF2 queue fabrication, WF3 scoring, commit, or push was run.
+
