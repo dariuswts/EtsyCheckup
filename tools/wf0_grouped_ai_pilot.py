@@ -133,6 +133,23 @@ NAMED_REFERENCE_TERMS = {
     "project hail mary", "iron lung",
 }
 
+GENERIC_SURFACE_TERMS = {
+    "apparel", "banner", "banners", "decor", "decoration", "decorations", "embroidered",
+    "embroidery", "hoodie", "hoodies", "merch", "mug", "mugs", "pin", "pins",
+    "poster", "posters", "shirt", "shirts", "sticker", "stickers", "tee", "tees",
+    "tshirt", "tshirts", "t-shirt", "t-shirts", "wall", "wall art",
+}
+
+DISPOSITION_PRECEDENCE = (
+    "quarantine_ip",
+    "seller_supply_or_digital",
+    "supports",
+    "ingredient_only",
+    "insufficient_evidence",
+    "irrelevant",
+    "duplicate_or_redundant",
+)
+
 SYSTEM_PROMPT = """You are the WF0 grouped-review stage for an Etsy print-on-demand opportunity research pipeline.
 
 Candidates are evidence, not final opportunities. Seed lineage is discovery context, not a hard category boundary. You may combine candidates into coherent niche hypotheses, and you must reject irrelevant candidates.
@@ -142,6 +159,24 @@ Generic ingredients must not become niches by themselves. Product words do not p
 Named brands, franchises, titles, characters, celebrities, creators, games, films, books, music references, and similar named-reference risks must be quarantined. Do not rewrite named IP into an evasive safe alternative. Ambiguous iron lung evidence must not advance unless a clearly generic non-IP hypothesis is independently supported.
 
 Seller-supply and digital-only evidence must not support validation. Do not create product concepts, slogans, design directions, listing titles, tags, descriptions, pricing, mockup plans, Etsy actions, Printify actions, publishing actions, or legal safety claims.
+
+Semantic support rule:
+- Generic product surfaces and broad product terms are ingredients, not independent thematic evidence.
+- A hypothesis must not be created from one isolated theme/aesthetic keyword plus generic surfaces.
+- Generic terms such as shirt, stickers, poster, decor, pins, apparel, merch and embroidered shirt cannot count as separate thematic confirmation.
+- An advancing hypothesis requires either at least two coherent, non-generic theme/audience/identity/occasion candidates, or one direct seed-specific candidate plus at least one independently meaningful supporting candidate.
+- Multiple generic surfaces do not satisfy this requirement.
+- Unrelated isolated ideas from the same seed bundle must not be promoted merely because each has demand.
+- For an unclear named-reference seed such as Iron Lung, no generic hypothesis may advance unless it has a coherent multi-candidate evidence cluster independent of the named reference.
+- When that evidence does not exist, return zero hypotheses and zero validation queries.
+- For the iron lung pilot bundle, isolated terms such as Y2K, 90s, anime poster, horror movie merch and office desk decor must not be turned into independent validation directions merely because they appear in the same discovery neighborhood.
+
+Disposition partition rule:
+- Every candidate ID must appear exactly once.
+- Before returning, count the input candidates and dispositioned candidates.
+- Never place a candidate in two groups.
+- When a row matches both named-IP and seller-supply concerns, use only quarantine_ip.
+- Use this disposition conflict precedence for output partitioning only: quarantine_ip, seller_supply_or_digital, supports, ingredient_only, insufficient_evidence, irrelevant, duplicate_or_redundant.
 
 Return strict JSON matching the schema. Return 0-8 hypotheses. Return zero validation queries when no defensible validation direction exists. You may return no hypotheses, no queries, hold_no_queries, quarantine_bundle, or reject_bundle."""
 
@@ -747,6 +782,130 @@ def validate_grouped_output(bundle_input: dict[str, Any], result: dict[str, Any]
     return {"status": "pass" if not errors else "fail", "errors": errors}
 
 
+def candidate_lookup(bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {candidate["id"]: candidate for candidate in bundle.get("candidates", [])}
+
+
+def is_generic_surface_candidate(candidate: dict[str, Any]) -> bool:
+    text = normalize(candidate.get("keyword"))
+    if not text:
+        return True
+    tokens = re.findall(r"[a-z0-9]+", text.replace("-", " "))
+    if not tokens:
+        return True
+    generic_tokens = {token.replace("-", "") for token in GENERIC_SURFACE_TERMS}
+    meaningful = [token for token in tokens if token not in generic_tokens and len(token) > 1]
+    return len(meaningful) == 0 or all(token in {"etsy", "custom", "personalized"} for token in meaningful)
+
+
+def has_direct_seed_specific_support(seed: str, candidate: dict[str, Any]) -> bool:
+    text = normalize(candidate.get("keyword"))
+    seed_text = normalize(seed)
+    if not seed_text:
+        return False
+    return seed_text in text and not is_generic_surface_candidate(candidate)
+
+
+def semantic_support_warnings(bundle: dict[str, Any], result: dict[str, Any]) -> list[str]:
+    warnings: list[str] = []
+    lookup = candidate_lookup(bundle)
+    for hypothesis in result.get("hypotheses", []) if isinstance(result.get("hypotheses"), list) else []:
+        if not isinstance(hypothesis, dict):
+            continue
+        if hypothesis.get("decision") not in {"direct_validate", "rewrite_and_validate"}:
+            continue
+        support_ids = [candidate_id for candidate_id in hypothesis.get("supporting_candidate_ids", []) if candidate_id in lookup]
+        support = [lookup[candidate_id] for candidate_id in support_ids]
+        non_generic = [candidate for candidate in support if not is_generic_surface_candidate(candidate)]
+        direct_seed_specific = [candidate for candidate in non_generic if has_direct_seed_specific_support(bundle.get("seed_keyword", ""), candidate)]
+        has_independent_support = len(non_generic) >= 2 or (bool(direct_seed_specific) and len(non_generic) >= 2)
+        if not has_independent_support:
+            warnings.append(
+                "weak_semantic_support:"
+                f"{hypothesis.get('hypothesis_id')}:non_generic_support={len(non_generic)}:"
+                f"supporting_candidate_ids={support_ids}"
+            )
+    return warnings
+
+
+def evaluate_single_expected_outcome(bundle: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+    seed = clean(bundle.get("seed_keyword"))
+    queries = result.get("validation_queries", []) if isinstance(result.get("validation_queries"), list) else []
+    dispositions = result.get("candidate_dispositions", {}) if isinstance(result.get("candidate_dispositions"), dict) else {}
+    query_text = " ".join(normalize(query.get("query")) for query in queries if isinstance(query, dict))
+    candidate_by_id = candidate_lookup(bundle)
+    reasons: list[str] = []
+    support_warnings = semantic_support_warnings(bundle, result)
+
+    if seed == "bachelorette":
+        supports_text = " ".join(
+            normalize(candidate_by_id[cid]["keyword"])
+            for cid in dispositions.get("supports", [])
+            if cid in candidate_by_id
+        )
+        if result.get("bundle_decision") != "advance_some":
+            reasons.append("bachelorette_must_advance_some")
+        if len(queries) < 1:
+            reasons.append("bachelorette_requires_validation_direction")
+        if "bachelorette" not in (query_text + " " + supports_text):
+            reasons.append("bachelorette_support_not_visible")
+        if "life of a showgirl" in query_text or "comfort colors" in query_text:
+            reasons.append("bachelorette_query_contains_quarantined_or_seller_supply_term")
+    elif seed == "blanket":
+        bad_support = any(
+            term in normalize(candidate_by_id[cid]["keyword"])
+            for term in ["lord of the rings", "winnie the pooh", "crochet baby blanket patterns"]
+            for cid in dispositions.get("supports", [])
+            if cid in candidate_by_id
+        )
+        has_blanket = "blanket" in query_text or any(
+            "blanket" in normalize(candidate_by_id[cid]["keyword"])
+            for cid in dispositions.get("supports", [])
+            if cid in candidate_by_id
+        )
+        if result.get("bundle_decision") not in {"advance_some", "hold_no_queries"}:
+            reasons.append("blanket_must_advance_or_hold")
+        if len(queries) < 1:
+            reasons.append("blanket_requires_validation_direction")
+        if bad_support:
+            reasons.append("blanket_support_contains_quarantined_or_seller_supply_term")
+        if not has_blanket:
+            reasons.append("blanket_support_not_visible")
+    elif seed == "iron lung":
+        iron_ids = {
+            candidate["id"] for candidate in bundle.get("candidates", [])
+            if "iron lung" in normalize(candidate.get("keyword")) or "project hail mary" in normalize(candidate.get("keyword"))
+        }
+        blocked_ids = set(dispositions.get("quarantine_ip", [])) | set(dispositions.get("irrelevant", []))
+        if queries:
+            reasons.append("iron_lung_must_have_zero_validation_queries")
+        if result.get("bundle_decision") == "advance_some":
+            reasons.append("iron_lung_must_not_advance_some")
+        if result.get("bundle_decision") not in {"hold_no_queries", "quarantine_bundle", "reject_bundle"}:
+            reasons.append("iron_lung_requires_hold_quarantine_or_reject")
+        if not iron_ids <= blocked_ids:
+            reasons.append(f"iron_lung_named_references_not_blocked:{sorted(iron_ids - blocked_ids)}")
+
+    if support_warnings:
+        reasons.extend(support_warnings)
+    return {
+        "status": "pass" if not reasons else "fail",
+        "reasons": reasons,
+        "query_count": len(queries),
+        "bundle_decision": result.get("bundle_decision"),
+    }
+
+
+def evaluate_acceptance(bundle: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
+    structural = validate_grouped_output(bundle, result)
+    expectation = evaluate_single_expected_outcome(bundle, result) if structural["status"] == "pass" else {
+        "status": "not_run",
+        "reasons": ["structural_validation_failed"],
+    }
+    accepted = structural["status"] == "pass" and expectation["status"] == "pass"
+    return {"status": "pass" if accepted else "fail", "structural": structural, "expectation": expectation}
+
+
 def fixture_result(bundle: dict[str, Any], kind: str) -> dict[str, Any]:
     ids = [candidate["id"] for candidate in bundle["candidates"]]
     if bundle["seed_keyword"] == "iron lung":
@@ -799,22 +958,25 @@ def fixture_result(bundle: dict[str, Any], kind: str) -> dict[str, Any]:
         }
         for index in range(1, query_count + 1)
     ]
-    hypotheses = [
-        {
+    hypotheses = []
+    for index in range(1, query_count + 1):
+        support_pair = [support[(index - 1) % len(support)]]
+        second = support[index % len(support)]
+        if second not in support_pair:
+            support_pair.append(second)
+        hypotheses.append({
             "hypothesis_id": f"h{index:02d}",
             "label": f"{bundle['seed_keyword']} hypothesis {index}",
             "decision": "rewrite_and_validate",
             "confidence": "medium",
-            "supporting_candidate_ids": [support[(index - 1) % len(support)]],
+            "supporting_candidate_ids": support_pair,
             "audience_or_buyer": "buyer segment",
             "theme_identity_or_occasion": bundle["seed_keyword"],
             "likely_validation_surfaces": ["shirt"] if bundle["seed_keyword"] == "bachelorette" else ["blanket"],
             "linked_query_ids": [f"q{index:02d}"],
             "concise_evidence": "Fixture evidence.",
             "uncertainty": "Needs EverBee validation later.",
-        }
-        for index in range(1, query_count + 1)
-    ]
+        })
     remaining = [candidate_id for candidate_id in ids if candidate_id not in set(support)]
     return {
         "bundle_id": bundle["bundle_id"],
@@ -884,40 +1046,8 @@ def run_fixture_validation(batch_dir: str | Path) -> dict[str, Any]:
 def evaluate_expected_outcomes(results_by_seed: dict[str, dict[str, Any]], payload: dict[str, Any]) -> dict[str, Any]:
     checks: dict[str, Any] = {}
     for seed, result in results_by_seed.items():
-        queries = result.get("validation_queries", [])
-        dispositions = result.get("candidate_dispositions", {})
-        query_text = " ".join(normalize(query.get("query")) for query in queries)
-        quarantined = set(dispositions.get("quarantine_ip", []))
         bundle = next(item for item in payload["bundles"] if item["seed_keyword"] == seed)
-        candidate_by_id = {candidate["id"]: candidate for candidate in bundle["candidates"]}
-        if seed == "bachelorette":
-            supports_text = " ".join(normalize(candidate_by_id[cid]["keyword"]) for cid in dispositions.get("supports", []) if cid in candidate_by_id)
-            checks[seed] = {
-                "status": "pass" if result.get("bundle_decision") == "advance_some" and len(queries) >= 3 and "bachelorette" in (query_text + " " + supports_text) and "life of a showgirl" not in query_text and "comfort colors" not in query_text else "fail",
-                "query_count": len(queries),
-            }
-        elif seed == "blanket":
-            bad_support = any(
-                term in normalize(candidate_by_id[cid]["keyword"])
-                for term in ["lord of the rings", "winnie the pooh", "crochet baby blanket patterns"]
-                for cid in dispositions.get("supports", [])
-                if cid in candidate_by_id
-            )
-            has_blanket = "blanket" in query_text or any("blanket" in normalize(candidate_by_id[cid]["keyword"]) for cid in dispositions.get("supports", []) if cid in candidate_by_id)
-            checks[seed] = {
-                "status": "pass" if result.get("bundle_decision") in {"advance_some", "hold_no_queries"} and len(queries) >= 2 and not bad_support and has_blanket else "fail",
-                "query_count": len(queries),
-            }
-        elif seed == "iron lung":
-            iron_ids = {
-                candidate["id"] for candidate in bundle["candidates"]
-                if "iron lung" in normalize(candidate["keyword"]) or "project hail mary" in normalize(candidate["keyword"])
-            }
-            blocked_ids = quarantined | set(dispositions.get("irrelevant", []))
-            checks[seed] = {
-                "status": "pass" if not queries and result.get("bundle_decision") in {"hold_no_queries", "quarantine_bundle", "reject_bundle"} and iron_ids <= blocked_ids else "fail",
-                "query_count": len(queries),
-            }
+        checks[seed] = evaluate_single_expected_outcome(bundle, result)
     return {"status": "pass" if all(item["status"] == "pass" for item in checks.values()) else "fail", "checks": checks}
 
 
@@ -941,6 +1071,25 @@ def usage_from_response(response: dict[str, Any]) -> dict[str, int]:
         "reasoning_tokens": int(output_details.get("reasoning_tokens") or completion_details.get("reasoning_tokens") or 0),
         "total_tokens": int(usage.get("total_tokens") or 0),
     }
+
+
+def zero_usage() -> dict[str, int]:
+    return {"input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0, "total_tokens": 0}
+
+
+def add_usage(target: dict[str, int], usage: dict[str, int]) -> None:
+    for key in zero_usage():
+        target[key] = int(target.get(key, 0)) + int(usage.get(key, 0))
+
+
+def usage_from_raw_response(path: Path) -> dict[str, int]:
+    if not path.exists():
+        return zero_usage()
+    try:
+        response = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (json.JSONDecodeError, OSError):
+        return zero_usage()
+    return usage_from_response(response) if isinstance(response, dict) else zero_usage()
 
 
 def output_item_types(response: dict[str, Any]) -> list[str]:
@@ -1073,7 +1222,19 @@ def run_grouped_live(
 
     accepted = []
     errors = []
-    totals = {"input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0, "total_tokens": 0}
+    current_totals = zero_usage()
+    cumulative_before = zero_usage()
+    if resume and (live_dir / "token_usage.json").exists():
+        try:
+            cumulative_before.update(json.loads((live_dir / "token_usage.json").read_text(encoding="utf-8")))
+        except json.JSONDecodeError:
+            cumulative_before = zero_usage()
+    usage_attempts = []
+    if resume and (live_dir / "usage_attempts.json").exists():
+        try:
+            usage_attempts = json.loads((live_dir / "usage_attempts.json").read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            usage_attempts = []
     for bundle in payload["bundles"]:
         seed_code = PILOT_SEED_CODES[bundle["seed_keyword"]]
         result_path = live_dir / f"{seed_code}_validated_result.json"
@@ -1090,39 +1251,68 @@ def run_grouped_live(
                 reasoning_effort,
                 raw_response_path,
             )
-            for key in totals:
-                totals[key] += usage.get(key, 0)
-            validation = validate_grouped_output(bundle, response["parsed"])
-            if validation["status"] != "pass":
+            add_usage(current_totals, usage)
+            usage_attempts.append({
+                "seed": bundle["seed_keyword"],
+                "raw_response_path": str(raw_response_path),
+                "usage": usage,
+                "accepted": False,
+            })
+            acceptance = evaluate_acceptance(bundle, response["parsed"])
+            if acceptance["structural"]["status"] != "pass":
                 errors.append({
                     "seed": bundle["seed_keyword"],
                     "error_type": "validation_failed",
                     "raw_response_path": str(raw_response_path),
                     "usage": usage,
-                    "validation": validation,
+                    "validation": acceptance["structural"],
+                    "parsed": response["parsed"],
+                })
+                continue
+            if acceptance["expectation"]["status"] != "pass":
+                errors.append({
+                    "seed": bundle["seed_keyword"],
+                    "error_type": "expectation_failed",
+                    "raw_response_path": str(raw_response_path),
+                    "usage": usage,
+                    "validation": acceptance["structural"],
+                    "expectation": acceptance["expectation"],
                     "parsed": response["parsed"],
                 })
                 continue
             result_path.write_text(json.dumps(response["parsed"], indent=2, sort_keys=True) + "\n", encoding="utf-8")
             accepted.append(response["parsed"])
+            usage_attempts[-1]["accepted"] = True
             time.sleep(0.2)
         except GroupedPilotResponseError as exc:
-            for key in totals:
-                totals[key] += exc.usage.get(key, 0)
+            add_usage(current_totals, exc.usage)
+            usage_attempts.append({
+                "seed": bundle["seed_keyword"],
+                "raw_response_path": str(raw_response_path),
+                "usage": exc.usage,
+                "accepted": False,
+                "error_type": exc.code,
+            })
             errors.append({"seed": bundle["seed_keyword"], "raw_response_path": str(raw_response_path), **exc.audit()})
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, KeyError) as exc:
             errors.append({"seed": bundle["seed_keyword"], "error_type": type(exc).__name__, "error": f"{type(exc).__name__}: {exc}"})
+    cumulative_totals = dict(cumulative_before)
+    add_usage(cumulative_totals, current_totals)
     combined = {"source_batch_id": batch.name, "model": model, "validated_results": accepted}
     (live_dir / "combined_validated_results.json").write_text(json.dumps(combined, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (live_dir / "errors.json").write_text(json.dumps(errors, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (live_dir / "token_usage.json").write_text(json.dumps(totals, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "token_usage.json").write_text(json.dumps(cumulative_totals, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "usage_attempts.json").write_text(json.dumps(usage_attempts, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     report = {
         "accepted_bundle_count": len(accepted),
         "error_count": len(errors),
         "model": model,
         "max_output_tokens": max_output_tokens,
         "reasoning_effort": reasoning_effort,
-        "token_usage": totals,
+        "current_run_token_usage": current_totals,
+        "cumulative_pilot_usage": cumulative_totals,
+        "token_usage": cumulative_totals,
+        "usage_attempt_count": len(usage_attempts),
         "everbee_queue_written": False,
         "wf1_updated": False,
     }
@@ -1132,9 +1322,125 @@ def run_grouped_live(
     return report
 
 
+def run_live_revalidation(batch_dir: str | Path, payload_path: str | Path | None = None) -> dict[str, Any]:
+    batch = resolve_batch_dir(batch_dir)
+    out_dir = output_dir(batch)
+    payload_file = Path(payload_path) if payload_path else out_dir / PAYLOAD_NAME
+    payload = json.loads(payload_file.read_text(encoding="utf-8"))
+    live_dir = out_dir / "live_outputs"
+    raw_dir = live_dir / "raw_responses"
+    if not live_dir.exists():
+        raise SystemExit(f"Missing live output directory: {live_dir}")
+
+    existing_errors = []
+    if (live_dir / "errors.json").exists():
+        existing_errors = json.loads((live_dir / "errors.json").read_text(encoding="utf-8"))
+    cumulative_usage = zero_usage()
+    if (live_dir / "token_usage.json").exists():
+        cumulative_usage.update(json.loads((live_dir / "token_usage.json").read_text(encoding="utf-8")))
+
+    raw_paths = {path.stem.replace("_raw_response", ""): path for path in raw_dir.glob("*_raw_response.json")}
+    errors_by_seed: dict[str, dict[str, Any]] = {}
+    for error in existing_errors if isinstance(existing_errors, list) else []:
+        seed = clean(error.get("seed")) if isinstance(error, dict) else ""
+        if seed:
+            errors_by_seed[seed] = error
+
+    accepted: list[dict[str, Any]] = []
+    revalidated_errors: list[dict[str, Any]] = []
+    usage_attempts: list[dict[str, Any]] = []
+    failed_dir = live_dir / "expectation_failed"
+    structural_failed = 0
+    expectation_failed = 0
+
+    for bundle in payload.get("bundles", []):
+        seed = bundle["seed_keyword"]
+        seed_code = PILOT_SEED_CODES[seed]
+        raw_response_path = raw_paths.get(seed_code, raw_dir / f"{seed_code}_raw_response.json")
+        raw_usage = usage_from_raw_response(raw_response_path)
+        usage_attempts.append({
+            "seed": seed,
+            "attempt_index": 1,
+            "raw_response_path": str(raw_response_path),
+            "usage": raw_usage,
+        })
+        result_path = live_dir / f"{seed_code}_validated_result.json"
+        parsed: dict[str, Any] | None = None
+        if result_path.exists():
+            parsed = json.loads(result_path.read_text(encoding="utf-8"))
+        elif seed in errors_by_seed and isinstance(errors_by_seed[seed].get("parsed"), dict):
+            parsed = errors_by_seed[seed]["parsed"]
+
+        if parsed is None:
+            prior = errors_by_seed.get(seed, {
+                "seed": seed,
+                "error_type": "missing_parsed_result",
+                "raw_response_path": str(raw_response_path),
+                "usage": raw_usage,
+            })
+            revalidated_errors.append(prior)
+            structural_failed += 1
+            continue
+
+        acceptance = evaluate_acceptance(bundle, parsed)
+        if acceptance["structural"]["status"] != "pass":
+            structural_failed += 1
+            prior = errors_by_seed.get(seed, {})
+            revalidated_errors.append({
+                "seed": seed,
+                "error_type": "validation_failed",
+                "raw_response_path": str(raw_response_path),
+                "usage": prior.get("usage", raw_usage),
+                "validation": acceptance["structural"],
+                "parsed": parsed,
+            })
+            continue
+        if acceptance["expectation"]["status"] != "pass":
+            expectation_failed += 1
+            failed_dir.mkdir(parents=True, exist_ok=True)
+            if result_path.exists():
+                archived = failed_dir / result_path.name
+                archived.write_text(result_path.read_text(encoding="utf-8"), encoding="utf-8")
+                result_path.unlink()
+            revalidated_errors.append({
+                "seed": seed,
+                "error_type": "expectation_failed",
+                "raw_response_path": str(raw_response_path),
+                "usage": raw_usage,
+                "validation": acceptance["structural"],
+                "expectation": acceptance["expectation"],
+                "parsed": parsed,
+            })
+            continue
+        accepted.append(parsed)
+
+    combined = {"source_batch_id": batch.name, "model": "revalidated_existing_live_outputs", "validated_results": accepted}
+    (live_dir / "combined_validated_results.json").write_text(json.dumps(combined, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "errors.json").write_text(json.dumps(revalidated_errors, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "usage_attempts.json").write_text(json.dumps(usage_attempts, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "token_usage.json").write_text(json.dumps(cumulative_usage, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report = {
+        "accepted_bundle_count": len(accepted),
+        "error_count": len(revalidated_errors),
+        "structural_failed_count": structural_failed,
+        "expectation_failed_count": expectation_failed,
+        "current_run_token_usage": zero_usage(),
+        "cumulative_pilot_usage": cumulative_usage,
+        "token_usage": cumulative_usage,
+        "usage_attempt_count": len(usage_attempts),
+        "raw_responses_preserved": sorted(str(path) for path in raw_dir.glob("*_raw_response.json")),
+        "resume_ready_seed_count": len(payload.get("bundles", [])) - len(accepted),
+        "external_services_used": "none",
+        "ai_call_made": False,
+    }
+    (live_dir / "validation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (live_dir / "revalidation_report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="WF0 grouped AI three-seed pilot helper.")
-    parser.add_argument("--mode", choices=["grouped-pilot-preflight", "grouped-pilot-live", "grouped-pilot-validate", "grouped-pilot-evaluate"], required=True)
+    parser.add_argument("--mode", choices=["grouped-pilot-preflight", "grouped-pilot-live", "grouped-pilot-validate", "grouped-pilot-evaluate", "grouped-pilot-revalidate-live"], required=True)
     parser.add_argument("--batch-dir", required=True)
     parser.add_argument("--pilot-payload-path")
     parser.add_argument("--model", default=DEFAULT_GROUPED_MODEL)
@@ -1150,6 +1456,8 @@ def main() -> int:
         result = run_fixture_validation(args.batch_dir)
     elif args.mode == "grouped-pilot-evaluate":
         result = run_fixture_evaluation(args.batch_dir)
+    elif args.mode == "grouped-pilot-revalidate-live":
+        result = run_live_revalidation(args.batch_dir, args.pilot_payload_path)
     else:
         result = run_grouped_live(
             args.batch_dir,

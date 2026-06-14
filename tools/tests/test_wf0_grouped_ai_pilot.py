@@ -255,6 +255,177 @@ class WF0GroupedPilotTests(unittest.TestCase):
             pilot.parse_grouped_response(response)
         self.assertEqual(raised.exception.code, "model_refusal")
 
+    def test_schema_valid_expectation_invalid_iron_lung_is_not_accepted_live(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            batch.mkdir()
+            write_audit(batch, sample_rows())
+            pilot.write_preflight(batch)
+            payload = json.loads((batch / pilot.PILOT_DIR_NAME / pilot.PAYLOAD_NAME).read_text(encoding="utf-8"))
+
+            def fake_call(bundle, api_key, model, max_output_tokens, reasoning_effort="low", raw_response_path=None):
+                if raw_response_path:
+                    raw_response_path.parent.mkdir(parents=True, exist_ok=True)
+                    raw_response_path.write_text('{"status": "completed"}\n', encoding="utf-8")
+                parsed = pilot.fixture_result(bundle, "valid")
+                if bundle["seed_keyword"] == "iron lung":
+                    parsed["bundle_decision"] = "advance_some"
+                    parsed["hypotheses"] = [{
+                        "hypothesis_id": "h_bad",
+                        "label": "Y2K generic direction",
+                        "decision": "direct_validate",
+                        "confidence": "medium",
+                        "supporting_candidate_ids": [bundle["candidates"][0]["id"], bundle["candidates"][1]["id"]],
+                        "audience_or_buyer": "generic aesthetic buyer",
+                        "theme_identity_or_occasion": "Y2K",
+                        "likely_validation_surfaces": ["shirt"],
+                        "linked_query_ids": ["q_bad"],
+                        "concise_evidence": "Invalid pilot expectation fixture.",
+                        "uncertainty": "Weak.",
+                    }]
+                    parsed["validation_queries"] = [{
+                        "query_id": "q_bad",
+                        "query": "y2k shirt",
+                        "query_type": "direct",
+                        "linked_hypothesis_ids": ["h_bad"],
+                        "confidence": "medium",
+                        "concise_reason": "Invalid pilot expectation fixture.",
+                    }]
+                return ({"raw_response": {"status": "completed"}, "parsed": parsed}, {"input_tokens": 1, "output_tokens": 1, "reasoning_tokens": 0, "total_tokens": 2})
+
+            with mock.patch.dict(os.environ, {"OPENAI_API_KEY": "test"}), mock.patch.object(pilot, "call_grouped_openai", side_effect=fake_call):
+                with self.assertRaises(SystemExit):
+                    pilot.run_grouped_live(batch, None, "gpt-5", 6000, "low", True, False, False)
+            live_dir = batch / pilot.PILOT_DIR_NAME / "live_outputs"
+            report = json.loads((live_dir / "validation_report.json").read_text(encoding="utf-8"))
+            errors = json.loads((live_dir / "errors.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["accepted_bundle_count"], 2)
+            self.assertEqual(errors[-1]["error_type"], "expectation_failed")
+            self.assertEqual(errors[-1]["seed"], "iron lung")
+            self.assertFalse((live_dir / "iro_validated_result.json").exists())
+            self.assertEqual([bundle["seed_keyword"] for bundle in payload["bundles"]], list(pilot.PILOT_SEEDS))
+
+    def test_iron_lung_expectation_rules(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            batch.mkdir()
+            write_audit(batch, sample_rows())
+            pilot.write_preflight(batch)
+            payload = json.loads((batch / pilot.PILOT_DIR_NAME / pilot.PAYLOAD_NAME).read_text(encoding="utf-8"))
+            iron = next(bundle for bundle in payload["bundles"] if bundle["seed_keyword"] == "iron lung")
+            valid = pilot.fixture_result(iron, "valid")
+            self.assertEqual(pilot.evaluate_single_expected_outcome(iron, valid)["status"], "pass")
+            with_query = json.loads(json.dumps(valid))
+            with_query["validation_queries"] = [{
+                "query_id": "q01",
+                "query": "y2k shirt",
+                "query_type": "direct",
+                "linked_hypothesis_ids": [],
+                "confidence": "low",
+                "concise_reason": "Invalid for pilot.",
+            }]
+            self.assertEqual(pilot.evaluate_single_expected_outcome(iron, with_query)["status"], "fail")
+            advance = json.loads(json.dumps(valid))
+            advance["bundle_decision"] = "advance_some"
+            self.assertEqual(pilot.evaluate_single_expected_outcome(iron, advance)["status"], "fail")
+            for decision in ["hold_no_queries", "quarantine_bundle", "reject_bundle"]:
+                candidate = json.loads(json.dumps(valid))
+                candidate["bundle_decision"] = decision
+                self.assertEqual(pilot.evaluate_single_expected_outcome(iron, candidate)["status"], "pass")
+
+    def test_missing_disposition_still_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            batch.mkdir()
+            write_audit(batch, sample_rows())
+            pilot.write_preflight(batch)
+            payload = json.loads((batch / pilot.PILOT_DIR_NAME / pilot.PAYLOAD_NAME).read_text(encoding="utf-8"))
+            bundle = payload["bundles"][0]
+            result = pilot.fixture_result(bundle, "valid")
+            missing = result["candidate_dispositions"]["supports"].pop()
+            validation = pilot.validate_grouped_output(bundle, result)
+            self.assertEqual(validation["status"], "fail")
+            self.assertTrue(any(missing in error for error in validation["errors"]))
+
+    def test_prompt_contains_disposition_precedence_and_semantic_support_rule(self) -> None:
+        self.assertIn("quarantine_ip, seller_supply_or_digital, supports", pilot.SYSTEM_PROMPT)
+        self.assertIn("Generic product surfaces and broad product terms are ingredients", pilot.SYSTEM_PROMPT)
+        self.assertIn("Y2K, 90s, anime poster, horror movie merch and office desk decor", pilot.SYSTEM_PROMPT)
+
+    def test_one_theme_plus_generic_surfaces_fails_coarse_support_expectation(self) -> None:
+        bundle = {
+            "bundle_id": "pilot_iro",
+            "seed_keyword": "iron lung",
+            "candidates": [
+                {"id": "iro01", "keyword": "y2k"},
+                {"id": "iro02", "keyword": "shirt"},
+                {"id": "iro03", "keyword": "poster"},
+            ],
+        }
+        result = {
+            "bundle_decision": "advance_some",
+            "hypotheses": [{
+                "hypothesis_id": "h1",
+                "decision": "direct_validate",
+                "supporting_candidate_ids": ["iro01", "iro02", "iro03"],
+            }],
+            "validation_queries": [{"query": "y2k shirt"}],
+            "candidate_dispositions": {"supports": ["iro01", "iro02", "iro03"], "quarantine_ip": [], "irrelevant": []},
+        }
+        evaluation = pilot.evaluate_single_expected_outcome(bundle, result)
+        self.assertEqual(evaluation["status"], "fail")
+        self.assertTrue(any(reason.startswith("weak_semantic_support") for reason in evaluation["reasons"]))
+
+    def test_revalidation_preserves_raw_responses_and_cumulative_usage(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            batch = Path(tmp) / "wf0_batch_20260613_010203"
+            batch.mkdir()
+            write_audit(batch, sample_rows())
+            pilot.write_preflight(batch)
+            out_dir = batch / pilot.PILOT_DIR_NAME
+            live_dir = out_dir / "live_outputs"
+            raw_dir = live_dir / "raw_responses"
+            raw_dir.mkdir(parents=True)
+            payload = json.loads((out_dir / pilot.PAYLOAD_NAME).read_text(encoding="utf-8"))
+            errors = []
+            usage_by_seed = {
+                "bachelorette": {"input_tokens": 10, "output_tokens": 20, "reasoning_tokens": 5, "total_tokens": 30},
+                "blanket": {"input_tokens": 11, "output_tokens": 21, "reasoning_tokens": 6, "total_tokens": 32},
+                "iron lung": {"input_tokens": 12, "output_tokens": 22, "reasoning_tokens": 7, "total_tokens": 34},
+            }
+            for bundle in payload["bundles"]:
+                seed = bundle["seed_keyword"]
+                code = pilot.PILOT_SEED_CODES[seed]
+                (raw_dir / f"{code}_raw_response.json").write_text(json.dumps({"id": f"resp_{code}", "usage": usage_by_seed[seed]}) + "\n", encoding="utf-8")
+                parsed = pilot.fixture_result(bundle, "valid")
+                if seed == "iron lung":
+                    parsed["bundle_decision"] = "advance_some"
+                    parsed["validation_queries"] = [{
+                        "query_id": "q_bad",
+                        "query": "y2k shirt",
+                        "query_type": "direct",
+                        "linked_hypothesis_ids": [],
+                        "confidence": "medium",
+                        "concise_reason": "Invalid pilot expectation.",
+                    }]
+                    (live_dir / "iro_validated_result.json").write_text(json.dumps(parsed), encoding="utf-8")
+                else:
+                    parsed["candidate_dispositions"]["supports"].append(parsed["candidate_dispositions"]["ingredient_only"][0])
+                    errors.append({"seed": seed, "error_type": "validation_failed", "parsed": parsed, "usage": usage_by_seed[seed]})
+            cumulative = {"input_tokens": 33, "output_tokens": 63, "reasoning_tokens": 18, "total_tokens": 96}
+            (live_dir / "errors.json").write_text(json.dumps(errors), encoding="utf-8")
+            (live_dir / "combined_validated_results.json").write_text(json.dumps({"validated_results": [json.loads((live_dir / "iro_validated_result.json").read_text(encoding="utf-8"))]}), encoding="utf-8")
+            (live_dir / "token_usage.json").write_text(json.dumps(cumulative), encoding="utf-8")
+            before_raw = {path.name: path.read_text(encoding="utf-8") for path in raw_dir.glob("*.json")}
+            report = pilot.run_live_revalidation(batch)
+            after_raw = {path.name: path.read_text(encoding="utf-8") for path in raw_dir.glob("*.json")}
+            self.assertEqual(before_raw, after_raw)
+            self.assertEqual(report["accepted_bundle_count"], 0)
+            self.assertEqual(report["cumulative_pilot_usage"], cumulative)
+            self.assertFalse((live_dir / "iro_validated_result.json").exists())
+            self.assertTrue((live_dir / "expectation_failed" / "iro_validated_result.json").exists())
+            self.assertEqual(len(json.loads((live_dir / "usage_attempts.json").read_text(encoding="utf-8"))), 3)
+
 
 class FakeHTTPResponse:
     def __init__(self, payload: dict[str, object]) -> None:
