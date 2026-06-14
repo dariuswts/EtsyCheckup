@@ -13,3 +13,11 @@ tmp/
 temp/
 __pycache__/
 *.py[cod]
+
+# Local runtime data and generated pipeline outputs
+05_DATA_MODEL/raw_erank/
+05_DATA_MODEL/raw_everbee/
+05_DATA_MODEL/sample_intake_tests/batches/
+05_DATA_MODEL/sample_intake_tests/archived_wf1_queues/
+**/live_outputs/
+**/raw_responses/

@@ -1,9 +1,0 @@
-{
-  "ai_call_made": false,
-  "external_services_used": "none",
-  "message": "No live seed-bundle AI results exist. Consolidation preflight did not fabricate reviewed hypotheses.",
-  "prompt_preview": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\global_consolidation_prompt_preview.md",
-  "schema_preview": "C:\\Users\\clinc\\Desktop\\POD_Opportunity_Intelligence_Source_of_Truth_v4\\05_DATA_MODEL\\sample_intake_tests\\batches\\wf0_batch_20260614_132001\\global_consolidation_schema_preview.json",
-  "schema_version": "wf0_global_consolidation_v1_preflight",
-  "status": "blocked_missing_seed_bundle_live_results"
-}
