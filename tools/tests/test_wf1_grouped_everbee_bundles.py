@@ -8,6 +8,25 @@ from pathlib import Path
 from tools import build_wf1_grouped_everbee_evidence_bundles as builder
 
 
+def walk_json(value):
+    yield value
+    if isinstance(value, dict):
+        for child in value.values():
+            yield from walk_json(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from walk_json(child)
+
+
+def property_schemas(schema):
+    if isinstance(schema, dict):
+        for property_name, property_schema in schema.get("properties", {}).items():
+            yield property_name, property_schema
+            yield from property_schemas(property_schema)
+        if "items" in schema:
+            yield from property_schemas(schema["items"])
+
+
 class WF1GroupedEverBeeBundleTests(unittest.TestCase):
     def make_batch(self, rows=None):
         temp = tempfile.TemporaryDirectory()
@@ -194,6 +213,39 @@ class WF1GroupedEverBeeBundleTests(unittest.TestCase):
     def test_no_hardcoded_no_evidence_phrases_are_used(self):
         self.assertFalse(hasattr(builder, "NO_EVIDENCE_PHRASES"))
 
+    def test_api_schema_versions_use_string_single_value_enums(self):
+        grouped_schema_version = builder.grouped_review_schema()["properties"]["schema_version"]
+        global_schema_version = builder.global_consolidation_schema()["properties"]["schema_version"]
+
+        self.assertEqual(
+            grouped_schema_version,
+            {"type": "string", "enum": ["wf1_everbee_grouped_review_v2"]},
+        )
+        self.assertEqual(
+            global_schema_version,
+            {"type": "string", "enum": ["wf1_everbee_global_consolidation_v2"]},
+        )
+
+    def test_grouped_review_schema_requires_pod_transferability(self):
+        direction_schema = builder.grouped_review_schema()["properties"]["directions"]["items"]
+
+        self.assertIn("pod_transferability", direction_schema["required"])
+        self.assertEqual(
+            direction_schema["properties"]["pod_transferability"],
+            {"type": "string", "enum": ["direct_printable", "aesthetic_only", "not_pod_transferable"]},
+        )
+
+    def test_api_schemas_do_not_use_const(self):
+        for schema in (builder.grouped_review_schema(), builder.global_consolidation_schema()):
+            self.assertFalse(any(isinstance(node, dict) and "const" in node for node in walk_json(schema)))
+
+    def test_api_schema_properties_have_explicit_types(self):
+        for schema in (builder.grouped_review_schema(), builder.global_consolidation_schema()):
+            for property_name, property_schema in property_schemas(schema):
+                self.assertIn("type", property_schema, property_name)
+                if "enum" in property_schema:
+                    self.assertEqual(property_schema["type"], "string", property_name)
+
     def selected_ids_for_rows(self, rows):
         temp, batch, queue = self.make_batch(rows)
         self.addCleanup(temp.cleanup)
@@ -295,6 +347,81 @@ class WF1GroupedEverBeeBundleTests(unittest.TestCase):
         bundles = json.loads((output / "WF1_everbee_grouped_evidence_bundles_v2.json").read_text(encoding="utf-8"))["bundles"]
 
         self.assertFalse(any(item["lane"] == "audit_only" for item in bundles[0]["evidence"]))
+
+    def test_listing_family_groups_same_motif_across_shops(self):
+        rows = [
+            self.row("same1", "goth raven moon phone case", "Shop A", "same1", 18, 50, 500),
+            self.row("same2", "goth raven moon phone case", "Shop B", "same2", 19, 40, 400),
+            self.row("diff1", "goth spider rose phone case", "Shop C", "diff1", 20, 30, 300),
+            self.row("surface1", "goth raven moon blanket", "Shop D", "surface1", 35, 20, 200),
+        ]
+        _, output = self.selected_ids_for_rows(rows)
+        with (output / "WF1_everbee_grouped_evidence_row_audit_v2.csv").open("r", encoding="utf-8") as handle:
+            audit = {row["evidence_id"]: row for row in csv.DictReader(handle)}
+
+        self.assertEqual(audit["same1"]["listing_family_id"], audit["same2"]["listing_family_id"])
+        self.assertNotEqual(audit["same1"]["listing_family_id"], audit["diff1"]["listing_family_id"])
+        self.assertNotEqual(audit["same1"]["listing_family_id"], audit["surface1"]["listing_family_id"])
+
+    def test_surface_inference_ignores_queue_phrase(self):
+        self.assertEqual(builder.infer_surface_family("soft gothic throw blanket", "blankets", ""), "blanket")
+        self.assertEqual(builder.infer_surface_family("goth workout shirt", "apparel", ""), "shirt")
+        self.assertEqual(builder.infer_surface_family("abstract raven motif", "", ""), "other_product_surface")
+
+    def test_balanced_bucket_selection_round_robins(self):
+        rows = [
+            self.row("cur1", "goth current phone case", "A", "cur1", 18, 500, 5000, age=220),
+            self.row("cur2", "goth current two phone case", "B", "cur2", 18, 450, 4500, age=220),
+            self.row("new1", "goth newer phone case", "C", "new1", 18, 120, 1200, age=30),
+            self.row("est1", "goth established phone case", "D", "est1", 18, 110, 1100, age=600),
+            self.row("sig1", "goth signal phone case", "E", "sig1", 18, 100, 1000, age=220, growth=20),
+        ]
+        for row in rows:
+            row["visibility_score"] = ""
+            row["conversion_estimate"] = ""
+        selected, output = self.selected_ids_for_rows(rows)
+        with (output / "WF1_everbee_grouped_evidence_row_audit_v2.csv").open("r", encoding="utf-8") as handle:
+            selected_rows = [row for row in csv.DictReader(handle) if row["selected_in_bundle"] == "True"]
+        primary = [row["primary_selection_bucket"] for row in selected_rows]
+
+        self.assertEqual(selected, ["cur1", "new1", "est1", "sig1"])
+        self.assertEqual(primary, ["current_traction_leader", "newer_listing_with_traction", "established_durable_traction", "growth_conversion_or_visibility_signal"])
+
+    def test_audit_only_routes_surface_conflict_unknown_missing_title_negative_metrics(self):
+        rows = [
+            self.row("blanket", "soft gothic throw blanket", "A", "blanket", 35, 20, 200),
+            self.row("unknown", "abstract raven motif", "B", "unknown", 18, 20, 200),
+            self.row("missing", "", "C", "missing", 18, 20, 200),
+            self.row("negative", "goth phone case", "D", "negative", 18, -1, 200),
+            self.row("ip_supply", "pokemon phone case svg", "E", "ip_supply", 18, -1, 200),
+        ]
+        for row in rows:
+            if row["evidence_id"] == "unknown":
+                row["tags"] = ""
+                row["product_category"] = ""
+            if row["evidence_id"] == "missing":
+                row["tags"] = ""
+                row["product_category"] = ""
+        _, output = self.selected_ids_for_rows(rows)
+        with (output / "WF1_everbee_grouped_evidence_row_audit_v2.csv").open("r", encoding="utf-8") as handle:
+            audit = {row["evidence_id"]: row for row in csv.DictReader(handle)}
+
+        self.assertEqual(audit["blanket"]["surface_family"], "blanket")
+        self.assertEqual(audit["blanket"]["lane"], "audit_only")
+        self.assertIn("surface_conflict", audit["blanket"]["lane_reasons"])
+        self.assertEqual(audit["unknown"]["lane_reasons"], "unknown_listing_surface")
+        self.assertEqual(audit["missing"]["lane_reasons"], "missing_title_context")
+        self.assertEqual(audit["negative"]["lane_reasons"], "negative_commercial_metric")
+        self.assertEqual(audit["ip_supply"]["lane"], "ip_quarantine")
+
+    def test_selected_bucket_union_preserved_in_bundle_json(self):
+        rows = self.ordered_rows()
+        _, output = self.selected_ids_for_rows(rows)
+        bundles = json.loads((output / "WF1_everbee_grouped_evidence_bundles_v2.json").read_text(encoding="utf-8"))["bundles"]
+        multi = next(item for item in bundles[0]["evidence"] if len(item["qualifying_selection_buckets"]) > 1)
+
+        self.assertEqual(multi["selected_selection_buckets"], multi["qualifying_selection_buckets"])
+        self.assertIn(multi["primary_selection_bucket"], multi["selected_selection_buckets"])
 
 
 if __name__ == "__main__":
