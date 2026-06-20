@@ -557,33 +557,32 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         )
 
     def valid_priority_response(self, request, selected_count=5, alternate_count=1):
-        decisions = []
-        for index, expected in enumerate(request["expected_source_ids"], start=1):
-            if index <= selected_count:
-                status = "selected_first_batch"
-            elif index <= selected_count + alternate_count:
-                status = "alternate"
-            else:
-                status = "held_for_later"
-            decisions.append(
+        expected = request["expected_source_ids"]
+        selected = [row["source_wf2_hypothesis_id"] for row in expected[:selected_count]]
+        alternates = [row["source_wf2_hypothesis_id"] for row in expected[selected_count : selected_count + alternate_count]]
+        held = [row["source_wf2_hypothesis_id"] for row in expected[selected_count + alternate_count :]]
+        details = []
+        for index, expected_row in enumerate(expected, start=1):
+            details.append(
                 {
-                    "source_wf2_hypothesis_id": expected["source_wf2_hypothesis_id"],
-                    "source_global_candidate_id": expected["source_global_candidate_id"],
-                    "strategic_direction_label": expected["strategic_direction_label"],
-                    "priority_rank": index,
-                    "selection_status": status,
+                    "source_wf2_hypothesis_id": expected_row["source_wf2_hypothesis_id"],
                     "selection_reason": "Strong priority for the first cautious WF3 batch.",
                     "strongest_support": "Buyer clarity and surface context are directionally strong.",
                     "primary_risk": "Provider and originality checks remain pending.",
                     "recommended_surface_category": "Flat POD surface pending verification.",
                     "overlap_group": f"group-{index}",
-                    "source_evidence_ids": expected["source_evidence_ids"],
                     "exact_competitor_titles_excluded": True,
                     "shop_names_excluded": True,
                     "human_approval_required_before_design_generation": True,
                 }
             )
-        return {"schema_version": prefilter.SCHEMA_VERSION, "decisions": decisions}
+        return {
+            "schema_version": prefilter.MODEL_SCHEMA_VERSION,
+            "selected_first_batch_ids": selected,
+            "alternate_ids": alternates,
+            "held_for_later_ids": held,
+            "decision_details": details,
+        }
 
     def make_valid_priority_selection(self, batch, selected_count=5):
         pargs = prefilter.parse_args(

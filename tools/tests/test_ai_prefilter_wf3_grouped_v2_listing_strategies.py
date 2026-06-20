@@ -100,6 +100,34 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         )
 
     def valid_response(self, request, selected_count=5, alternate_count=3):
+        expected = request["expected_source_ids"]
+        selected = [row["source_wf2_hypothesis_id"] for row in expected[:selected_count]]
+        alternates = [row["source_wf2_hypothesis_id"] for row in expected[selected_count : selected_count + alternate_count]]
+        held = [row["source_wf2_hypothesis_id"] for row in expected[selected_count + alternate_count :]]
+        details = []
+        for index, row in enumerate(expected, start=1):
+            details.append(
+                {
+                    "source_wf2_hypothesis_id": row["source_wf2_hypothesis_id"],
+                    "selection_reason": "Strongest directional fit for cautious WF3 follow-up.",
+                    "strongest_support": "Buyer and surface signals are directionally clear.",
+                    "primary_risk": "Provider and originality checks remain unverified.",
+                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "overlap_group": f"group-{index}",
+                    "exact_competitor_titles_excluded": True,
+                    "shop_names_excluded": True,
+                    "human_approval_required_before_design_generation": True,
+                }
+            )
+        return {
+            "schema_version": prefilter.MODEL_SCHEMA_VERSION,
+            "selected_first_batch_ids": selected,
+            "alternate_ids": alternates,
+            "held_for_later_ids": held,
+            "decision_details": details,
+        }
+
+    def legacy_response(self, request, selected_count=5, alternate_count=3):
         decisions = []
         for index, expected in enumerate(request["expected_source_ids"], start=1):
             if index <= selected_count:
@@ -126,7 +154,7 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
                     "human_approval_required_before_design_generation": True,
                 }
             )
-        return {"schema_version": prefilter.SCHEMA_VERSION, "decisions": decisions}
+        return {"schema_version": prefilter.LEGACY_SCHEMA_VERSION, "decisions": decisions}
 
     def completed_response(self, parsed):
         return {"output": [{"content": [{"type": "output_text", "text": json.dumps(parsed)}]}]}
@@ -152,11 +180,15 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         self.assertEqual([row["source_wf2_hypothesis_id"] for row in req_a["inputs"]], [row["source_wf2_hypothesis_id"] for row in req_b["inputs"]])
 
     def test_schema_is_strict_and_output_has_no_listing_fields(self):
-        schema = prefilter.response_schema(2)
+        schema = prefilter.response_schema(2, selection_limit=1, alternate_limit=1)
         self.assertFalse(schema["additionalProperties"])
-        item_schema = schema["properties"]["decisions"]["items"]
+        self.assertIn("selected_first_batch_ids", schema["properties"])
+        self.assertIn("alternate_ids", schema["properties"])
+        self.assertIn("held_for_later_ids", schema["properties"])
+        self.assertEqual(1, schema["properties"]["selected_first_batch_ids"]["maxItems"])
+        item_schema = schema["properties"]["decision_details"]["items"]
         self.assertFalse(item_schema["additionalProperties"])
-        self.assertEqual(prefilter.DECISION_FIELDS, item_schema["required"])
+        self.assertEqual(prefilter.MODEL_DETAIL_FIELDS, item_schema["required"])
         self.assertNotIn("listing_title_draft", item_schema["properties"])
 
     def test_valid_response_accepts_all_ids_once_and_limits(self):
@@ -183,26 +215,28 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         prefilter.run_preflight(self.args(batch))
         request = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
         parsed = self.valid_response(request, selected_count=2, alternate_count=1)
-        parsed["decisions"].pop()
-        parsed["decisions"][0]["source_wf2_hypothesis_id"] = "unknown"
-        parsed["decisions"][1]["source_wf2_hypothesis_id"] = parsed["decisions"][2]["source_wf2_hypothesis_id"]
-        parsed["decisions"][1]["unexpected"] = "extra"
+        parsed["held_for_later_ids"].pop()
+        parsed["selected_first_batch_ids"][0] = "unknown"
+        parsed["alternate_ids"][0] = parsed["selected_first_batch_ids"][1]
+        parsed["decision_details"][1]["unexpected"] = "extra"
         _, errors = prefilter.validate_priority_response(parsed, request)
         self.assertTrue(any(error.startswith("schema_extra:") for error in errors))
-        self.assertTrue(any(error.startswith("unknown_source_wf2_hypothesis_id:") for error in errors))
-        self.assertTrue(any(error.startswith("duplicate_source_wf2_hypothesis_id:") for error in errors))
-        self.assertTrue(any(error.startswith("missing_source_wf2_hypothesis_id:") for error in errors))
+        self.assertTrue(any(error.startswith("unknown_source_id_in_ordered_arrays:") for error in errors))
+        self.assertTrue(any(error.startswith("duplicate_source_id_across_ordered_arrays:") for error in errors))
+        self.assertTrue(any(error.startswith("missing_source_id_from_ordered_arrays:") for error in errors))
 
-    def test_rank_and_overlap_group_validation(self):
+    def test_local_deterministic_rank_construction_and_overlap_group_validation(self):
         batch, _ = self.make_batch(count=4)
         prefilter.run_preflight(self.args(batch))
         request = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
         parsed = self.valid_response(request, selected_count=2, alternate_count=1)
-        parsed["decisions"][1]["priority_rank"] = 1
-        parsed["decisions"][0]["overlap_group"] = "same"
-        parsed["decisions"][1]["overlap_group"] = "same"
+        normalized, errors = prefilter.normalize_priority_response(parsed, request)
+        self.assertEqual([], errors)
+        self.assertEqual([1, 2, 3, 4], [row["priority_rank"] for row in normalized["decisions"]])
+        self.assertEqual(["selected_first_batch", "selected_first_batch", "alternate", "held_for_later"], [row["selection_status"] for row in normalized["decisions"]])
+        parsed["decision_details"][0]["overlap_group"] = "same"
+        parsed["decision_details"][1]["overlap_group"] = "same"
         _, errors = prefilter.validate_priority_response(parsed, request)
-        self.assertIn("priority_rank_not_unique_contiguous", errors)
         self.assertIn("selected_near_duplicate_overlap_group:same", errors)
 
     def test_competitor_leakage_guardrails_and_invented_metrics_fail(self):
@@ -213,13 +247,14 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         visible_text = prefilter.build_request_payload(request)["input"][0]["content"][0]["text"]
         self.assertNotIn("Copied Famous Title", visible_text)
         parsed = self.valid_response(request, selected_count=2, alternate_count=1)
-        parsed["decisions"][0]["selection_reason"] = "Copied Famous Title from Competitor Shop has guaranteed 500 sales."
-        parsed["decisions"][0]["exact_competitor_titles_excluded"] = False
+        parsed["decision_details"][0]["selection_reason"] = "Copied Famous Title from Competitor Shop has guaranteed 500 sales."
+        parsed["decision_details"][0]["exact_competitor_titles_excluded"] = False
         _, errors = prefilter.validate_priority_response(parsed, request)
-        self.assertIn(f"exact_competitor_title_leakage:{parsed['decisions'][0]['source_wf2_hypothesis_id']}", errors)
-        self.assertIn(f"shop_name_leakage:{parsed['decisions'][0]['source_wf2_hypothesis_id']}", errors)
-        self.assertIn(f"invented_metric_or_guarantee:{parsed['decisions'][0]['source_wf2_hypothesis_id']}", errors)
-        self.assertIn(f"guardrail_not_true:{parsed['decisions'][0]['source_wf2_hypothesis_id']}:exact_competitor_titles_excluded", errors)
+        source_id = parsed["decision_details"][0]["source_wf2_hypothesis_id"]
+        self.assertIn(f"exact_competitor_title_leakage:{source_id}", errors)
+        self.assertIn(f"shop_name_leakage:{source_id}", errors)
+        self.assertIn(f"invented_metric_or_guarantee:{source_id}", errors)
+        self.assertIn(f"guardrail_not_true:{source_id}:exact_competitor_titles_excluded", errors)
 
     def test_malformed_markdown_json_fails_closed(self):
         with self.assertRaises(prefilter.WF3PriorityPrefilterError):
@@ -240,6 +275,65 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         self.assertEqual("ok", validate_summary["status"])
         self.assertEqual(raw_bytes, paths["raw"].read_bytes())
         self.assertFalse(validate_summary["api_calls_made"])
+
+    def legacy_request(self, request):
+        legacy = json.loads(json.dumps(request))
+        legacy["contract_revision"] = prefilter.LEGACY_CONTRACT_REVISION
+        legacy["response_schema"] = prefilter.legacy_response_schema(len(legacy["expected_source_ids"]))
+        legacy["schema_sha256"] = prefilter.sha256_json(legacy["response_schema"])
+        legacy["request_contract_sha256"] = prefilter.request_contract_hash(legacy)
+        return legacy
+
+    def test_unsorted_unique_rank_offline_recovery_sorts_rows(self):
+        batch, _ = self.make_batch(count=4)
+        prefilter.run_preflight(self.args(batch, selection_limit=2, alternate_limit=1))
+        request = self.legacy_request(prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON))
+        parsed = self.legacy_response(request, selected_count=2, alternate_count=1)
+        parsed["decisions"] = [parsed["decisions"][1], parsed["decisions"][0], parsed["decisions"][3], parsed["decisions"][2]]
+        recovered, changes, errors = prefilter.recover_legacy_ranked_response(parsed, request)
+        self.assertEqual([], errors)
+        self.assertEqual([1, 2, 3, 4], [row["priority_rank"] for row in recovered["decisions"]])
+        self.assertTrue(changes)
+
+    def test_unique_gapped_rank_offline_recovery_renumbers_contiguously(self):
+        batch, _ = self.make_batch(count=4)
+        prefilter.run_preflight(self.args(batch, selection_limit=2, alternate_limit=1))
+        request = self.legacy_request(prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON))
+        parsed = self.legacy_response(request, selected_count=2, alternate_count=1)
+        parsed["decisions"][2]["priority_rank"] = 5
+        parsed["decisions"][3]["priority_rank"] = 6
+        recovered, changes, errors = prefilter.recover_legacy_ranked_response(parsed, request)
+        self.assertEqual([], errors)
+        self.assertEqual([1, 2, 3, 4], [row["priority_rank"] for row in recovered["decisions"]])
+        self.assertIn({"source_wf2_hypothesis_id": parsed["decisions"][2]["source_wf2_hypothesis_id"], "old_rank": 5, "new_rank": 3}, changes)
+
+    def test_duplicate_rank_recovery_refuses_to_invent_order(self):
+        batch, _ = self.make_batch(count=4)
+        prefilter.run_preflight(self.args(batch, selection_limit=2, alternate_limit=1))
+        request = self.legacy_request(prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON))
+        parsed = self.legacy_response(request, selected_count=2, alternate_count=1)
+        parsed["decisions"][2]["priority_rank"] = 2
+        recovered, _, errors = prefilter.recover_legacy_ranked_response(parsed, request)
+        self.assertIsNone(recovered)
+        self.assertIn("ambiguous_priority_rank_recovery_refused", errors)
+
+    def test_old_raw_after_new_preflight_uses_archived_original_contract(self):
+        batch, _ = self.make_batch(count=4)
+        args = self.args(batch, mode="recover-raw", selection_limit=2, alternate_limit=1)
+        prefilter.run_preflight(args)
+        output_dir = prefilter.output_dir_for_batch(batch)
+        legacy_request = self.legacy_request(prefilter.read_json(output_dir / prefilter.PAYLOAD_JSON))
+        prefilter.write_json_atomic(output_dir / prefilter.PAYLOAD_JSON, legacy_request)
+        parsed = self.legacy_response(legacy_request, selected_count=2, alternate_count=1)
+        parsed["decisions"][2]["priority_rank"] = 2
+        paths = prefilter.output_paths(output_dir)
+        prefilter.write_json_atomic(paths["raw"], self.completed_response(parsed))
+        prefilter.run_preflight(self.args(batch, selection_limit=2, alternate_limit=1))
+        recovered_request = prefilter.load_request_for_raw_recovery(batch, args)
+        self.assertEqual(prefilter.LEGACY_CONTRACT_REVISION, recovered_request["contract_revision"])
+        summary = prefilter.run_recover_raw(args)
+        self.assertEqual("failed", summary["status"])
+        self.assertIn("ambiguous_priority_rank_recovery_refused", summary["errors"])
 
     def test_live_requires_confirm_and_blocks_existing_output(self):
         batch, _ = self.make_batch(count=4)
