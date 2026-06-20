@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest import mock
 
 from tools import ai_generate_wf3_grouped_v2_listing_candidates as listing
+from tools import ai_prefilter_wf3_grouped_v2_listing_strategies as prefilter
 
 
 ACTIVE_BATCH = Path("05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128")
@@ -203,7 +204,7 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
             "schema_version": listing.SCHEMA_VERSION,
             "batch_id": request_batch["batch_id"],
             "listing_candidates": candidates,
-            "batch_notes": "Concrete draft candidates for human review.",
+            "batch_notes": "",
         }
 
     def completed_response(self, parsed):
@@ -220,6 +221,16 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
 
     def load_request_batches(self, batch, args):
         return listing.load_request_batches(batch, args)
+
+    def legacy_request_payload(self, request):
+        legacy = json.loads(json.dumps(request))
+        legacy.pop("contract_revision", None)
+        legacy["request_contract_sha256"] = listing.request_contract_hash(legacy)
+        return legacy
+
+    def write_payload(self, batch, requests):
+        payload_path = listing.output_dir_for_batch(batch) / listing.PAYLOAD_JSONL
+        payload_path.write_text("\n".join(json.dumps(request, sort_keys=True) for request in requests) + "\n", encoding="utf-8")
 
     def test_active_batch_discovers_exactly_28_advanced_rows(self):
         rows, _ = listing.load_source_queue(ACTIVE_BATCH)
@@ -273,12 +284,16 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertEqual(2, schema["properties"]["listing_candidates"]["maxItems"])
         self.assertIn("listing_approved", items["required"])
         self.assertEqual([""], items["properties"]["listing_approved"]["enum"])
+        self.assertEqual([""], schema["properties"]["batch_notes"]["enum"])
+        self.assertIn('batch_notes must be exactly ""', listing.prompt_text())
 
     def test_valid_response_accepts_exactly_13_unique_tags_and_prompt_text(self):
         batch, _ = self.make_batch()
         listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
         request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
-        _, errors = listing.validate_listing_response(self.valid_model_output(request), request)
+        parsed = self.valid_model_output(request)
+        self.assertEqual("", parsed["batch_notes"])
+        _, errors = listing.validate_listing_response(parsed, request)
         self.assertEqual([], errors)
 
     def test_validation_rejects_tag_count_duplicate_internal_language_and_claims(self):
@@ -350,6 +365,131 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertIn(f"ideogram_prompt_requests_mockup_or_photo:{source_id}", errors)
         self.assertIn(f"listing_approved_prefilled:{source_id}", errors)
 
+    def test_recovery_canonicalizes_curly_quotes_and_unquoted_exact_text(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+        parsed = self.valid_model_output(request)
+        parsed["batch_notes"] = "Concrete draft candidates for WF3 review."
+        parsed["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"].replace(
+            '"Moonlit Coast Club"', "\u201cMoonlit Coast Club\u201d"
+        )
+        parsed["listing_candidates"][1]["ideogram_prompt"] = parsed["listing_candidates"][1]["ideogram_prompt"].replace(
+            '"Moonlit Coast Club"', "Moonlit Coast Club"
+        )
+        recovered, changes, errors = listing.canonicalize_recovered_response(parsed, request)
+        self.assertEqual([], errors)
+        self.assertEqual("", recovered["batch_notes"])
+        for candidate in recovered["listing_candidates"]:
+            self.assertEqual(1, candidate["ideogram_prompt"].count('"Moonlit Coast Club"'))
+        self.assertEqual(
+            ["batch_notes", "ideogram_prompt", "ideogram_prompt"],
+            [change["field"] for change in changes],
+        )
+
+    def test_recovery_refuses_absent_changed_and_multiple_selected_text(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+
+        absent = self.valid_model_output(request)
+        absent["listing_candidates"][0]["ideogram_prompt"] = "Design-only artwork without the selected phrase."
+        _, _, errors = listing.canonicalize_recovered_response(absent, request)
+        self.assertIn(
+            f"recovery_selected_design_text_absent:{absent['listing_candidates'][0]['source_wf2_hypothesis_id']}",
+            errors,
+        )
+
+        changed = self.valid_model_output(request)
+        changed["listing_candidates"][0]["ideogram_prompt"] = changed["listing_candidates"][0]["ideogram_prompt"].replace(
+            "Moonlit Coast Club", "Moonlit Coast Crew"
+        )
+        _, _, errors = listing.canonicalize_recovered_response(changed, request)
+        self.assertIn(
+            f"recovery_selected_design_text_absent:{changed['listing_candidates'][0]['source_wf2_hypothesis_id']}",
+            errors,
+        )
+
+        multiple = self.valid_model_output(request)
+        multiple["listing_candidates"][0]["ideogram_prompt"] += " Moonlit Coast Club"
+        _, _, errors = listing.canonicalize_recovered_response(multiple, request)
+        self.assertIn(
+            f"recovery_selected_design_text_multiple_occurrences:{multiple['listing_candidates'][0]['source_wf2_hypothesis_id']}",
+            errors,
+        )
+
+    def test_recovery_does_not_modify_unrelated_candidate_fields(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+        parsed = self.valid_model_output(request)
+        parsed["batch_notes"] = "Concrete draft candidates for WF3 review."
+        parsed["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"].replace(
+            '"Moonlit Coast Club"', "Moonlit Coast Club"
+        )
+        original_candidate = json.loads(json.dumps(parsed["listing_candidates"][0]))
+        recovered, _, errors = listing.canonicalize_recovered_response(parsed, request)
+        self.assertEqual([], errors)
+        for field, value in original_candidate.items():
+            if field == "ideogram_prompt":
+                continue
+            self.assertEqual(value, recovered["listing_candidates"][0][field], field)
+
+    def test_recover_raw_preserves_raw_audits_hashes_and_uses_original_contract_without_network(self):
+        batch, _ = self.make_batch()
+        args = self.args(batch, mode="recover-raw", candidate_limit=2, batch_size=2)
+        listing.run_preflight(args)
+        original_request = self.load_request_batches(batch, args)[0]
+        legacy_request = self.legacy_request_payload(original_request)
+        self.write_payload(batch, [legacy_request])
+        request = self.load_request_batches(batch, args)[0]
+        parsed = self.valid_model_output(request)
+        parsed["batch_notes"] = "Concrete draft candidates for WF3 review."
+        parsed["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"].replace(
+            '"Moonlit Coast Club"', "\u201cMoonlit Coast Club\u201d"
+        )
+        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
+        raw_bytes_before = paths["raw"].read_bytes()
+        with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            summary = listing.run_recover_raw(args)
+        self.assertEqual("ok", summary["status"])
+        self.assertFalse(summary["api_calls_made"])
+        self.assertFalse(summary["network_calls_made"])
+        self.assertEqual(raw_bytes_before, paths["raw"].read_bytes())
+        audit = listing.read_json(paths["recovery_audit"])
+        self.assertEqual("recovered_from_original_contract", audit["recovery_status"])
+        self.assertEqual(request["request_contract_sha256"], audit["original_request_contract_sha256"])
+        self.assertEqual(request["prompt_sha256"], audit["original_prompt_sha256"])
+        self.assertEqual(request["schema_sha256"], audit["original_schema_sha256"])
+        self.assertEqual(listing.RECOVERY_CODE_REVISION, audit["recovery_code_revision"])
+        self.assertTrue(audit["raw_response_preserved_byte_for_byte"])
+        self.assertEqual("ok", audit["final_validation_result"])
+        self.assertEqual(["batch_notes", "ideogram_prompt"], [change["field"] for change in audit["fields_changed"]])
+        meta = listing.read_json(paths["validated_meta"])
+        self.assertEqual(request["request_contract_sha256"], meta["request_contract_sha256"])
+        self.assertEqual("recovered_from_original_contract", meta["recovery_status"])
+
+    def test_mixed_contract_consolidation_is_blocked(self):
+        batch, _ = self.make_batch()
+        args = self.args(batch, mode="recover-raw", candidate_limit=4, batch_size=2)
+        listing.run_preflight(args)
+        request_a, request_b = self.load_request_batches(batch, args)
+        legacy_a = self.legacy_request_payload(request_a)
+        self.write_payload(batch, [legacy_a, request_b])
+        mixed_requests = self.load_request_batches(batch, args)
+        for request in mixed_requests:
+            paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+            parsed = self.valid_model_output(request)
+            parsed["batch_notes"] = "Concrete draft candidates for WF3 review." if request is mixed_requests[0] else ""
+            listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
+        with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            summary = listing.run_recover_raw(args)
+        self.assertEqual("ok", summary["status"])
+        self.assertFalse(summary["consolidated"])
+        self.assertTrue(any("recovered_original_contract_not_consolidatable" in item for item in summary["consolidation_blockers"]))
+        self.assertTrue(any("mixed_contract_revisions_not_consolidatable" in item for item in summary["consolidation_blockers"]))
+
     def test_live_writes_raw_before_validation_failure(self):
         batch, _ = self.make_batch()
         args = self.args(batch, mode="live", candidate_limit=2, batch_size=2)
@@ -400,6 +540,107 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         errors = listing.current_validation_errors(changed_request, listing.output_dir_for_batch(batch))
         self.assertTrue(any("stale_validated_batch_meta_mismatch" in error for error in errors))
 
+    def priority_args(self, batch, priority_file, run_id="priority_test", mode="preflight"):
+        return listing.parse_args(
+            [
+                "--mode",
+                mode,
+                "--batch-dir",
+                str(batch),
+                "--batch-size",
+                "2",
+                "--priority-selection-file",
+                str(priority_file),
+                "--run-id",
+                run_id,
+            ]
+        )
+
+    def valid_priority_response(self, request, selected_count=5, alternate_count=1):
+        decisions = []
+        for index, expected in enumerate(request["expected_source_ids"], start=1):
+            if index <= selected_count:
+                status = "selected_first_batch"
+            elif index <= selected_count + alternate_count:
+                status = "alternate"
+            else:
+                status = "held_for_later"
+            decisions.append(
+                {
+                    "source_wf2_hypothesis_id": expected["source_wf2_hypothesis_id"],
+                    "source_global_candidate_id": expected["source_global_candidate_id"],
+                    "strategic_direction_label": expected["strategic_direction_label"],
+                    "priority_rank": index,
+                    "selection_status": status,
+                    "selection_reason": "Strong priority for the first cautious WF3 batch.",
+                    "strongest_support": "Buyer clarity and surface context are directionally strong.",
+                    "primary_risk": "Provider and originality checks remain pending.",
+                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "overlap_group": f"group-{index}",
+                    "source_evidence_ids": expected["source_evidence_ids"],
+                    "exact_competitor_titles_excluded": True,
+                    "shop_names_excluded": True,
+                    "human_approval_required_before_design_generation": True,
+                }
+            )
+        return {"schema_version": prefilter.SCHEMA_VERSION, "decisions": decisions}
+
+    def make_valid_priority_selection(self, batch, selected_count=5):
+        pargs = prefilter.parse_args(
+            [
+                "--mode",
+                "preflight",
+                "--batch-dir",
+                str(batch),
+                "--selection-limit",
+                str(selected_count),
+                "--alternate-limit",
+                "1",
+            ]
+        )
+        prefilter.run_preflight(pargs)
+        prequest = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
+        ok, errors = prefilter.validate_and_write(
+            self.valid_priority_response(prequest, selected_count=selected_count, alternate_count=1),
+            prequest,
+            prefilter.output_dir_for_batch(batch),
+        )
+        self.assertTrue(ok, errors)
+        return prefilter.output_paths(prefilter.output_dir_for_batch(batch))["validated"]
+
+    def test_priority_selection_file_generates_only_validated_selected_rows_in_isolated_batches(self):
+        batch, _ = self.make_batch(count=8)
+        priority_file = self.make_valid_priority_selection(batch, selected_count=5)
+        args = self.priority_args(batch, priority_file)
+        summary = listing.run_preflight(args)
+        self.assertEqual("priority_selected", summary["selection_mode"])
+        self.assertEqual(5, summary["priority_selected_count"])
+        self.assertEqual([2, 2, 1], [row["input_count"] for row in summary["batch_manifest"]])
+        self.assertEqual(
+            [
+                "wf3gv2_priority_test_listing_batch_001",
+                "wf3gv2_priority_test_listing_batch_002",
+                "wf3gv2_priority_test_listing_batch_003",
+            ],
+            [row["batch_id"] for row in summary["batch_manifest"]],
+        )
+        output_dir = listing.output_dir_for_args(batch, args)
+        self.assertTrue((output_dir / listing.PAYLOAD_JSONL).exists())
+        self.assertFalse((listing.output_dir_for_batch(batch) / listing.PAYLOAD_JSONL).exists())
+
+    def test_priority_selection_rejects_stale_or_manual_edited_selection_file(self):
+        batch, _ = self.make_batch(count=8)
+        priority_file = self.make_valid_priority_selection(batch, selected_count=5)
+        paths = prefilter.output_paths(prefilter.output_dir_for_batch(batch))
+        paths["selected"].write_text(paths["selected"].read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        with self.assertRaises(listing.WF3ListingCandidateError):
+            listing.run_preflight(self.priority_args(batch, paths["selected"], run_id="manual_csv"))
+        meta = prefilter.read_json(paths["validated_meta"])
+        meta["source_queue_sha256"] = "stale"
+        prefilter.write_json_atomic(paths["validated_meta"], meta)
+        with self.assertRaises(listing.WF3ListingCandidateError):
+            listing.run_preflight(self.priority_args(batch, priority_file, run_id="stale_json"))
+
     def test_parse_args_supports_required_live_options(self):
         args = listing.parse_args(
             [
@@ -425,6 +666,8 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertEqual(600, args.request_timeout_seconds)
         self.assertEqual("low", args.reasoning_effort)
         self.assertTrue(args.overwrite)
+        self.assertEqual("", args.priority_selection_file)
+        self.assertEqual("", args.run_id)
 
 
 if __name__ == "__main__":
