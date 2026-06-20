@@ -75,6 +75,10 @@ Return one strict JSON object matching schema `wf1_everbee_grouped_review_v2`.
 
 Classify reusable market directions, not individual listings. Positive support may only come from evidence rows with lane `reviewable_bundle_member`. Rows with lane `audit_only` may inform risk notes, but must never be the sole support for a reusable direction. Rows held for IP, supply/non-POD, repetition, or non-selection are context only.
 
+An advancing direction must be reusable through a standard POD-printable surface or a printable visual treatment. Handmade assembly, attached charms, whipped-cream glue, decoden construction, natural shells, hinge engineering, shaker pockets, molded/embossed construction, glow hardware, grips, straps, and similar manufacturing features are not POD-transferable directions. Such evidence may support a sanitized printable aesthetic, motif, audience, theme, or visual-language direction only when multiple eligible listings support that visual demand; otherwise route it to `needs_more_validation`, `hold`, or `reject`.
+
+Direction labels must describe audience, aesthetic, motif, theme, or printable visual language. Do not label a direction as a manufacturing method, construction feature, material, hardware feature, or competitor product construction.
+
 Every supporting evidence ID must exist in the input bundle. Do not invent evidence IDs, queue phrases, products, shops, metrics, claims, or evidence. Prefer `needs_more_validation` when support is thin, concentrated in one shop/listing family, ambiguous, or unsafe.
 """
 
@@ -283,8 +287,8 @@ def detect_terms(text: str, terms: Iterable[str]) -> List[str]:
     return hits
 
 
-def infer_surface_family(title: str, category: str, tags: str, phrase: str) -> str:
-    text = normalize_text(" ".join([title, category, tags, phrase]))
+def infer_surface_from_text(text: str) -> str:
+    text = normalize_text(text)
     if "phone" in text or "iphone" in text or "samsung" in text:
         return "phone_case"
     if "blanket" in text:
@@ -302,6 +306,29 @@ def infer_surface_family(title: str, category: str, tags: str, phrase: str) -> s
     if "poster" in text or "print" in text:
         return "wall_art"
     return "other_product_surface"
+
+
+def infer_surface_family(title: str, category: str, tags: str) -> str:
+    for value in (title, category, tags):
+        surface = infer_surface_from_text(value)
+        if surface != "other_product_surface":
+            return surface
+    return "other_product_surface"
+
+
+def infer_queue_surface(phrase: str) -> str:
+    text = normalize_text(phrase)
+    if "phone" in text or "iphone" in text or "samsung" in text:
+        return "phone_case"
+    if "blanket" in text:
+        return "blanket"
+    if "shirt" in text or "tee" in text or "crop top" in text:
+        return "shirt"
+    if "car seat" in text or "seat cover" in text:
+        return "car_seat_cover"
+    if "sign" in text:
+        return "sign"
+    return "unknown"
 
 
 def title_family_key(title: str) -> str:
@@ -415,9 +442,10 @@ def build_prepared_rows(
         shop_name = row.get("shop_name", "").strip()
         shop_key = normalize_text(shop_name) or "unknown_shop"
         shop_alias = shop_aliases.get(phrase_key, {}).get(shop_key, "shop_000")
-        surface = infer_surface_family(title, category, tags, phrase)
+        surface = infer_surface_family(title, category, tags)
+        queue_surface = infer_queue_surface(queue_row["search_phrase"] if queue_row else phrase)
         family_key = title_family_key(title)
-        family_id = "lf_" + stable_hash("|".join([phrase_key, shop_key, surface, family_key]), 12)
+        family_id = "lf_" + stable_hash("|".join([phrase_key, surface, family_key]), 12)
         listing_identity = (
             row.get("dedupe_key")
             or row.get("listing_id")
@@ -441,6 +469,18 @@ def build_prepared_rows(
         elif price is not None and price < 5:
             lane = "audit_only"
             lane_reasons.append("very_low_price_outlier")
+        elif not title and (row.get("listing_id") or row.get("dedupe_key")):
+            lane = "audit_only"
+            lane_reasons.append("missing_title_context")
+        elif queue_surface != "unknown" and surface not in {"other_product_surface", queue_surface}:
+            lane = "audit_only"
+            lane_reasons.append(f"surface_conflict:{queue_surface}_vs_{surface}")
+        elif surface == "other_product_surface":
+            lane = "audit_only"
+            lane_reasons.append("unknown_listing_surface")
+        elif any(value is not None and value < 0 for value in (monthly_sales, monthly_revenue, growth_rate, total_sales, review_count)):
+            lane = "audit_only"
+            lane_reasons.append("negative_commercial_metric")
 
         prepared.append(
             {
@@ -464,6 +504,7 @@ def build_prepared_rows(
                 "shop_name": shop_name,
                 "shop_alias": shop_alias,
                 "surface_family": surface,
+                "queue_surface_family": queue_surface,
                 "listing_family_id": family_id,
                 "family_key": family_key,
                 "price": price,
@@ -527,7 +568,7 @@ def traction_score(row: Dict[str, Any]) -> Tuple[float, float, float, float, str
 
 
 def add_candidate(
-    candidates: List[Tuple[str, Dict[str, Any]]],
+    candidates: Dict[str, List[Dict[str, Any]]],
     row: Dict[str, Any],
     reason: str,
 ) -> None:
@@ -535,10 +576,10 @@ def add_candidate(
     row.setdefault("qualifying_selection_buckets", [])
     if bucket not in row["qualifying_selection_buckets"]:
         row["qualifying_selection_buckets"].append(bucket)
-    candidates.append((reason, row))
+    candidates.setdefault(bucket, []).append(row)
 
 
-def build_candidates_for_phrase(rows: Sequence[Dict[str, Any]], max_audit_outliers: int) -> List[Tuple[str, Dict[str, Any]]]:
+def build_candidates_for_phrase(rows: Sequence[Dict[str, Any]], max_audit_outliers: int) -> Dict[str, List[Dict[str, Any]]]:
     for row in rows:
         row["qualifying_selection_buckets"] = []
         row["selected_selection_buckets"] = []
@@ -547,7 +588,7 @@ def build_candidates_for_phrase(rows: Sequence[Dict[str, Any]], max_audit_outlie
         row["not_selected_reason"] = ""
     reviewable = [row for row in rows if row["lane"] == "reviewable_bundle_member"]
     audit_rows = [row for row in rows if row["lane"] == "audit_only"]
-    candidates: List[Tuple[str, Dict[str, Any]]] = []
+    candidates: Dict[str, List[Dict[str, Any]]] = {}
 
     for row in sorted(reviewable, key=traction_score, reverse=True)[:20]:
         add_candidate(candidates, row, "current_traction_leader")
@@ -588,6 +629,11 @@ def build_candidates_for_phrase(rows: Sequence[Dict[str, Any]], max_audit_outlie
     for row in sorted(audit_rows, key=traction_score, reverse=True)[: max(max_audit_outliers * 3, max_audit_outliers)]:
         add_candidate(candidates, row, "audit_outlier")
 
+    for bucket, bucket_rows in list(candidates.items()):
+        deduped: Dict[str, Dict[str, Any]] = {}
+        for row in sorted(bucket_rows, key=traction_score, reverse=True):
+            deduped.setdefault(row["evidence_id"], row)
+        candidates[bucket] = list(deduped.values())
     return candidates
 
 
@@ -624,25 +670,38 @@ def select_bundle_rows(
             return False, "audit_outlier_cap"
         return True, ""
 
-    for reason, row in candidates:
-        if row["lane"] == "audit_only":
-            continue
-        if len(selected) >= reviewable_target:
-            rejection_reasons[row["evidence_id"]]["phrase_cap_reached"] += 1
-            continue
-        if len(selected) >= per_phrase_cap:
-            rejection_reasons[row["evidence_id"]]["phrase_cap_reached"] += 1
-            break
-        ok, blocked_by = can_take(row, strict=True)
+    def select_row(row: Dict[str, Any], bucket: str, strict: bool = True) -> bool:
+        ok, blocked_by = can_take(row, strict=strict)
         if not ok:
             rejection_reasons[row["evidence_id"]][blocked_by] += 1
-            continue
+            return False
         selected.append(row)
         selected_ids.add(row["evidence_id"])
         selected_listing_identities.add(row["listing_identity"])
         shop_counts[row["shop_alias"]] += 1
         family_counts[row["listing_family_id"]] += 1
-        selection_reasons[row["evidence_id"]].append(reason)
+        selection_reasons[row["evidence_id"]].append(bucket)
+        return True
+
+    reviewable_bucket_order = [bucket for bucket in INTENDED_SELECTION_BUCKETS if bucket not in {"audit_outlier", "deterministic_fallback"}]
+    bucket_offsets = {bucket: 0 for bucket in reviewable_bucket_order}
+    made_progress = True
+    while len(selected) < reviewable_target and made_progress:
+        made_progress = False
+        for bucket in reviewable_bucket_order:
+            if len(selected) >= reviewable_target:
+                break
+            bucket_rows = candidates.get(bucket, [])
+            while bucket_offsets[bucket] < len(bucket_rows):
+                row = bucket_rows[bucket_offsets[bucket]]
+                bucket_offsets[bucket] += 1
+                if row["lane"] != "reviewable_bundle_member":
+                    continue
+                if row["evidence_id"] in selected_ids:
+                    continue
+                if select_row(row, bucket, strict=True):
+                    made_progress = True
+                    break
 
     fallback = sorted(
         [row for row in rows if row["lane"] == "reviewable_bundle_member"],
@@ -688,19 +747,15 @@ def select_bundle_rows(
         if not ok:
             rejection_reasons[row["evidence_id"]][blocked_by] += 1
             continue
-        selected.append(row)
-        selected_ids.add(row["evidence_id"])
-        selected_listing_identities.add(row["listing_identity"])
-        shop_counts[row["shop_alias"]] += 1
-        family_counts[row["listing_family_id"]] += 1
-        selection_reasons[row["evidence_id"]].append("audit_outlier")
-        audit_selected += 1
+        if select_row(row, "audit_outlier", strict=False):
+            audit_selected += 1
 
     for index, row in enumerate(selected, start=1):
-        selected_buckets = stable_list(reason.split(":", 1)[0] for reason in selection_reasons[row["evidence_id"]])
+        selected_buckets = stable_list(row.get("qualifying_selection_buckets", []))
+        primary_bucket = selection_reasons[row["evidence_id"]][0] if selection_reasons[row["evidence_id"]] else ""
         row["selection_reasons"] = selected_buckets
         row["selected_selection_buckets"] = selected_buckets
-        row["primary_selection_bucket"] = selected_buckets[0] if selected_buckets else ""
+        row["primary_selection_bucket"] = primary_bucket
         row["selected_in_bundle"] = True
         row["selection_rank"] = str(index)
     for row in rows:
@@ -1163,13 +1218,14 @@ def build_outputs(args: argparse.Namespace) -> Dict[str, Any]:
 
 def grouped_review_schema() -> Dict[str, Any]:
     return {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "wf1_everbee_grouped_review_v2",
         "type": "object",
         "additionalProperties": False,
         "required": ["schema_version", "bundle_id", "query_group_id", "queue_phrase", "directions", "bundle_assessment"],
         "properties": {
-            "schema_version": {"const": "wf1_everbee_grouped_review_v2"},
+            "schema_version": {
+                "type": "string",
+                "enum": ["wf1_everbee_grouped_review_v2"],
+            },
             "bundle_id": {"type": "string"},
             "query_group_id": {"type": "string"},
             "queue_phrase": {"type": "string"},
@@ -1178,8 +1234,8 @@ def grouped_review_schema() -> Dict[str, Any]:
                 "additionalProperties": False,
                 "required": ["evidence_quality", "overall_decision", "notes"],
                 "properties": {
-                    "evidence_quality": {"enum": ["strong", "mixed", "weak", "unsafe"]},
-                    "overall_decision": {"enum": ["advance", "needs_more_validation", "hold", "reject"]},
+                    "evidence_quality": {"type": "string", "enum": ["strong", "mixed", "weak", "unsafe"]},
+                    "overall_decision": {"type": "string", "enum": ["advance", "needs_more_validation", "hold", "reject"]},
                     "notes": {"type": "string"},
                 },
             },
@@ -1193,6 +1249,7 @@ def grouped_review_schema() -> Dict[str, Any]:
                         "direction_id",
                         "direction_label",
                         "decision",
+                        "pod_transferability",
                         "supporting_evidence_ids",
                         "risk_flags",
                         "human_review_notes",
@@ -1200,8 +1257,12 @@ def grouped_review_schema() -> Dict[str, Any]:
                     "properties": {
                         "direction_id": {"type": "string"},
                         "direction_label": {"type": "string"},
-                        "decision": {"enum": ["advance_strong", "advance_possible", "needs_more_validation", "hold", "reject"]},
-                        "supporting_evidence_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
+                        "decision": {"type": "string", "enum": ["advance_strong", "advance_possible", "needs_more_validation", "hold", "reject"]},
+                        "pod_transferability": {
+                            "type": "string",
+                            "enum": ["direct_printable", "aesthetic_only", "not_pod_transferable"],
+                        },
+                        "supporting_evidence_ids": {"type": "array", "items": {"type": "string"}},
                         "risk_flags": {"type": "array", "items": {"type": "string"}},
                         "human_review_notes": {"type": "string"},
                     },
@@ -1231,7 +1292,7 @@ def global_consolidation_schema() -> Dict[str, Any]:
             "source_query_group_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
             "source_bundle_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
             "supporting_evidence_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": True},
-            "decision": {"enum": ["advance_to_wf2_input", "needs_more_validation", "hold", "reject"]},
+            "decision": {"type": "string", "enum": ["advance_to_wf2_input", "needs_more_validation", "hold", "reject"]},
             "risk_flags": {"type": "array", "items": {"type": "string"}},
             "human_review_notes": {"type": "string"},
         },
@@ -1254,7 +1315,10 @@ def global_consolidation_schema() -> Dict[str, Any]:
         "additionalProperties": False,
         "required": ["schema_version", "accepted_directions", "held_directions", "consolidation_notes"],
         "properties": {
-            "schema_version": {"const": "wf1_everbee_global_consolidation_v2"},
+            "schema_version": {
+                "type": "string",
+                "enum": ["wf1_everbee_global_consolidation_v2"],
+            },
             "accepted_directions": {"type": "array", "items": direction_item},
             "held_directions": {"type": "array", "items": held_item},
             "consolidation_notes": {"type": "string"},
