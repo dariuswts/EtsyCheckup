@@ -340,3 +340,37 @@ Run the hub locally, inspect the dashboard, then use the Strategic Review page a
 - Added `everbee_product_analytics_url` to generated EverBee queues using URL-encoded search phrases.
 - Updated `/wf0-batch-viewer` to discover WF0 queue outputs in both the latest WF0 batch folder and the legacy `05_DATA_MODEL/sample_intake_tests/` WF0 output location.
 - No live AI run, EverBee API call, scraping, Etsy, Printify, Ideogram, n8n, database, publishing, raw file deletion, or raw file movement occurred.
+
+## 2026-06-21 Update - WF3 Grouped-v2 Listing Review Surface
+
+- Added the current grouped-v2 priority-selected review page:
+  - `/wf3-listing-review`
+- The page resolves `WF3_grouped_v2_listing_candidate_review_queue.csv` from the active batch, preferring the canonical path and then failing closed unless exactly one fallback exists inside the active batch.
+- The page loads full candidate detail server-side from the three validated priority-selected WF3 batch JSON files.
+- Human decisions are written only under the priority-selected run folder's `human_review/` directory:
+  - `WF3_grouped_v2_listing_candidate_human_decisions.csv`
+  - `WF3_grouped_v2_listing_candidates_approved_for_wf4.csv`
+  - `WF3_grouped_v2_listing_candidate_human_review_meta.json`
+  - `WF3_GROUPED_V2_LISTING_CANDIDATE_HUMAN_REVIEW_REPORT.md`
+- The original review queue, validated batch JSON, validated metadata, raw responses, recovery audits, and request-contract snapshots are not edited by the page.
+- The approval field remains a single checkbox-backed `listing_approved` value: `yes` or blank.
+- No WF4 design generation, image generation, Etsy, Printify, marketplace, publishing, n8n, database, or external API action was added.
+
+## 2026-06-21 Update - WF4 Design Production Foundation
+
+- Added the current WF4 master design-asset production scaffold:
+  - `tools/generate_wf4_design_assets.py`
+- Added focused WF4 offline tests:
+  - `tools/tests/test_generate_wf4_design_assets.py`
+- Added active hub navigation/page:
+  - `WF4 Design Review` at `/wf4-design-review`
+- Added hub helper:
+  - `tools/project_hub/wf4_design_review.py`
+- WF4 consumes only the human-approved grouped-v2 WF3 queue and matching metadata under the priority-selected run folder.
+- Offline preflight generated surface-aware master-artwork specs, prompt pack, request contract, prompt rules, validation rules, payload preview, source audit, and attempt manifest under `WF4_design_production/runs/wf4_canary_001/`.
+- Current approved source queue count: 2.
+- Current selected WF4 canary count: 2.
+- Selected surface profiles: `apparel_isolated_artwork` and `phone_case_full_bleed_artwork`.
+- Attempt rows remain `pending_asset` until manual import or future explicit live generation supplies image bytes.
+- The historical `tools/ai_generate_wf4_listing_candidates.py` file remains preserved as old/inactive listing-candidate architecture.
+- No OpenAI, Ideogram, Etsy, Printify, external API, network, image generation, mockup, product, n8n, database, commit, push, or publishing action occurred.

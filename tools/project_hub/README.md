@@ -22,6 +22,8 @@ The WF0 Batch Viewer page at `/wf0-batch-viewer` is read-only. It finds the newe
 
 The Workflow Runner exposes the existing WF0 eRank AI review flow: row-level preflight, middle-filter seed-bundle preflight, confirmation-required legacy live review, and local EverBee search queue creation. The seed-bundle preflight is local/no-API and does not enable grouped live AI. Queue creation writes the existing WF0 queue outputs plus `WF1_everbee_manual_search_queue.csv` and `WF1_EVERBEE_MANUAL_SEARCH_GUIDE.md`.
 
+The WF3 Listing Review page at `/wf3-listing-review` is the current grouped-v2 priority-selected human approval surface. It resolves the consolidated WF3 review queue server-side, loads full candidate details from the validated priority-selected batch JSON files, and writes only human decision outputs under the run folder's `human_review/` directory. It does not edit the consolidated review queue, validated JSON, raw responses, recovery audits, or metadata. Checked candidates may enter a future WF4 design-production queue; no design generation happens from the hub page.
+
 The Listing Candidate Review page hides WF4 listing candidates that already appear in human decision export CSVs. The original listing candidate queue and all exported decision files remain on disk for audit history. Use the page toggle to show reviewed/exported listing candidates in a separate section.
 
 WF4 Etsy-style listing cards include copyable single-prompt Ideogram fields: one Ideogram prompt, one negative prompt, one settings note, one execution settings note, and one quality checklist. The page also shows the selected design text and keeps phrase-option rationale in advanced details.
@@ -29,3 +31,7 @@ WF4 Etsy-style listing cards include copyable single-prompt Ideogram fields: one
 The Listing Candidate Review page checks for the current WF4 v2 schema/prompt fields and shows a stale-output warning if the active queue is missing required single-prompt fields.
 
 Live AI buttons require an explicit confirmation page and use only allowlisted commands. The hub never displays or writes `OPENAI_API_KEY`.
+
+## WF4 Design Review
+
+The WF4 Design Review page at `/wf4-design-review` is the current master-design-asset review surface. It reads only WF4 design-production run artifacts under the active batch, shows a blocked/preflight state until validated artwork assets exist, and later writes only `design_approved` decisions under the WF4 run's `human_review/` folder. It does not create designs, mockups, products, Etsy drafts, Printify products, or publishing actions.

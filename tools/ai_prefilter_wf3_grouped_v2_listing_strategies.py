@@ -30,13 +30,14 @@ SOURCE_QUEUE_CSV = "WF2_grouped_v2_listing_strategy_input_queue.csv"
 WF1_EVIDENCE_CSV = "WF1_everbee_listing_evidence_normalized.csv"
 
 LEGACY_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_response_v1"
-MODEL_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ordered_id_arrays_v1"
+MODEL_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_wf2_ordered_id_arrays_v2"
+LEGACY_ORDERED_ARRAY_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ordered_id_arrays_v1"
 SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ranked_queue_v1"
 REQUEST_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_request_v1"
 PREFLIGHT_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_preflight_v1"
 VALIDATED_META_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_validated_meta_v1"
 LEGACY_CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v1"
-CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v2_ordered_id_arrays"
+CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v3_wf2_id_enum_arrays"
 RECOVERY_CODE_REVISION = "wf3_priority_prefilter_recover_raw_v2"
 
 SOURCE_AUDIT_CSV = "WF3_grouped_v2_priority_prefilter_source_audit.csv"
@@ -79,6 +80,7 @@ DECISION_FIELDS = [
 ]
 MODEL_DETAIL_FIELDS = [
     "source_wf2_hypothesis_id",
+    "source_global_candidate_id",
     "selection_reason",
     "strongest_support",
     "primary_risk",
@@ -334,9 +336,13 @@ This is not listing generation. Do not write listing titles, Etsy tags, descript
 
 Globally compare every source row in the one request. Return source IDs only in ordered arrays; do not manually assign priority ranks. Do not omit, split, combine, invent, alter, or duplicate source IDs.
 
-Return selected_first_batch_ids in strongest-first order with at most {selection_limit} IDs. Return alternate_ids next with at most {alternate_limit} IDs. Return held_for_later_ids with every remaining source ID in your recommended order. Every input source ID must appear exactly once across the three arrays.
+Copy only the exact source_wf2_hypothesis_id values into all ordered arrays. Never use source_global_candidate_id in an ordered array.
 
-Return one concise decision_details record for every source ID. Reasons and risks must be keyed by source_wf2_hypothesis_id. Do not repeat global candidate IDs, strategic labels, or source evidence IDs in the model output; those are restored locally from immutable source lineage.
+Return selected_first_batch_wf2_hypothesis_ids in strongest-first order with at most {selection_limit} IDs. Return alternate_wf2_hypothesis_ids next with at most {alternate_limit} IDs. Return held_for_later_wf2_hypothesis_ids with every remaining source_wf2_hypothesis_id in your recommended order. Every input source_wf2_hypothesis_id must appear exactly once across the three arrays.
+
+Valid ordered ID example: wf2hyp_v2_gc_v1_example. Invalid ordered ID example: gc_v1_example.
+
+Return one concise decision_details record for every source ID. Reasons and risks must be keyed by source_wf2_hypothesis_id. Include source_global_candidate_id inside decision_details only for lineage; never use it as an ordered-array identifier. Do not repeat strategic labels or source evidence IDs in the model output; those are restored locally from immutable source lineage.
 
 Avoid near-duplicate selected rows by using overlap_group. Selected rows should be varied by buyer/profile/surface/risk where possible, but there are no seed, niche, or quota rules.
 
@@ -344,8 +350,31 @@ Do not expose exact competitor titles or shop names. Treat market metrics as dir
 
 
 def response_schema(count: int, selection_limit: int, alternate_limit: int) -> Dict[str, Any]:
+    allowed_wf2_ids: List[str] = []
+    return _response_schema_for_ids(allowed_wf2_ids, count, selection_limit, alternate_limit)
+
+
+def response_schema_for_request_ids(expected: Sequence[Dict[str, Any]], selection_limit: int, alternate_limit: int) -> Dict[str, Any]:
+    return _response_schema_for_ids(
+        [row["source_wf2_hypothesis_id"] for row in expected],
+        len(expected),
+        selection_limit,
+        alternate_limit,
+    )
+
+
+def _response_schema_for_ids(
+    allowed_wf2_ids: Sequence[str],
+    count: int,
+    selection_limit: int,
+    alternate_limit: int,
+) -> Dict[str, Any]:
+    id_item_schema: Dict[str, Any] = {"type": "string"}
+    if allowed_wf2_ids:
+        id_item_schema["enum"] = list(allowed_wf2_ids)
     detail_properties: Dict[str, Any] = {
-        "source_wf2_hypothesis_id": {"type": "string"},
+        "source_wf2_hypothesis_id": dict(id_item_schema),
+        "source_global_candidate_id": {"type": "string"},
         "selection_reason": {"type": "string"},
         "strongest_support": {"type": "string"},
         "primary_risk": {"type": "string"},
@@ -358,26 +387,32 @@ def response_schema(count: int, selection_limit: int, alternate_limit: int) -> D
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["schema_version", "selected_first_batch_ids", "alternate_ids", "held_for_later_ids", "decision_details"],
+        "required": [
+            "schema_version",
+            "selected_first_batch_wf2_hypothesis_ids",
+            "alternate_wf2_hypothesis_ids",
+            "held_for_later_wf2_hypothesis_ids",
+            "decision_details",
+        ],
         "properties": {
             "schema_version": {"type": "string", "enum": [MODEL_SCHEMA_VERSION]},
-            "selected_first_batch_ids": {
+            "selected_first_batch_wf2_hypothesis_ids": {
                 "type": "array",
                 "minItems": 0,
                 "maxItems": selection_limit,
-                "items": {"type": "string"},
+                "items": id_item_schema,
             },
-            "alternate_ids": {
+            "alternate_wf2_hypothesis_ids": {
                 "type": "array",
                 "minItems": 0,
                 "maxItems": alternate_limit,
-                "items": {"type": "string"},
+                "items": id_item_schema,
             },
-            "held_for_later_ids": {
+            "held_for_later_wf2_hypothesis_ids": {
                 "type": "array",
                 "minItems": 0,
                 "maxItems": count,
-                "items": {"type": "string"},
+                "items": id_item_schema,
             },
             "decision_details": {
                 "type": "array",
@@ -470,7 +505,7 @@ def request_object(
     forbidden_shops: Sequence[str],
 ) -> Dict[str, Any]:
     prompt = prompt_text(args.selection_limit, args.alternate_limit)
-    schema = response_schema(len(inputs), args.selection_limit, args.alternate_limit)
+    schema = response_schema_for_request_ids(expected_source_ids(inputs), args.selection_limit, args.alternate_limit)
     request = {
         "schema_version": REQUEST_SCHEMA_VERSION,
         "contract_revision": CONTRACT_REVISION,
@@ -597,7 +632,12 @@ def leakage_errors(decision: Dict[str, Any], request: Dict[str, Any]) -> List[st
 
 
 def request_uses_ordered_id_arrays(request: Dict[str, Any]) -> bool:
-    return "selected_first_batch_ids" in request.get("response_schema", {}).get("properties", {})
+    properties = request.get("response_schema", {}).get("properties", {})
+    return "selected_first_batch_wf2_hypothesis_ids" in properties or "selected_first_batch_ids" in properties
+
+
+def request_uses_legacy_ordered_arrays(request: Dict[str, Any]) -> bool:
+    return request_schema_version(request) == LEGACY_ORDERED_ARRAY_SCHEMA_VERSION
 
 
 def ranked_queue_schema(count: int) -> Dict[str, Any]:
@@ -739,9 +779,14 @@ def construct_ranked_queue_from_ordered_ids(parsed: Dict[str, Any], request: Dic
     errors = schema_errors(parsed, request["response_schema"])
     expected_by_id = {row["source_wf2_hypothesis_id"]: row for row in request["expected_source_ids"]}
     expected_ids = set(expected_by_id)
-    selected_ids = list(parsed.get("selected_first_batch_ids", [])) if isinstance(parsed, dict) else []
-    alternate_ids = list(parsed.get("alternate_ids", [])) if isinstance(parsed, dict) else []
-    held_ids = list(parsed.get("held_for_later_ids", [])) if isinstance(parsed, dict) else []
+    if request_uses_legacy_ordered_arrays(request):
+        selected_ids = list(parsed.get("selected_first_batch_ids", [])) if isinstance(parsed, dict) else []
+        alternate_ids = list(parsed.get("alternate_ids", [])) if isinstance(parsed, dict) else []
+        held_ids = list(parsed.get("held_for_later_ids", [])) if isinstance(parsed, dict) else []
+    else:
+        selected_ids = list(parsed.get("selected_first_batch_wf2_hypothesis_ids", [])) if isinstance(parsed, dict) else []
+        alternate_ids = list(parsed.get("alternate_wf2_hypothesis_ids", [])) if isinstance(parsed, dict) else []
+        held_ids = list(parsed.get("held_for_later_wf2_hypothesis_ids", [])) if isinstance(parsed, dict) else []
     ordered_ids = selected_ids + alternate_ids + held_ids
     counts = Counter(ordered_ids)
     duplicate_ids = sorted(source_id for source_id, count in counts.items() if count > 1)
@@ -771,6 +816,11 @@ def construct_ranked_queue_from_ordered_ids(parsed: Dict[str, Any], request: Dic
     if missing_detail_ids:
         errors.append("missing_decision_detail_source_id:" + ",".join(missing_detail_ids))
     detail_by_id = {row["source_wf2_hypothesis_id"]: row for row in detail_rows if isinstance(row, dict) and row.get("source_wf2_hypothesis_id") in expected_ids}
+    for source_id, detail in detail_by_id.items():
+        expected = expected_by_id[source_id]
+        detail_global = clean(detail.get("source_global_candidate_id"))
+        if detail_global and detail_global != expected["source_global_candidate_id"]:
+            errors.append(f"decision_detail_global_id_mismatch:{source_id}")
     selected_groups = [clean(detail_by_id.get(source_id, {}).get("overlap_group")) for source_id in selected_ids]
     duplicate_groups = sorted(group for group, count in Counter(selected_groups).items() if group and count > 1)
     if duplicate_groups:
@@ -811,6 +861,157 @@ def construct_ranked_queue_from_ordered_ids(parsed: Dict[str, Any], request: Dic
     return (queue if not errors and ok else None), errors
 
 
+def detail_clearly_indicates_held(detail: Dict[str, Any]) -> bool:
+    text = " ".join(
+        clean(detail.get(field))
+        for field in ["selection_reason", "primary_risk", "strongest_support"]
+    ).lower()
+    held_markers = [
+        "held",
+        "hold",
+        "defer",
+        "deferred",
+        "later",
+        "queue after",
+        "after ",
+        "not selected",
+        "not first",
+    ]
+    return any(marker in text for marker in held_markers)
+
+
+def recover_global_id_namespace_ordered_response(
+    parsed: Dict[str, Any],
+    request: Dict[str, Any],
+) -> Tuple[Optional[Dict[str, Any]], Dict[str, Any], List[str]]:
+    errors = schema_errors(parsed, request["response_schema"])
+    expected_by_wf2 = {row["source_wf2_hypothesis_id"]: row for row in request["expected_source_ids"]}
+    global_to_wf2: Dict[str, str] = {}
+    duplicate_global_ids = []
+    for row in request["expected_source_ids"]:
+        global_id = row["source_global_candidate_id"]
+        if global_id in global_to_wf2:
+            duplicate_global_ids.append(global_id)
+        global_to_wf2[global_id] = row["source_wf2_hypothesis_id"]
+    if duplicate_global_ids:
+        errors.append("non_unique_global_candidate_id_mapping:" + ",".join(sorted(duplicate_global_ids)))
+
+    selected_global = list(parsed.get("selected_first_batch_ids", [])) if isinstance(parsed, dict) else []
+    alternate_global = list(parsed.get("alternate_ids", [])) if isinstance(parsed, dict) else []
+    held_global = list(parsed.get("held_for_later_ids", [])) if isinstance(parsed, dict) else []
+    returned_global = selected_global + alternate_global + held_global
+    unknown_global = sorted(set(returned_global) - set(global_to_wf2))
+    duplicate_returned = sorted(source_id for source_id, count in Counter(returned_global).items() if count > 1)
+    if unknown_global:
+        errors.append("unknown_global_candidate_id_in_ordered_arrays:" + ",".join(unknown_global))
+    if duplicate_returned:
+        errors.append("duplicate_global_candidate_id_in_ordered_arrays:" + ",".join(duplicate_returned))
+    if len(selected_global) > int(request["selection_limit"]):
+        errors.append(f"too_many_selected_first_batch:{len(selected_global)}>{request['selection_limit']}")
+    if len(alternate_global) > int(request["alternate_limit"]):
+        errors.append(f"too_many_alternates:{len(alternate_global)}>{request['alternate_limit']}")
+    if errors:
+        return None, {}, errors
+
+    selected_ids = [global_to_wf2[item] for item in selected_global]
+    alternate_ids = [global_to_wf2[item] for item in alternate_global]
+    held_ids = [global_to_wf2[item] for item in held_global]
+    returned_wf2 = selected_ids + alternate_ids + held_ids
+    missing_wf2 = sorted(set(expected_by_wf2) - set(returned_wf2))
+    if len(missing_wf2) > 1:
+        return None, {}, ["ambiguous_omitted_held_rows:" + ",".join(missing_wf2)]
+
+    detail_rows = parsed.get("decision_details", []) if isinstance(parsed, dict) else []
+    detail_ids = [clean(row.get("source_wf2_hypothesis_id")) if isinstance(row, dict) else "" for row in detail_rows]
+    detail_counts = Counter(detail_ids)
+    duplicate_detail_ids = sorted(source_id for source_id, count in detail_counts.items() if source_id and count > 1)
+    unknown_detail_ids = sorted(set(detail_ids) - set(expected_by_wf2) - {""})
+    missing_detail_ids = sorted(set(expected_by_wf2) - set(detail_ids))
+    if duplicate_detail_ids:
+        errors.append("duplicate_decision_detail_source_id:" + ",".join(duplicate_detail_ids))
+    if unknown_detail_ids:
+        errors.append("unknown_decision_detail_source_id:" + ",".join(unknown_detail_ids))
+    if missing_detail_ids:
+        errors.append("missing_decision_detail_source_id:" + ",".join(missing_detail_ids))
+    detail_by_id = {row["source_wf2_hypothesis_id"]: row for row in detail_rows if isinstance(row, dict) and row.get("source_wf2_hypothesis_id") in expected_by_wf2}
+    appended_held_rows: List[Dict[str, Any]] = []
+    if missing_wf2:
+        omitted_id = missing_wf2[0]
+        omitted_detail = detail_by_id.get(omitted_id)
+        if not omitted_detail or not detail_clearly_indicates_held(omitted_detail):
+            errors.append("omitted_id_without_deterministic_held_classification:" + omitted_id)
+        else:
+            held_ids.append(omitted_id)
+            appended_held_rows.append(
+                {
+                    "source_wf2_hypothesis_id": omitted_id,
+                    "source_global_candidate_id": expected_by_wf2[omitted_id]["source_global_candidate_id"],
+                    "reason": "omitted_from_ordered_arrays_but_decision_details_clearly_indicate_held_for_later",
+                }
+            )
+    if errors:
+        return None, {}, errors
+
+    recovered_model = {
+        "schema_version": MODEL_SCHEMA_VERSION,
+        "selected_first_batch_wf2_hypothesis_ids": selected_ids,
+        "alternate_wf2_hypothesis_ids": alternate_ids,
+        "held_for_later_wf2_hypothesis_ids": held_ids,
+        "decision_details": [
+            {
+                **dict(row),
+                "source_global_candidate_id": expected_by_wf2[row["source_wf2_hypothesis_id"]]["source_global_candidate_id"],
+            }
+            for row in detail_rows
+            if isinstance(row, dict) and row.get("source_wf2_hypothesis_id") in expected_by_wf2
+        ],
+    }
+    recovery_request = dict(request)
+    recovery_request["response_schema"] = response_schema_for_request_ids(
+        request["expected_source_ids"],
+        int(request["selection_limit"]),
+        int(request["alternate_limit"]),
+    )
+    recovered_queue, queue_errors = construct_ranked_queue_from_ordered_ids(recovered_model, recovery_request)
+    if queue_errors or recovered_queue is None:
+        return None, {}, queue_errors
+
+    transformations: List[Dict[str, Any]] = []
+    global_arrays = [
+        ("selected_first_batch", selected_global),
+        ("alternate", alternate_global),
+        ("held_for_later", held_global),
+    ]
+    rank_by_id = {row["source_wf2_hypothesis_id"]: row["priority_rank"] for row in recovered_queue["decisions"]}
+    for array_name, values in global_arrays:
+        for old_position, old_id in enumerate(values, start=1):
+            mapped_id = global_to_wf2[old_id]
+            transformations.append(
+                {
+                    "array": array_name,
+                    "old_position": old_position,
+                    "old_id": old_id,
+                    "mapped_id": mapped_id,
+                    "source_global_candidate_id": old_id,
+                    "source_wf2_hypothesis_id": mapped_id,
+                    "new_rank": rank_by_id[mapped_id],
+                }
+            )
+    for appended in appended_held_rows:
+        appended["array"] = "held_for_later"
+        appended["old_position"] = None
+        appended["old_id"] = appended["source_global_candidate_id"]
+        appended["mapped_id"] = appended["source_wf2_hypothesis_id"]
+        appended["new_rank"] = rank_by_id[appended["source_wf2_hypothesis_id"]]
+        transformations.append(appended)
+    audit_details = {
+        "recovery_type": "global_candidate_id_namespace_to_wf2_ids",
+        "transformations": transformations,
+        "appended_held_rows": appended_held_rows,
+    }
+    return recovered_queue, audit_details, []
+
+
 def normalize_priority_response(parsed: Dict[str, Any], request: Dict[str, Any]) -> Tuple[Optional[Dict[str, Any]], List[str]]:
     if request_uses_ordered_id_arrays(request):
         return construct_ranked_queue_from_ordered_ids(parsed, request)
@@ -834,7 +1035,12 @@ def extract_output_text(response_json: Dict[str, Any]) -> str:
 
 
 def parse_response_json(response_json: Dict[str, Any]) -> Dict[str, Any]:
-    if response_json.get("schema_version") in {SCHEMA_VERSION, LEGACY_SCHEMA_VERSION, MODEL_SCHEMA_VERSION}:
+    if response_json.get("schema_version") in {
+        SCHEMA_VERSION,
+        LEGACY_SCHEMA_VERSION,
+        LEGACY_ORDERED_ARRAY_SCHEMA_VERSION,
+        MODEL_SCHEMA_VERSION,
+    }:
         return response_json
     text = extract_output_text(response_json)
     if text.startswith("```") or "```" in text:
@@ -1050,6 +1256,35 @@ def load_request_for_raw_recovery(batch_dir: Path, args: argparse.Namespace) -> 
     return request
 
 
+def request_snapshot_by_contract_hash(output_dir: Path, contract_hash: str) -> Optional[Dict[str, Any]]:
+    if not contract_hash:
+        return None
+    payload_path = output_dir / "live_outputs" / "request_contract_snapshots" / contract_hash / PAYLOAD_JSON
+    if payload_path.exists():
+        return read_json(payload_path)
+    for candidate in sorted((output_dir / "live_outputs" / "request_contract_snapshots").glob(f"*/{PAYLOAD_JSON}")):
+        request = read_json(candidate)
+        if request.get("request_contract_sha256") == contract_hash:
+            return request
+    return None
+
+
+def load_request_for_validated_output(batch_dir: Path, args: argparse.Namespace) -> Dict[str, Any]:
+    output_dir = output_dir_for_batch(batch_dir)
+    request = load_request(batch_dir, args)
+    meta_path = output_paths(output_dir)["validated_meta"]
+    if not meta_path.exists():
+        return request
+    try:
+        meta = read_json(meta_path)
+    except Exception:  # noqa: BLE001
+        return request
+    if meta.get("request_contract_sha256") == request.get("request_contract_sha256"):
+        return request
+    snapshot_request = request_snapshot_by_contract_hash(output_dir, clean(meta.get("request_contract_sha256")))
+    return snapshot_request or request
+
+
 def decisions_csv_rows(decisions: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
     rows = []
     for row in sorted(decisions, key=lambda item: item["priority_rank"]):
@@ -1212,7 +1447,7 @@ def run_preflight(args: argparse.Namespace) -> Dict[str, Any]:
 
 def run_validate(args: argparse.Namespace) -> Dict[str, Any]:
     batch_dir = Path(args.batch_dir)
-    request = load_request(batch_dir, args)
+    request = load_request_for_validated_output(batch_dir, args)
     errors = current_validation_errors(request, output_dir_for_batch(batch_dir))
     return {"status": "failed" if errors else "ok", "errors": errors, "api_calls_made": False, "network_calls_made": False}
 
@@ -1228,16 +1463,28 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
     errors: List[str] = []
     rank_changes: List[Dict[str, Any]] = []
     defect: Dict[str, Any] = {}
+    recovery_details: Dict[str, Any] = {}
+    recovery_status = "validated_current_contract"
     try:
         parsed = parse_response_json(read_json(paths["raw"]))
         if request_uses_ordered_id_arrays(request):
             ok, errors = validate_and_write(parsed, request, output_dir, raw_hash_before)
+            if not ok and request_uses_legacy_ordered_arrays(request):
+                recovered, recovery_details, recovery_errors = recover_global_id_namespace_ordered_response(parsed, request)
+                ok = recovered is not None and not recovery_errors
+                errors = recovery_errors
+                recovery_status = "recovered_global_id_namespace_to_wf2_ids"
+                if ok:
+                    write_validated_outputs(recovered, request, output_dir, raw_hash_before, recovery_status=recovery_status)
+                else:
+                    write_json_atomic(paths["error"], {"errors": errors, "api_calls_made": False, "network_calls_made": False})
         else:
             defect = legacy_rank_defect(parsed.get("decisions", []) if isinstance(parsed, dict) else [])
             recovered, rank_changes, errors = recover_legacy_ranked_response(parsed, request)
             ok = recovered is not None and not errors
             if ok:
-                write_validated_outputs(recovered, request, output_dir, raw_hash_before, recovery_status="recovered_from_legacy_rank_contract")
+                recovery_status = "recovered_from_legacy_rank_contract"
+                write_validated_outputs(recovered, request, output_dir, raw_hash_before, recovery_status=recovery_status)
             else:
                 write_json_atomic(paths["error"], {"errors": errors, "api_calls_made": False, "network_calls_made": False})
     except Exception as exc:  # noqa: BLE001
@@ -1259,6 +1506,8 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
             "original_contract_revision": request.get("contract_revision", ""),
             "rank_defect": defect,
             "rank_transformations": rank_changes,
+            "recovery_status": recovery_status if ok else "failed_closed",
+            "recovery_details": recovery_details,
             "final_validation_result": "ok" if ok else "failed",
             "errors": errors,
         },
@@ -1325,7 +1574,7 @@ def load_validated_priority_selection(selection_file: Path, batch_dir: Path) -> 
         max_output_tokens=1,
         request_timeout_seconds=1,
     )
-    request = load_request(Path(batch_dir), args)
+    request = load_request_for_validated_output(Path(batch_dir), args)
     errors = current_validation_errors(request, output_dir)
     source_rows, source_hash = load_source_queue(Path(batch_dir))
     if source_hash != meta.get("source_queue_sha256"):

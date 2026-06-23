@@ -158,15 +158,19 @@ PROVIDER_CLAIM_PATTERNS = [
     re.compile(r"\b(?:100%\s+)?(?:organic|premium|soft|durable|waterproof)?\s*(?:cotton|polyester|canvas|ceramic|stainless\s+steel|vinyl|wood|glass|acrylic|linen|fleece)\s+(?:material|fabric|surface|finish)\b", re.I),
     re.compile(r"\bhandmade\b", re.I),
 ]
-PROMPT_MOCKUP_PATTERNS = [
-    re.compile(r"\bmock\s*up\b", re.I),
-    re.compile(r"\bproduct\s+photograph\b", re.I),
-    re.compile(r"\bphoto(?:graph)?\b", re.I),
-    re.compile(r"\bmodel\b", re.I),
-    re.compile(r"\broom\s+scene\b", re.I),
-    re.compile(r"\bwearing\b", re.I),
+PROMPT_PRESENTATION_REQUEST_PATTERNS = [
+    re.compile(r"\bmock[-\s]*up\b", re.I),
+    re.compile(r"\b(?:product|lifestyle)\s+photo(?:graph)?\b", re.I),
+    re.compile(r"\bphoto(?:graph)?\s+of\s+(?:a\s+)?(?:product|shirt|garment|mug|tumbler|pouch|bag|phone\s+case|poster|print)\b", re.I),
+    re.compile(r"\b(?:lifestyle|room|interior)\s+(?:scene|setting|staging|photo(?:graph)?)\b", re.I),
+    re.compile(r"\bstaged\s+product\b", re.I),
+    re.compile(r"\bproduct\s+presentation\b", re.I),
+    re.compile(r"\b(?:model|person|people|hands?)\s+(?:wearing|holding|displaying)\b", re.I),
+    re.compile(r"\b(?:hand[-\s]*held|worn)\s+product\b", re.I),
+    re.compile(r"\bwearing\s+(?:the\s+)?(?:shirt|sweatshirt|hoodie|apparel|product)\b", re.I),
     re.compile(r"\bwatermark\b", re.I),
 ]
+PROMPT_PRESENTATION_NEGATION_PATTERN = re.compile(r"\b(?:no|not|without|never|avoid|exclude|do\s+not|don't)\b.{0,40}$", re.I)
 DESIGN_ONLY_PATTERNS = [
     re.compile(r"\bdesign[-\s]*only\b", re.I),
     re.compile(r"\bartwork\s+only\b", re.I),
@@ -520,7 +524,7 @@ batch_notes must be exactly "".
 
 Use exactly 13 distinct Etsy tags. Consider 3 to 5 original design-text options internally and output those options, the selected text, and the selection reason. Empty selected design text is allowed only when the listing is intentionally visual-only, and the reason must say why.
 
-The Ideogram prompt must be one prompt only. It must ask for design-only artwork, transparent background where appropriate, exact quoted selected design text when selected text is non-empty, typography hierarchy, illustration/art direction, print readability, and intended product/surface context without showing a mockup. Do not request a garment, model, room scene, product photograph, watermark, or mockup in the Ideogram prompt.
+The Ideogram prompt must be one prompt only. It must ask for design-only artwork, transparent background where appropriate, exact quoted selected design text when selected text is non-empty, typography hierarchy, illustration/art direction, print readability, and intended product/surface context without showing a product. The Ideogram prompt must request only the standalone printable artwork. Never request a mockup, product photograph, lifestyle photograph, room scene, staged product, model, hand-held product, or product presentation. Product-presentation instructions belong exclusively in mockup_photo_plan. Valid design-only example: Design-only artwork on transparent background with exact text "Moonlit Coast Club", readable type, wave accents, and print-ready vector styling. Invalid mockup example: Show the design on a mug in a lifestyle kitchen photo.
 
 listing_approved must always be the blank string. not_published, not_sent_to_etsy_or_printify, exact_competitor_titles_excluded, shop_names_excluded, and human_approval_required_before_design_generation must all be true.
 
@@ -557,9 +561,9 @@ def response_schema(batch_id: str, count: int) -> Dict[str, Any]:
         "personalization_required": {"type": "boolean"},
         "personalization_instructions_draft": {"type": "string"},
         "visual_direction": {"type": "string"},
-        "ideogram_prompt": {"type": "string"},
+        "ideogram_prompt": {"type": "string", "description": "Standalone printable artwork prompt only; no mockup, product photo, lifestyle photo, room scene, staged product, model, hand-held product, or presentation request."},
         "ideogram_negative_prompt": {"type": "string"},
-        "mockup_photo_plan": {"type": "string"},
+        "mockup_photo_plan": {"type": "string", "description": "Product presentation and mockup/photo planning belongs here only, after human review; keep separate from ideogram_prompt."},
         "pricing_inputs_required": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "production_requirements": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "operational_risks": {"type": "array", "items": {"type": "string", "minLength": 1}},
@@ -791,6 +795,35 @@ def contains_pattern(text: str, patterns: Sequence[re.Pattern[str]]) -> bool:
     return any(pattern.search(text) for pattern in patterns)
 
 
+def is_negated_presentation_match(text: str, start: int) -> bool:
+    prefix = text[max(0, start - 48) : start]
+    return bool(PROMPT_PRESENTATION_NEGATION_PATTERN.search(prefix))
+
+
+def ideogram_prompt_presentation_decisions(source_id: str, prompt: str) -> List[Dict[str, Any]]:
+    decisions: List[Dict[str, Any]] = []
+    for pattern in PROMPT_PRESENTATION_REQUEST_PATTERNS:
+        for match in pattern.finditer(prompt):
+            negated = is_negated_presentation_match(prompt, match.start())
+            decisions.append(
+                {
+                    "source_wf2_hypothesis_id": source_id,
+                    "field": "ideogram_prompt",
+                    "matched_phrase": match.group(0),
+                    "pattern": pattern.pattern,
+                    "decision": "allowed_negated_design_only_guardrail" if negated else "rejects_product_presentation_request",
+                }
+            )
+    return decisions
+
+
+def ideogram_prompt_requests_mockup_or_photo(prompt: str) -> bool:
+    return any(
+        decision["decision"] == "rejects_product_presentation_request"
+        for decision in ideogram_prompt_presentation_decisions("", prompt)
+    )
+
+
 def validate_listing_response(response: Dict[str, Any], request_batch: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     errors = schema_errors(response, request_batch["response_schema"])
     if not isinstance(response, dict) or not isinstance(response.get("listing_candidates"), list):
@@ -855,7 +888,7 @@ def validate_listing_response(response: Dict[str, Any], request_batch: Dict[str,
             errors.append(f"empty_design_text_without_visual_only_reason:{source_id}")
         if not contains_pattern(ideogram_prompt, DESIGN_ONLY_PATTERNS):
             errors.append(f"ideogram_prompt_not_design_only:{source_id}")
-        if contains_pattern(ideogram_prompt, PROMPT_MOCKUP_PATTERNS):
+        if ideogram_prompt_requests_mockup_or_photo(ideogram_prompt):
             errors.append(f"ideogram_prompt_requests_mockup_or_photo:{source_id}")
         for field in ARRAY_FIELDS:
             value = candidate.get(field)
@@ -1112,6 +1145,17 @@ def recovery_status_for_request(request_batch: Dict[str, Any]) -> str:
     return "recovered_from_original_contract"
 
 
+def presentation_validator_decisions_for_response(response: Dict[str, Any]) -> List[Dict[str, Any]]:
+    decisions: List[Dict[str, Any]] = []
+    for candidate in response.get("listing_candidates", []):
+        if not isinstance(candidate, dict):
+            continue
+        source_id = clean(candidate.get("source_wf2_hypothesis_id"))
+        prompt = clean(candidate.get("ideogram_prompt"))
+        decisions.extend(ideogram_prompt_presentation_decisions(source_id, prompt))
+    return decisions
+
+
 def write_recovery_audit(
     request_batch: Dict[str, Any],
     output_dir: Path,
@@ -1120,6 +1164,7 @@ def write_recovery_audit(
     canonicalization_errors: Sequence[str],
     validation_errors: Sequence[str],
     recovery_status: str,
+    presentation_validator_decisions: Sequence[Dict[str, Any]] = (),
 ) -> None:
     paths = output_paths(output_dir, request_batch["batch_id"])
     audit = {
@@ -1138,6 +1183,7 @@ def write_recovery_audit(
         "fields_changed": list(changes),
         "canonicalization_errors": list(canonicalization_errors),
         "validation_errors": list(validation_errors),
+        "presentation_validator_decisions": list(presentation_validator_decisions),
         "final_validation_result": "failed" if canonicalization_errors or validation_errors else "ok",
         "raw_response_preserved_byte_for_byte": paths["raw"].exists() and sha256_file(paths["raw"]) == raw_response_sha256,
     }
@@ -1684,12 +1730,35 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
             raw_sha256_before = sha256_file(paths["raw"])
             parsed = parse_response_json(read_json(paths["raw"]))
             recovered_response, changes, canonicalization_errors = canonicalize_recovered_response(parsed, request)
+            presentation_decisions = presentation_validator_decisions_for_response(recovered_response)
+            rejected_presentation = any(
+                decision["decision"] == "rejects_product_presentation_request" for decision in presentation_decisions
+            )
+            allowed_negated_presentation = any(
+                decision["decision"] == "allowed_negated_design_only_guardrail" for decision in presentation_decisions
+            )
             recovery_status = recovery_status_for_request(request)
+            if (
+                request_contract_revision(request) == CONTRACT_REVISION
+                and allowed_negated_presentation
+                and not rejected_presentation
+                and not changes
+            ):
+                recovery_status = "recovered_validator_false_positive_design_only_prompt"
             if canonicalization_errors:
                 ok = False
                 batch_errors = list(canonicalization_errors)
                 write_json_atomic(paths["error"], {"batch_id": request["batch_id"], "errors": batch_errors, "api_calls_made": False})
-                write_recovery_audit(request, output_dir, raw_sha256_before, changes, canonicalization_errors, [], recovery_status)
+                write_recovery_audit(
+                    request,
+                    output_dir,
+                    raw_sha256_before,
+                    changes,
+                    canonicalization_errors,
+                    [],
+                    recovery_status,
+                    presentation_validator_decisions=presentation_decisions,
+                )
             else:
                 ok, batch_errors = validate_and_write_batch(
                     recovered_response,
@@ -1697,7 +1766,16 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
                     output_dir,
                     recovery_status=recovery_status,
                 )
-                write_recovery_audit(request, output_dir, raw_sha256_before, changes, [], batch_errors, recovery_status)
+                write_recovery_audit(
+                    request,
+                    output_dir,
+                    raw_sha256_before,
+                    changes,
+                    [],
+                    batch_errors,
+                    recovery_status,
+                    presentation_validator_decisions=presentation_decisions,
+                )
             if sha256_file(paths["raw"]) != raw_sha256_before:
                 raise WF3ListingCandidateError(f"raw_response_changed_during_recovery:{request['batch_id']}")
         except Exception as exc:  # noqa: BLE001 - report local recovery failures without network.

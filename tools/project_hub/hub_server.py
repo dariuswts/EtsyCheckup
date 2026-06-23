@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import datetime as dt
+import hashlib
 import html
 import json
 import os
@@ -35,6 +36,22 @@ from hub_config import (
     pre_design_export_dir,
     strategic_review_queue_path,
 )
+from wf3_listing_review import (  # noqa: E402
+    MAX_POST_BYTES as WF3_MAX_POST_BYTES,
+    WF3ListingReviewError,
+    error_block as wf3_listing_error_block,
+    load_source as load_wf3_listing_review_source,
+    page_body as wf3_listing_review_body,
+    save_review as save_wf3_listing_review,
+)
+from wf4_design_review import (  # noqa: E402
+    MAX_POST_BYTES as WF4_MAX_POST_BYTES,
+    WF4DesignReviewError,
+    error_block as wf4_design_error_block,
+    page_body as wf4_design_review_body,
+    save_review as save_wf4_design_review,
+    asset_path_for as wf4_design_asset_path_for,
+)
 
 
 MAX_CSV_VIEW_ROWS = 200
@@ -61,6 +78,75 @@ CURRENT_WF4_REQUIRED_FIELDS = {
     "not_published",
     "not_sent_to_etsy_or_printify",
 }
+
+
+WF3_GROUPED_V2_REVIEW_QUEUE_FILENAME = "WF3_grouped_v2_listing_candidate_review_queue.csv"
+WF3_GROUPED_V2_RUN_ID = "priority_selected"
+WF3_GROUPED_V2_EXPECTED_REVIEW_QUEUE = (
+    ACTIVE_BATCH
+    / "WF3_grouped_v2_listing_candidates"
+    / "priority_selected_runs"
+    / WF3_GROUPED_V2_RUN_ID
+    / WF3_GROUPED_V2_REVIEW_QUEUE_FILENAME
+)
+WF3_GROUPED_V2_REQUIRED_QUEUE_FIELDS = [
+    "listing_candidate_id",
+    "source_wf2_hypothesis_id",
+    "source_global_candidate_id",
+    "strategic_direction_label",
+    "listing_title_draft",
+    "listing_approved",
+]
+WF3_GROUPED_V2_REQUIRED_DETAIL_FIELDS = [
+    "listing_candidate_id",
+    "source_wf2_hypothesis_id",
+    "source_global_candidate_id",
+    "strategic_direction_label",
+    "target_buyer",
+    "buyer_use_case",
+    "recommended_surface_category",
+    "surface_status",
+    "product_configuration_direction",
+    "selected_design_text",
+    "design_text_options_considered",
+    "design_text_selection_reason",
+    "listing_title_draft",
+    "etsy_tags_draft",
+    "listing_description_draft",
+    "personalization_required",
+    "personalization_instructions_draft",
+    "visual_direction",
+    "ideogram_prompt",
+    "ideogram_negative_prompt",
+    "mockup_photo_plan",
+    "pricing_inputs_required",
+    "production_requirements",
+    "operational_risks",
+    "ip_policy_cultural_checks",
+    "evidence_summary",
+    "differentiation_angle",
+    "listing_readiness",
+    "listing_approved",
+    "exact_competitor_titles_excluded",
+    "shop_names_excluded",
+    "not_published",
+    "not_sent_to_etsy_or_printify",
+    "human_approval_required_before_design_generation",
+]
+WF3_HUMAN_DECISION_FIELDS = [
+    "listing_candidate_id",
+    "source_wf2_hypothesis_id",
+    "source_global_candidate_id",
+    "strategic_direction_label",
+    "listing_approved",
+    "source_review_queue_sha256",
+    "reviewed_at_utc",
+]
+WF3_HUMAN_DECISION_CSV = "WF3_grouped_v2_listing_candidate_human_decisions.csv"
+WF3_APPROVED_FOR_WF4_CSV = "WF3_grouped_v2_listing_candidates_approved_for_wf4.csv"
+WF3_HUMAN_META_JSON = "WF3_grouped_v2_listing_candidate_human_review_meta.json"
+WF3_HUMAN_REPORT_MD = "WF3_GROUPED_V2_LISTING_CANDIDATE_HUMAN_REVIEW_REPORT.md"
+MAX_WF3_REVIEW_POST_BYTES = 64 * 1024
 
 
 def now_stamp() -> str:
@@ -428,6 +514,20 @@ def listing_candidate_counts(rows: list[dict[str, str]], review_history: dict[st
     }
 
 
+def wf3_dashboard_source_path() -> Path:
+    try:
+        return load_wf3_listing_review_source()["queue_path"]
+    except Exception:  # noqa: BLE001 - dashboard should remain available when source is missing.
+        return ACTIVE_BATCH / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / "priority_selected" / "WF3_grouped_v2_listing_candidate_review_queue.csv"
+
+
+def wf3_dashboard_count() -> str:
+    try:
+        return str(load_wf3_listing_review_source()["source_row_count"])
+    except Exception:  # noqa: BLE001 - dashboard should show safe missing state.
+        return "not found"
+
+
 def prompt_copy_field(label: str, value: str) -> str:
     return f"""
     <label>{esc(label)}
@@ -533,10 +633,15 @@ class HubHandler(BaseHTTPRequestHandler):
             "/csv": self.csv_page,
             "/strategic-review": self.strategic_review_page,
             "/design-brief-review": self.design_brief_review_page,
+            "/wf3-listing-review": self.wf3_listing_review_page,
+            "/wf4-design-review": self.wf4_design_review_page,
             "/listing-candidate-review": self.listing_candidate_review_page,
             "/activity": self.activity_page,
         }
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == "/wf4-design-review/asset":
+            self.wf4_design_asset(parsed)
+            return
         if parsed.path == "/static/hub.css":
             self.send_static(PROJECT_ROOT / "tools" / "project_hub" / "static" / "hub.css", "text/css")
             return
@@ -568,6 +673,10 @@ class HubHandler(BaseHTTPRequestHandler):
             self.handle_strategic_review_export()
         elif parsed.path == "/listing-candidate-review/export":
             self.handle_listing_candidate_review_export()
+        elif parsed.path == "/wf3-listing-review/save":
+            self.handle_wf3_listing_review_save()
+        elif parsed.path == "/wf4-design-review/save":
+            self.handle_wf4_design_review_save()
         else:
             self.not_found()
 
@@ -592,6 +701,8 @@ class HubHandler(BaseHTTPRequestHandler):
     <a href="/csv">CSV Viewer</a>
     <a href="/strategic-review">Strategic Review</a>
     <a href="/design-brief-review">Design Brief Review</a>
+    <a href="/wf3-listing-review">WF3 Listing Review</a>
+    <a href="/wf4-design-review">WF4 Design Review</a>
     <a href="/listing-candidate-review">Listing Candidate Review</a>
     <a href="/activity">Activity Log</a>
   </nav>
@@ -635,6 +746,7 @@ class HubHandler(BaseHTTPRequestHandler):
             "WF2 hypothesis review live": CSV_FILES["wf2_hypothesis_review_live"],
             "Strategic review / design-brief input": strategic_review_queue_path(),
             "WF3 design brief human review": design_brief_review_queue_path(),
+            "WF3 grouped-v2 listing review": wf3_dashboard_source_path(),
             "WF4 listing candidate review": listing_candidate_review_queue_path(),
             "Validation summary": VALIDATION_SUMMARY_CSV,
         }
@@ -649,6 +761,8 @@ class HubHandler(BaseHTTPRequestHandler):
   <div class="card"><div class="muted">WF1 EverBee inbox CSVs</div><div class="stat">{count_inbox(RAW_EVERBEE_INBOX)}</div></div>
   <div class="card"><div class="muted">Strategic review rows</div><div class="stat">{count_csv_rows(strategic_review_queue_path())}</div><div class="muted">{esc(rel(strategic_review_queue_path()))}</div></div>
   <div class="card"><div class="muted">Design brief review rows</div><div class="stat">{count_csv_rows(design_brief_review_queue_path())}</div><div class="muted">{esc(rel(design_brief_review_queue_path()))}</div></div>
+  <div class="card"><div class="muted">WF3 grouped-v2 listing candidates</div><div class="stat">{wf3_dashboard_count()}</div><div class="muted">current priority-selected review</div><p><a class="button" href="/wf3-listing-review">WF3 Listing Review</a></p></div>
+  <div class="card"><div class="muted">WF4 Design Review</div><div class="stat">offline</div><div class="muted">master assets only</div><p><a class="button" href="/wf4-design-review">WF4 Design Review</a></p></div>
   <div class="card"><div class="muted">Listing candidate rows</div><div class="stat">{count_csv_rows(listing_candidate_review_queue_path())}</div><div class="muted">{esc(rel(listing_candidate_review_queue_path()))}</div></div>
   <div class="card"><div class="muted">OPENAI_API_KEY visible to process</div><div class="stat">{'yes' if openai_key_present() else 'no'}</div><div class="muted">key is never displayed</div></div>
 </div>
@@ -1229,6 +1343,86 @@ class HubHandler(BaseHTTPRequestHandler):
 <p class="muted">Queue rows loaded: {len(rows)} of {total}. Columns available: {len(columns)}.</p>
 """
         self.send_html("Design Brief Review", body)
+
+    def wf3_listing_review_page(self, message: str = "") -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        show_approved = params.get("show_approved", ["0"])[0] in {"1", "true", "yes"}
+        try:
+            body = wf3_listing_review_body(show_approved=show_approved, message=message)
+            self.send_html("WF3 Listing Review", body)
+        except WF3ListingReviewError as exc:
+            self.send_html("WF3 Listing Review", wf3_listing_error_block(exc), status=409)
+        except Exception as exc:  # noqa: BLE001 - safe local error page rather than traceback.
+            error = WF3ListingReviewError("WF3 listing review failed", f"{type(exc).__name__}: {exc}")
+            self.send_html("WF3 Listing Review", wf3_listing_error_block(error), status=500)
+
+    def handle_wf3_listing_review_save(self) -> None:
+        content_type = self.headers.get("Content-Type", "")
+        if not content_type.startswith("application/x-www-form-urlencoded"):
+            self.send_html("WF3 Listing Review", wf3_listing_error_block(WF3ListingReviewError("Malformed review submission", "Unsupported content type.")), status=400)
+            return
+        length = int(self.headers.get("Content-Length", "0"))
+        if length > WF3_MAX_POST_BYTES:
+            self.send_html("WF3 Listing Review", wf3_listing_error_block(WF3ListingReviewError("Malformed review submission", "Review submission is too large.")), status=413)
+            return
+        form = parse_form(self.rfile.read(length))
+        try:
+            result = save_wf3_listing_review(form)
+            message = f"<div class='ok'>Saved WF3 listing decisions to <code>{esc(rel(result['decision_path']))}</code>. Approved for WF4 rows: {result['approved_count']}.</div>"
+            self.path = "/wf3-listing-review" if result["action"] == "save_refresh" else "/wf3-listing-review"
+            self.wf3_listing_review_page(message)
+        except WF3ListingReviewError as exc:
+            self.send_html("WF3 Listing Review", wf3_listing_error_block(exc), status=400)
+
+
+
+    def wf4_design_asset(self, parsed: urllib.parse.ParseResult) -> None:
+        params = urllib.parse.parse_qs(parsed.query)
+        try:
+            asset = wf4_design_asset_path_for(params.get("run_id", [""])[0], params.get("attempt_id", [""])[0])
+        except WF4DesignReviewError as exc:
+            self.send_html("WF4 Design Review", wf4_design_error_block(exc), status=404)
+            return
+        content_type = "image/png" if asset.suffix.lower() == ".png" else "image/jpeg"
+        data = asset.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.wfile.write(data)
+
+    def wf4_design_review_page(self, message: str = "") -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        run_id = params.get("run_id", [""])[0]
+        try:
+            body = wf4_design_review_body(run_id=run_id, message=message)
+            self.send_html("WF4 Design Review", body)
+        except WF4DesignReviewError as exc:
+            self.send_html("WF4 Design Review", wf4_design_error_block(exc), status=409)
+        except Exception as exc:  # noqa: BLE001 - safe local error page rather than traceback.
+            error = WF4DesignReviewError("WF4 Design Review Failed", f"{type(exc).__name__}: {exc}")
+            self.send_html("WF4 Design Review", wf4_design_error_block(error), status=500)
+
+    def handle_wf4_design_review_save(self) -> None:
+        content_type = self.headers.get("Content-Type", "")
+        if not content_type.startswith("application/x-www-form-urlencoded"):
+            self.send_html("WF4 Design Review", wf4_design_error_block(WF4DesignReviewError("Malformed design review submission", "Unsupported content type.")), status=400)
+            return
+        length = int(self.headers.get("Content-Length", "0"))
+        if length > WF4_MAX_POST_BYTES:
+            self.send_html("WF4 Design Review", wf4_design_error_block(WF4DesignReviewError("Malformed design review submission", "Review submission is too large.")), status=413)
+            return
+        form = parse_form(self.rfile.read(length))
+        try:
+            result = save_wf4_design_review(form)
+            message = f"<div class='ok'>Saved WF4 design decisions to <code>{esc(rel(result['decision_path']))}</code>. Approved design rows: {result['approved_count']}.</div>"
+            self.path = "/wf4-design-review"
+            self.wf4_design_review_page(message)
+        except WF4DesignReviewError as exc:
+            self.send_html("WF4 Design Review", wf4_design_error_block(exc), status=400)
 
     def listing_candidate_review_page(self, message: str = "") -> None:
         parsed = urllib.parse.urlparse(self.path)

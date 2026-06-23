@@ -285,7 +285,16 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertIn("listing_approved", items["required"])
         self.assertEqual([""], items["properties"]["listing_approved"]["enum"])
         self.assertEqual([""], schema["properties"]["batch_notes"]["enum"])
+        self.assertIn("Standalone printable artwork", items["properties"]["ideogram_prompt"]["description"])
+        self.assertIn("Product presentation and mockup/photo planning belongs here only", items["properties"]["mockup_photo_plan"]["description"])
         self.assertIn('batch_notes must be exactly ""', listing.prompt_text())
+        self.assertIn(
+            "The Ideogram prompt must request only the standalone printable artwork. Never request a mockup, product photograph, lifestyle photograph, room scene, staged product, model, hand-held product, or product presentation.",
+            listing.prompt_text(),
+        )
+        self.assertIn("Product-presentation instructions belong exclusively in mockup_photo_plan.", listing.prompt_text())
+        self.assertIn("Valid design-only example:", listing.prompt_text())
+        self.assertIn("Invalid mockup example:", listing.prompt_text())
 
     def test_valid_response_accepts_exactly_13_unique_tags_and_prompt_text(self):
         batch, _ = self.make_batch()
@@ -365,6 +374,42 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertIn(f"ideogram_prompt_requests_mockup_or_photo:{source_id}", errors)
         self.assertIn(f"listing_approved_prefilled:{source_id}", errors)
 
+    def test_validation_rejects_genuine_product_photo_lifestyle_and_room_requests(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+        prompts = [
+            'Design-only artwork with exact text "Moonlit Coast Club" and also create a product mockup on a mug.',
+            'Design-only artwork with exact text "Moonlit Coast Club" plus a lifestyle photo of the printed tumbler.',
+            'Design-only artwork with exact text "Moonlit Coast Club" shown in a room scene above a sofa.',
+            'Design-only artwork with exact text "Moonlit Coast Club" as a staged product presentation.',
+        ]
+        for prompt in prompts:
+            with self.subTest(prompt=prompt):
+                parsed = self.valid_model_output(request)
+                source_id = parsed["listing_candidates"][0]["source_wf2_hypothesis_id"]
+                parsed["listing_candidates"][0]["ideogram_prompt"] = prompt
+                _, errors = listing.validate_listing_response(parsed, request)
+                self.assertIn(f"ideogram_prompt_requests_mockup_or_photo:{source_id}", errors)
+
+    def test_validation_allows_negated_mockup_and_photorealistic_artwork_language(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+        parsed = self.valid_model_output(request)
+        parsed["listing_candidates"][0]["ideogram_prompt"] = (
+            'Design-only artwork on transparent background with exact text "Moonlit Coast Club", '
+            "photorealistic illustration textures rendered as printable vector-inspired art, high readability. "
+            "No mockup-artwork only."
+        )
+        _, errors = listing.validate_listing_response(parsed, request)
+        self.assertEqual([], errors)
+        decisions = listing.ideogram_prompt_presentation_decisions(
+            parsed["listing_candidates"][0]["source_wf2_hypothesis_id"],
+            parsed["listing_candidates"][0]["ideogram_prompt"],
+        )
+        self.assertEqual(["allowed_negated_design_only_guardrail"], [decision["decision"] for decision in decisions])
+
     def test_recovery_canonicalizes_curly_quotes_and_unquoted_exact_text(self):
         batch, _ = self.make_batch()
         listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
@@ -434,6 +479,45 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
             if field == "ideogram_prompt":
                 continue
             self.assertEqual(value, recovered["listing_candidates"][0][field], field)
+
+    def test_recover_raw_false_positive_no_mockup_phrase_preserves_raw_and_audits(self):
+        batch, _ = self.make_batch()
+        args = self.args(batch, mode="recover-raw", candidate_limit=2, batch_size=2)
+        listing.run_preflight(args)
+        request = self.load_request_batches(batch, args)[0]
+        parsed = self.valid_model_output(request)
+        original = json.loads(json.dumps(parsed))
+        parsed["listing_candidates"][0]["ideogram_prompt"] = (
+            'Design-only artwork on transparent background with exact text "Moonlit Coast Club", bold serif headline, '
+            "wave accents, print-readable vector-style composition. No mockup-artwork only."
+        )
+        parsed["listing_candidates"][0]["mockup_photo_plan"] = "Use a later neutral product mockup photo plan after approval."
+        original["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"]
+        original["listing_candidates"][0]["mockup_photo_plan"] = parsed["listing_candidates"][0]["mockup_photo_plan"]
+        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
+        raw_bytes_before = paths["raw"].read_bytes()
+        with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            summary = listing.run_recover_raw(args)
+        self.assertEqual("ok", summary["status"])
+        self.assertFalse(summary["api_calls_made"])
+        self.assertFalse(summary["network_calls_made"])
+        self.assertEqual(raw_bytes_before, paths["raw"].read_bytes())
+        validated = listing.read_json(paths["validated"])
+        self.assertEqual(original, validated)
+        _, errors = listing.validate_listing_response(validated, request)
+        self.assertEqual([], errors)
+        audit = listing.read_json(paths["recovery_audit"])
+        self.assertEqual("recovered_validator_false_positive_design_only_prompt", audit["recovery_status"])
+        self.assertEqual([], audit["fields_changed"])
+        self.assertEqual("ok", audit["final_validation_result"])
+        self.assertTrue(audit["raw_response_preserved_byte_for_byte"])
+        self.assertEqual(
+            ["allowed_negated_design_only_guardrail"],
+            [decision["decision"] for decision in audit["presentation_validator_decisions"]],
+        )
+        self.assertEqual("mockup", audit["presentation_validator_decisions"][0]["matched_phrase"])
+        self.assertEqual("Use a later neutral product mockup photo plan after approval.", validated["listing_candidates"][0]["mockup_photo_plan"])
 
     def test_recover_raw_preserves_raw_audits_hashes_and_uses_original_contract_without_network(self):
         batch, _ = self.make_batch()
@@ -566,6 +650,7 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
             details.append(
                 {
                     "source_wf2_hypothesis_id": expected_row["source_wf2_hypothesis_id"],
+                    "source_global_candidate_id": expected_row["source_global_candidate_id"],
                     "selection_reason": "Strong priority for the first cautious WF3 batch.",
                     "strongest_support": "Buyer clarity and surface context are directionally strong.",
                     "primary_risk": "Provider and originality checks remain pending.",
@@ -578,9 +663,9 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
             )
         return {
             "schema_version": prefilter.MODEL_SCHEMA_VERSION,
-            "selected_first_batch_ids": selected,
-            "alternate_ids": alternates,
-            "held_for_later_ids": held,
+            "selected_first_batch_wf2_hypothesis_ids": selected,
+            "alternate_wf2_hypothesis_ids": alternates,
+            "held_for_later_wf2_hypothesis_ids": held,
             "decision_details": details,
         }
 
