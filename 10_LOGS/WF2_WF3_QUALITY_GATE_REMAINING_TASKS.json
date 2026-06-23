@@ -1,0 +1,136 @@
+[
+  {
+    "task_id": "wf2_wf3_resume_001_review_checkpoint",
+    "description": "Review the resume checkpoint and confirm the paused state before resuming implementation.",
+    "affected_files": [
+      "10_LOGS/WF2_WF3_QUALITY_GATE_RESUME_CHECKPOINT.md",
+      "10_LOGS/WF2_WF3_QUALITY_GATE_REMAINING_TASKS.json"
+    ],
+    "dependencies": [],
+    "status": "pending",
+    "validation_required": "Local read only; no tests required.",
+    "safe_to_resume": true,
+    "notes": "Start here because the user explicitly paused the main task."
+  },
+  {
+    "task_id": "wf2_wf3_resume_002_update_decision_log",
+    "description": "Append the WF2/WF3 quality-gate repair decision to 10_LOGS/DECISION_LOG.md.",
+    "affected_files": [
+      "10_LOGS/DECISION_LOG.md"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_001_review_checkpoint"
+    ],
+    "status": "pending",
+    "validation_required": "Inspect tail of DECISION_LOG.md after append.",
+    "safe_to_resume": true,
+    "notes": "Previous patch attempts failed due context mismatch; use an append-only patch near EOF or exact current tail context."
+  },
+  {
+    "task_id": "wf2_wf3_resume_003_update_combined_context",
+    "description": "Append current WF2/WF3 quality-gate status to 00_READ_FIRST/999_COMBINED_CODEX_CONTEXT.md.",
+    "affected_files": [
+      "00_READ_FIRST/999_COMBINED_CODEX_CONTEXT.md"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_002_update_decision_log"
+    ],
+    "status": "pending",
+    "validation_required": "Inspect tail of 999_COMBINED_CODEX_CONTEXT.md after append.",
+    "safe_to_resume": true,
+    "notes": "Keep authoritative status concise and note no live/API/network calls."
+  },
+  {
+    "task_id": "wf2_wf3_resume_004_update_patch_report_validation",
+    "description": "Update the patch report with final validation results after remaining validation commands complete.",
+    "affected_files": [
+      "10_LOGS/WF2_WF3_QUALITY_GATE_PATCH_REPORT.md"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_007_run_full_suite",
+      "wf2_wf3_resume_008_run_diff_check"
+    ],
+    "status": "pending",
+    "validation_required": "Confirm patch report validation section matches actual command results.",
+    "safe_to_resume": true,
+    "notes": "Currently the patch report says final validation will be recorded later."
+  },
+  {
+    "task_id": "wf2_wf3_resume_005_py_compile_changed_wf2_wf3_files",
+    "description": "Run py_compile for changed WF2/WF3 Python files after latest edits.",
+    "affected_files": [
+      "tools/ai_review_wf2_grouped_v2_strategic.py",
+      "tools/ai_prefilter_wf3_grouped_v2_listing_strategies.py",
+      "tools/ai_generate_wf3_grouped_v2_listing_candidates.py"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_002_update_decision_log",
+      "wf2_wf3_resume_003_update_combined_context"
+    ],
+    "status": "pending",
+    "validation_required": "python -m py_compile for each affected Python file.",
+    "safe_to_resume": true,
+    "notes": "Compile passed earlier before the latest patches, but not after the newest regression tests and schema tweak."
+  },
+  {
+    "task_id": "wf2_wf3_resume_006_rerun_focused_tests_if_needed",
+    "description": "Rerun focused WF2/WF3 tests if any source/test files change after this checkpoint.",
+    "affected_files": [
+      "tools/tests/test_ai_review_wf2_grouped_v2_strategic.py",
+      "tools/tests/test_ai_prefilter_wf3_grouped_v2_listing_strategies.py",
+      "tools/tests/test_ai_generate_wf3_grouped_v2_listing_candidates.py"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_005_py_compile_changed_wf2_wf3_files"
+    ],
+    "status": "pending",
+    "validation_required": "Focused unittest commands for WF2 strategic, WF3 prefilter, and WF3 listing candidate tests.",
+    "safe_to_resume": true,
+    "notes": "Final focused results before checkpoint were OK: 23 WF2 tests, 23 prefilter tests, 26 listing tests."
+  },
+  {
+    "task_id": "wf2_wf3_resume_007_run_full_suite",
+    "description": "Run the full local test suite requested by the original task.",
+    "affected_files": [
+      "tools/tests"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_005_py_compile_changed_wf2_wf3_files",
+      "wf2_wf3_resume_006_rerun_focused_tests_if_needed"
+    ],
+    "status": "pending",
+    "validation_required": "python -m unittest discover -s tools/tests -v",
+    "safe_to_resume": true,
+    "notes": "User explicitly paused before full test suite; do not run until resumed."
+  },
+  {
+    "task_id": "wf2_wf3_resume_008_run_diff_check",
+    "description": "Run git diff whitespace validation.",
+    "affected_files": [
+      "working tree"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_007_run_full_suite"
+    ],
+    "status": "pending",
+    "validation_required": "git diff --check",
+    "safe_to_resume": true,
+    "notes": "Expect possible CRLF warnings from Git status/stat output; diff check result still needs to be recorded."
+  },
+  {
+    "task_id": "wf2_wf3_resume_009_final_report",
+    "description": "Return the final requested report with root-cause verification, files changed, validation, future live commands, and no-API/network confirmation.",
+    "affected_files": [
+      "final response only"
+    ],
+    "dependencies": [
+      "wf2_wf3_resume_004_update_patch_report_validation",
+      "wf2_wf3_resume_007_run_full_suite",
+      "wf2_wf3_resume_008_run_diff_check"
+    ],
+    "status": "pending",
+    "validation_required": "Final response must not include the forbidden 28-candidate WF3 generation command.",
+    "safe_to_resume": true,
+    "notes": "Include future live commands in order: corrected WF2 live, WF3 priority prefilter, WF3 listing generation from validated selected-first-batch."
+  }
+]

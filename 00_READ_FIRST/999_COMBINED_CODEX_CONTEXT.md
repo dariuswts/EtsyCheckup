@@ -372,3 +372,31 @@ Boundary:
 - No EverBee scraping/API, Apify, Etsy, Printify, Ideogram, n8n, database, product/design generation, WF2 queue fabrication, or WF3 scoring was run.
 - Raw EverBee inbox files and v1 WF1 outputs remain preserved.
 
+## 2026-06-23 - Current WF2/WF3 Quality Gate Status
+
+WF2/WF3 has been patched after audit of weak WF3 outputs that came from broad POD plausibility rather than strict opportunity quality.
+
+Current intended flow:
+1. WF2 strict grouped strategic review.
+2. WF3 global priority prefilter selecting top 5 by default, up to configured limit, with fewer or zero allowed.
+3. WF3 listing generation only from the validated selected-first-batch priority file.
+4. Human listing approval before WF4.
+5. WF4 design generation.
+6. Human design approval after WF4.
+
+Key constraints now enforced:
+- WF2 advancement requires evidence-backed canonical surface categories, strong surface grounding, strong commercial hook, specific buyer/use case, non-generic hook summary, and saturation escape for high-saturation rows.
+- WF3 prefilter must not force diversity and must not select a surface outside WF2 evidence-backed categories.
+- WF3 listing generation in production requires `--priority-selection-file`; the old root 28-candidate generation path is blocked.
+- Explicit diagnostic canary mode exists and is capped at 4 rows.
+- Listing candidates must preserve `required_surface_category`; the model cannot broaden or substitute the surface.
+
+Current active batch note:
+- The older active WF2 live queue lacks the new strict quality fields, so WF3 priority prefilter correctly fails closed until corrected WF2 live review is run.
+- Corrected WF2 offline preflight was refreshed locally for `WF1_everbee_normalization_20260614_234128` using `gpt-5.5`, medium reasoning, 45 expected rows, and no API/network call.
+- Mistaken root-level WF3 28-candidate preflight artifacts were archived under `_archives/WF3_root_28_candidate_preflight_before_quality_gate_20260623_183114/`; live outputs and raw artifacts were preserved.
+
+See:
+- `10_LOGS/WF2_WF3_QUALITY_GATE_AUDIT_20260623.md`
+- `10_LOGS/WF2_WF3_QUALITY_GATE_PATCH_REPORT.md`
+

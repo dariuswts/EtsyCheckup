@@ -67,9 +67,13 @@ class WF3ListingReviewHubTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
-    def make_batch(self, canonical=True, candidates=None, queue_rows=None):
-        run = self.batch / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / "priority_selected"
-        queue_path = run / wf3.REVIEW_QUEUE_FILENAME if canonical else run / "live_outputs" / wf3.REVIEW_QUEUE_FILENAME
+    def make_batch(self, source_run_id="root", candidates=None, queue_rows=None, batch=None):
+        batch = batch or self.batch
+        if source_run_id == "root":
+            run = batch / "WF3_grouped_v2_listing_candidates"
+        else:
+            run = batch / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / source_run_id
+        queue_path = run / "live_outputs" / wf3.REVIEW_QUEUE_FILENAME
         candidates = candidates or [self.candidate(i) for i in range(1, 6)]
         queue_rows = queue_rows or [
             {key: c[key] for key in wf3.REQUIRED_QUEUE_FIELDS}
@@ -97,16 +101,18 @@ class WF3ListingReviewHubTests(unittest.TestCase):
         body = wf3.page_body(active_batch=self.batch)
         self.assertIn("WF3 Listing Review", body)
 
-    def test_current_active_batch_loads_exactly_five_candidates(self):
-        source = wf3.load_source(ACTIVE_BATCH)
-        self.assertEqual(5, source["source_row_count"])
+    def test_current_active_batch_archived_review_queues_are_recognized_as_archived(self):
+        archived = [path for path in ACTIVE_BATCH.rglob(wf3.REVIEW_QUEUE_FILENAME) if "_archives" in {part.lower() for part in path.parts}]
+        self.assertTrue(archived)
+        self.assertTrue(all(wf3.is_archived_path(path) for path in archived))
 
-    def test_source_resolution_uses_canonical_file_first(self):
-        _, queue, _ = self.make_batch(canonical=True)
+    def test_source_resolution_prefers_root_full_run(self):
+        _, queue, _ = self.make_batch(source_run_id="root")
+        self.make_batch(source_run_id="priority_selected")
         self.assertEqual(queue, wf3.resolve_review_queue(self.batch))
 
-    def test_source_resolution_unique_fallback_inside_batch(self):
-        _, queue, _ = self.make_batch(canonical=False)
+    def test_source_resolution_allows_one_active_priority_selected_fallback(self):
+        _, queue, _ = self.make_batch(source_run_id="priority_selected")
         self.assertEqual(queue, wf3.resolve_review_queue(self.batch))
 
     def test_missing_source_produces_safe_error(self):
@@ -115,13 +121,25 @@ class WF3ListingReviewHubTests(unittest.TestCase):
         self.assertIn("not found", ctx.exception.title.lower())
         self.assertIn("Expected source location", wf3.error_block(ctx.exception))
 
-    def test_multiple_matching_sources_fail_visibly(self):
-        self.make_batch(canonical=False)
-        other = self.batch / "other" / wf3.REVIEW_QUEUE_FILENAME
-        self.write_csv(other, wf3.REQUIRED_QUEUE_FIELDS, [])
+    def test_multiple_active_priority_sources_fail_visibly(self):
+        self.make_batch(source_run_id="priority_selected")
+        self.make_batch(source_run_id="priority_selected_alt")
         with self.assertRaises(wf3.WF3ListingReviewError) as ctx:
             wf3.resolve_review_queue(self.batch)
         self.assertIn("Multiple", ctx.exception.title)
+
+    def test_archived_folders_are_ignored(self):
+        archive_batch = self.batch / "_archives" / "WF3_WF4_before_full_rerun_20260623_171615"
+        self.make_batch(source_run_id="priority_selected", batch=archive_batch)
+        with self.assertRaises(wf3.WF3ListingReviewError) as ctx:
+            wf3.resolve_review_queue(self.batch)
+        self.assertIn("not found", ctx.exception.title.lower())
+
+    def test_root_queue_preferred_even_when_archived_queue_exists(self):
+        _, queue, _ = self.make_batch(source_run_id="root")
+        archive_batch = self.batch / "_archives" / "WF3_WF4_before_full_rerun_20260623_171615"
+        self.make_batch(source_run_id="priority_selected", batch=archive_batch)
+        self.assertEqual(queue, wf3.resolve_review_queue(self.batch))
 
     def test_duplicate_candidate_ids_fail(self):
         candidates = [self.candidate(i) for i in range(1, 6)]
@@ -132,8 +150,8 @@ class WF3ListingReviewHubTests(unittest.TestCase):
             wf3.load_source(self.batch)
 
     def test_required_queue_fields_are_validated(self):
-        run = self.batch / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / "priority_selected"
-        self.write_csv(run / wf3.REVIEW_QUEUE_FILENAME, ["listing_candidate_id"], [{"listing_candidate_id": "x"}])
+        run = self.batch / "WF3_grouped_v2_listing_candidates"
+        self.write_csv(run / "live_outputs" / wf3.REVIEW_QUEUE_FILENAME, ["listing_candidate_id"], [{"listing_candidate_id": "x"}])
         with self.assertRaises(wf3.WF3ListingReviewError) as ctx:
             wf3.load_source(self.batch)
         self.assertIn("missing fields", ctx.exception.title.lower())

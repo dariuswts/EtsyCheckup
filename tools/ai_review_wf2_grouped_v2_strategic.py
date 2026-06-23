@@ -33,9 +33,9 @@ RESPONSES_URL = "https://api.openai.com/v1/responses"
 INPUT_DIRNAME = "WF2_grouped_v2_hypothesis_input"
 DRAFT_DIRNAME = "WF2_grouped_v2_hypothesis_drafting"
 OUTPUT_DIRNAME = "WF2_grouped_v2_global_strategic_review"
-SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_v2"
-REQUEST_SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_request_v2"
-PREFLIGHT_SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_preflight_v2"
+SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_v5_no_deprecated_validation_categories"
+REQUEST_SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_request_v5_no_deprecated_validation_categories"
+PREFLIGHT_SCHEMA_VERSION = "wf2_grouped_v2_global_strategic_review_preflight_v5_no_deprecated_validation_categories"
 
 INPUT_CSV = "WF2_grouped_v2_hypothesis_input.csv"
 CANDIDATE_LINEAGE_CSV = "WF2_grouped_v2_hypothesis_candidate_lineage.csv"
@@ -75,6 +75,29 @@ STRATEGIC_CONFIDENCE = {"high", "medium", "low"}
 REDUNDANCY_RELATIONSHIPS = {"standalone", "related_but_distinct", "duplicate_primary", "duplicate_of"}
 DIFFERENTIATION_STRENGTH = {"strong", "moderate", "weak", "unclear"}
 SATURATION_ASSESSMENT = {"low", "moderate", "high", "uncertain"}
+GROUNDING_STRENGTH = {"strong", "moderate", "weak", "none"}
+COMMERCIAL_HOOK_STRENGTH = {"strong", "moderate", "weak", "none"}
+CANONICAL_SURFACE_CATEGORIES = {
+    "apparel",
+    "drinkware",
+    "phone_case",
+    "wall_art",
+    "throw_blanket",
+    "tote_bag",
+    "pouch",
+    "sticker",
+    "card",
+    "ornament",
+    "apron",
+}
+GENERIC_HOOK_PATTERNS = [
+    re.compile(r"\boriginal artwork\b", re.I),
+    re.compile(r"\bcohesive palette\b", re.I),
+    re.compile(r"\bmultiple colorways\b", re.I),
+    re.compile(r"\battractive styling\b", re.I),
+    re.compile(r"\bgiftable design\b", re.I),
+    re.compile(r"\bunique illustration\b", re.I),
+]
 OPERATIONAL_FEASIBILITY = {
     "standard_pod_plausible_unverified",
     "nonstandard_surface_requires_catalog_check",
@@ -87,8 +110,6 @@ NEXT_VALIDATION_CATEGORIES = {
     "market_evidence_review",
     "evidence_gap_research",
     "saturation_comparison",
-    "ip_trademark_review",
-    "policy_review",
     "buyer_intent_validation",
     "provider_catalog_verification",
     "cost_margin_feasibility",
@@ -96,6 +117,7 @@ NEXT_VALIDATION_CATEGORIES = {
     "technical_requirements_research",
     "none",
 }
+DEPRECATED_VALIDATION_CATEGORIES = {"ip_trademark_review", "policy_review"}
 BOOLEAN_TRUE_FIELDS = [
     "exact_titles_excluded_from_output",
     "shop_names_excluded_from_output",
@@ -114,11 +136,16 @@ DECISION_FIELDS = [
     "primary_buyer",
     "buyer_use_case",
     "provisional_surface_context",
+    "evidence_backed_surface_categories",
+    "surface_grounding_strength",
+    "commercial_hook_strength",
+    "commercial_hook_summary",
+    "aesthetic_only_direction",
+    "saturation_escape_summary",
     "evidence_strength_summary",
     "differentiation_strength",
     "saturation_assessment",
     "operational_feasibility",
-    "ip_policy_cultural_risk",
     "missing_proof",
     "next_validation_category",
     "next_validation_detail",
@@ -133,14 +160,14 @@ TEXT_FIELDS = [
     "primary_buyer",
     "buyer_use_case",
     "provisional_surface_context",
+    "commercial_hook_summary",
     "evidence_strength_summary",
-    "ip_policy_cultural_risk",
     "missing_proof",
     "next_validation_detail",
     "strategic_reasoning_summary",
     "why_not_ready_for_design",
 ]
-ARRAY_FIELDS = ["source_risk_flags", "source_evidence_ids"]
+ARRAY_FIELDS = ["source_risk_flags", "source_evidence_ids", "evidence_backed_surface_categories"]
 OBSOLETE_DECISION_FIELDS = {
     "recommended_next_validation_category",
     "recommended_next_validation_step",
@@ -159,7 +186,6 @@ CONTEXTUAL_TEXT_FIELDS = {
     "primary_buyer",
     "evidence_strength_summary",
     "missing_proof",
-    "ip_policy_cultural_risk",
 }
 UNSUPPORTED_CERTAINTY_PATTERNS = [
     re.compile(r"\bproven\s+profitable\b", re.I),
@@ -295,21 +321,6 @@ def split_pipe(value: object) -> List[str]:
 
 def distribution(values: Iterable[object]) -> Dict[str, int]:
     return dict(sorted(Counter(clean(value) or "blank" for value in values).items()))
-
-
-def raw_validation_step_format(value: str) -> str:
-    text = clean(value)
-    if not text:
-        return "blank"
-    if re.fullmatch(r"[a-z]+(?:_[a-z]+)+", text):
-        return "snake_token"
-    if re.fullmatch(r"[a-z]+(?:-[a-z]+)+", text):
-        return "hyphen_token"
-    if " " not in text and re.search(r"[_-]", text):
-        return "mixed_token"
-    if len(text.split()) <= 3 and text.endswith(".") is False:
-        return "short_label"
-    return "prose"
 
 
 def validate_drafting_provenance(batch_dir: Path, args: argparse.Namespace) -> List[str]:
@@ -493,7 +504,6 @@ def build_joined_units(batch_dir: Path, args: argparse.Namespace) -> Tuple[List[
                 "ip_trademark_or_cultural_risk": clean(hypothesis.get("ip_trademark_or_cultural_risk")),
                 "fulfillment_or_surface_risk": clean(hypothesis.get("fulfillment_or_surface_risk")),
                 "hypothesis_confidence": clean(hypothesis.get("hypothesis_confidence")),
-                "recommended_next_validation_step_raw": clean(hypothesis.get("recommended_next_validation_step")),
                 "why_not_ready_for_design": clean(hypothesis.get("why_not_ready_for_design")),
                 "source_evidence_ids": source_evidence_ids,
                 "source_risk_flags": source_risk_flags,
@@ -531,15 +541,21 @@ This stage is still pre-design. Do not create product concepts, design concepts,
 
 Permanent guardrails such as surface_or_product_form_not_final, fulfillment_availability_not_verified, and human_review_before_design_generation_required remain true even for an advancing hypothesis. They do not automatically force needs_targeted_validation.
 
-Advancement means advance_to_listing_strategy_input only: a non-creative listing-strategy input stage before design, copy, provider setup, Etsy drafts, or publishing. Broad standard POD plausibility is enough to advance when no material blocker must be resolved before listing strategy. Provider catalog verification can remain a later pre-design requirement for standard surfaces such as ordinary apparel, mugs, blankets, posters, and phone cases. Generic saturation review is not automatically blocking. Every hypothesis may still require checks before design or publishing without requiring targeted validation before listing strategy.
+Advancement means advance_to_listing_strategy_input only: a non-creative listing-strategy input stage before design, copy, provider setup, Etsy drafts, or publishing. It now means the direction is commercially strong enough to compete for one of a very small number of listing-generation slots. It must not mean merely that the direction could plausibly exist as a POD listing.
 
-Use needs_targeted_validation only where missing proof could materially change whether the hypothesis should enter listing strategy: nonstandard auto seat-cover availability, personalization workflow viability, meaningful IP/franchise/lookalike risk, political or cultural policy uncertainty, historical accuracy, weak or single-listing evidence, uncertain buyer intent, or technical requirements central to viability.
+An advancing row must have at least one evidence-backed canonical surface category, strong or moderate differentiation under the rules below, strong surface grounding, and a strong concrete commercial hook. Evidence-backed surface categories must use only this compact canonical vocabulary: apparel, drinkware, phone_case, wall_art, throw_blanket, tote_bag, pouch, sticker, card, ornament, apron.
 
-Use hold for weak differentiation, excessive saturation, low priority, or disproportionate operational burden. Use reject for nonviable workflow fit, unacceptable risk, or genuine duplicates. Use advance_to_listing_strategy_input where evidence, buyer, use case, and differentiation are sufficient for the next non-creative stage.
+Do not advance weak or unclear differentiation. Do not advance weak or absent surface grounding. Do not advance aesthetic-only concepts merely because they have a visual theme or several evidence rows. Generic differentiation such as original artwork, cohesive palette, multiple colorways, attractive styling, giftable design, or unique illustration does not count as a sufficient commercial hook by itself.
+
+High saturation cannot advance unless differentiation_strength is strong, commercial_hook_strength is strong, and saturation_escape_summary is substantive and specific. Moderate differentiation may advance only when saturation is not high, buyer and purchase use case are specific, surface grounding is strong, and commercial_hook_strength is strong and concrete. Zero rows may advance; do not satisfy a quota.
+
+Use needs_targeted_validation only where missing proof could materially change whether the hypothesis should enter listing strategy: nonstandard auto seat-cover availability, personalization workflow viability, unresolved source-risk uncertainty, historical accuracy, weak or single-listing evidence, uncertain buyer intent, or technical requirements central to viability.
+
+Use hold for plausible but generic, saturated, low-priority, aesthetic-only, weakly grounded, or commercially undifferentiated directions. Use reject for nonviable workflow fit, unacceptable risk, or genuine duplicates. Use advance_to_listing_strategy_input only where evidence, buyer, use case, surface grounding, commercial hook, and differentiation are strong enough for scarce downstream listing generation.
 
 Duplicates may be marked only when the strategic market direction is genuinely the same. Same source phrase, same surface, similar audience, or related style alone is not duplication. When uncertain, prefer related_but_distinct or standalone. duplicate_of rows must point to a duplicate_primary row in the same response.
 
-Rejected or duplicate_of rows must not be advanced. Needs-validation rows should identify non-creative validation work only: market-evidence review, evidence-gap research, saturation comparison, IP/trademark review, policy review, buyer-intent validation, provider-catalog verification, cost/margin feasibility, personalization-workflow feasibility, or technical requirements research.
+Rejected or duplicate_of rows must not be advanced. Needs-validation rows should identify non-creative validation work only: market-evidence review, evidence-gap research, saturation comparison, source-risk review, buyer-intent validation, provider-catalog verification, cost/margin feasibility, personalization-workflow feasibility, or technical requirements research.
 
 Preserve source IDs, evidence IDs, risk flags, and guardrail booleans exactly. Use conditional language and fail closed when evidence is weak, risky, duplicative, or operationally unclear."""
 
@@ -556,11 +572,20 @@ def response_schema(count: int) -> Dict[str, Any]:
         "primary_buyer": {"type": "string"},
         "buyer_use_case": {"type": "string"},
         "provisional_surface_context": {"type": "string"},
+        "evidence_backed_surface_categories": {
+            "type": "array",
+            "minItems": 0,
+            "items": {"type": "string", "enum": sorted(CANONICAL_SURFACE_CATEGORIES)},
+        },
+        "surface_grounding_strength": {"type": "string", "enum": sorted(GROUNDING_STRENGTH)},
+        "commercial_hook_strength": {"type": "string", "enum": sorted(COMMERCIAL_HOOK_STRENGTH)},
+        "commercial_hook_summary": {"type": "string"},
+        "aesthetic_only_direction": {"type": "boolean"},
+        "saturation_escape_summary": {"type": "string"},
         "evidence_strength_summary": {"type": "string"},
         "differentiation_strength": {"type": "string", "enum": sorted(DIFFERENTIATION_STRENGTH)},
         "saturation_assessment": {"type": "string", "enum": sorted(SATURATION_ASSESSMENT)},
         "operational_feasibility": {"type": "string", "enum": sorted(OPERATIONAL_FEASIBILITY)},
-        "ip_policy_cultural_risk": {"type": "string"},
         "missing_proof": {"type": "string"},
         "next_validation_category": {"type": "string", "enum": sorted(NEXT_VALIDATION_CATEGORIES)},
         "next_validation_detail": {"type": "string"},
@@ -705,7 +730,6 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
         "buyer_need_or_use_case",
         "candidate_surface_context",
         "hypothesis_confidence",
-        "recommended_next_validation_step_raw",
         "source_evidence_count",
         "source_evidence_ids",
         "source_risk_flags",
@@ -717,7 +741,6 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
     hypothesis_confidence_distribution = distribution(unit["hypothesis_confidence"] for unit in units)
     source_phrase_distribution = distribution(unit["queue_phrase"] for unit in units)
     source_family_distribution = distribution(unit["source_pod_transferability"] for unit in units)
-    raw_next_validation_format_distribution = distribution(raw_validation_step_format(unit["recommended_next_validation_step_raw"]) for unit in units)
     one_call_recommended = payload_bytes < 190000 and len(units) <= 100
     output_texts = {
         output / STRATEGIC_INPUT_CSV: input_csv_text,
@@ -743,7 +766,6 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
         "hypothesis_confidence_distribution": hypothesis_confidence_distribution,
         "source_family_distribution": source_family_distribution,
         "source_phrase_distribution": source_phrase_distribution,
-        "raw_next_validation_format_distribution": raw_next_validation_format_distribution,
         "prompt_sha256": request["prompt_sha256"],
         "schema_sha256": request["schema_sha256"],
         "request_contract_sha256": request["request_contract_sha256"],
@@ -800,9 +822,6 @@ def report_markdown(preflight: Dict[str, Any]) -> str:
         lines.append(f"- {key}: {value}")
     lines.extend(["", "## Source Phrase Distribution", ""])
     for key, value in preflight["source_phrase_distribution"].items():
-        lines.append(f"- {key}: {value}")
-    lines.extend(["", "## Raw Next-Validation Formatting Distribution", ""])
-    for key, value in preflight["raw_next_validation_format_distribution"].items():
         lines.append(f"- {key}: {value}")
     lines.extend(
         [
@@ -909,6 +928,63 @@ def text_violations(text: str, label: str) -> List[str]:
     return errors
 
 
+def substantive_text(value: object, min_words: int = 6) -> bool:
+    words = re.findall(r"[A-Za-z0-9]+", clean(value))
+    return len(words) >= min_words
+
+
+def generic_hook_only(value: object) -> bool:
+    text = clean(value)
+    if not text:
+        return True
+    stripped = text.lower()
+    for pattern in GENERIC_HOOK_PATTERNS:
+        stripped = pattern.sub("", stripped)
+    stripped = re.sub(r"\b(?:and|with|for|the|a|an|to|of|in|on|style|design|gift|giftable|visuals?)\b", " ", stripped)
+    return len(re.findall(r"[a-z0-9]+", stripped)) < 5
+
+
+def buyer_use_case_specific(decision: Dict[str, Any]) -> bool:
+    buyer = clean(decision.get("primary_buyer")).lower()
+    use_case = clean(decision.get("buyer_use_case")).lower()
+    vague_buyer = re.search(r"\b(gift buyers?|shoppers?|customers?|people|anyone|home decorators|decor buyers)\b", buyer)
+    return substantive_text(buyer, 4) and substantive_text(use_case, 8) and not vague_buyer
+
+
+def strict_quality_gate_errors(decision: Dict[str, Any]) -> List[str]:
+    hypothesis_id = clean(decision.get("wf2_hypothesis_id"))
+    if decision.get("strategic_decision") != "advance_to_listing_strategy_input":
+        return []
+    errors: List[str] = []
+    surfaces = decision.get("evidence_backed_surface_categories")
+    if not isinstance(surfaces, list) or not surfaces:
+        errors.append(f"advance_requires_evidence_backed_surface:{hypothesis_id}")
+    elif any(surface not in CANONICAL_SURFACE_CATEGORIES for surface in surfaces):
+        errors.append(f"unknown_evidence_backed_surface:{hypothesis_id}")
+    differentiation = clean(decision.get("differentiation_strength"))
+    saturation = clean(decision.get("saturation_assessment"))
+    grounding = clean(decision.get("surface_grounding_strength"))
+    hook = clean(decision.get("commercial_hook_strength"))
+    if differentiation in {"weak", "unclear", ""}:
+        errors.append(f"advance_requires_clear_differentiation:{hypothesis_id}")
+    if grounding != "strong":
+        errors.append(f"advance_requires_strong_surface_grounding:{hypothesis_id}")
+    if hook != "strong":
+        errors.append(f"advance_requires_strong_commercial_hook:{hypothesis_id}")
+    if decision.get("aesthetic_only_direction") is True:
+        errors.append(f"aesthetic_only_cannot_advance:{hypothesis_id}")
+    if generic_hook_only(decision.get("commercial_hook_summary")):
+        errors.append(f"generic_commercial_hook_cannot_advance:{hypothesis_id}")
+    if not buyer_use_case_specific(decision):
+        errors.append(f"advance_requires_specific_buyer_use_case:{hypothesis_id}")
+    if saturation == "high":
+        if differentiation != "strong" or hook != "strong" or not substantive_text(decision.get("saturation_escape_summary"), 8):
+            errors.append(f"high_saturation_requires_strong_escape:{hypothesis_id}")
+    if differentiation == "moderate" and saturation == "high":
+        errors.append(f"moderate_differentiation_high_saturation_cannot_advance:{hypothesis_id}")
+    return errors
+
+
 def validate_strategic_response(response: Dict[str, Any], request: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     errors = schema_errors(response, request["response_schema"])
     if not isinstance(response, dict) or not isinstance(response.get("decisions"), list):
@@ -965,6 +1041,7 @@ def validate_strategic_response(response: Dict[str, Any], request: Dict[str, Any
                     errors.append(f"blank_or_untrimmed_array_item:{hypothesis_id}:{field}")
                 if "|" in item:
                     errors.append(f"packed_delimiter_array_item:{hypothesis_id}:{field}")
+        errors.extend(strict_quality_gate_errors(decision))
         if decision.get("strategic_decision") == "advance_to_listing_strategy_input" and decision.get("redundancy_relationship") == "duplicate_of":
             errors.append(f"duplicate_of_cannot_advance:{hypothesis_id}")
         if decision.get("strategic_decision") == "needs_targeted_validation" and decision.get("next_validation_category") == "none":
@@ -1076,6 +1153,8 @@ def output_paths(output_dir: Path) -> Dict[str, Path]:
         "lineage": output_dir / "live_outputs" / LIVE_LINEAGE_CSV,
         "report": output_dir / "live_outputs" / LIVE_REPORT_MD,
         "error": output_dir / "live_outputs" / "errors" / "wf2_grouped_v2_global_strategic_review_error.json",
+        "recovery_audit": output_dir / "live_outputs" / "recovery_audits" / "wf2_grouped_v2_global_strategic_review_recovery_audit.json",
+        "reclassification_audit": output_dir / "live_outputs" / "recovery_audits" / "wf2_grouped_v2_global_strategic_review_reclassification_audit.json",
     }
 
 
@@ -1083,7 +1162,12 @@ def load_request(batch_dir: Path, args: argparse.Namespace) -> Dict[str, Any]:
     payload_path = output_dir_for_batch(batch_dir) / STRATEGIC_PAYLOAD_JSON
     if not payload_path.exists():
         build_preflight_artifacts(args)
-    return read_json(payload_path)
+    request = read_json(payload_path)
+    schema_enum = request.get("response_schema", {}).get("properties", {}).get("schema_version", {}).get("enum", [])
+    if request.get("schema_version") != REQUEST_SCHEMA_VERSION or schema_enum != [SCHEMA_VERSION]:
+        build_preflight_artifacts(args)
+        request = read_json(payload_path)
+    return request
 
 
 def expected_validated_meta(request: Dict[str, Any], output_dir: Path) -> Dict[str, Any]:
@@ -1266,6 +1350,105 @@ def write_live_outputs(parsed: Dict[str, Any], request: Dict[str, Any], output_d
     return True, []
 
 
+RECOVERABLE_SCHEMA_VERSIONS = {
+    "wf2_grouped_v2_global_strategic_review_v3_strict_quality_gate",
+    "wf2_grouped_v2_global_strategic_review_v4_no_ip_policy_field",
+}
+
+
+def advancement_blockers(decision: Dict[str, Any]) -> List[str]:
+    forced = dict(decision)
+    forced["strategic_decision"] = "advance_to_listing_strategy_input"
+    return strict_quality_gate_errors(forced)
+
+
+def nondeprecated_operational_category(decision: Dict[str, Any]) -> str:
+    text = " ".join(
+        clean(decision.get(field))
+        for field in ["missing_proof", "next_validation_detail", "why_not_ready_for_design", "strategic_reasoning_summary"]
+    ).lower()
+    if re.search(r"\b(provider|catalog|sku|skus|surface availability|availability|template|seat-cover|seat cover|device coverage)\b", text):
+        return "provider_catalog_verification"
+    if re.search(r"\b(personalization|workflow|proofing|throughput|automation|intake)\b", text):
+        return "personalization_workflow_feasibility"
+    if re.search(r"\b(print|resolution|line[- ]?weight|legibility|texture|fidelity|color retention|minimum font|minimum size|device template|template checks|production)\b", text):
+        return "technical_requirements_research"
+    if re.search(r"\b(demand proof|market evidence|buyer intent|seasonality|off-season|off holiday)\b", text):
+        return "market_evidence_review"
+    return ""
+
+
+def reclassify_deprecated_validation_categories(parsed: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    recovered = json.loads(json.dumps(parsed))
+    changes: List[Dict[str, Any]] = []
+    decisions = recovered.get("decisions", []) if isinstance(recovered, dict) else []
+    for row in decisions:
+        if not isinstance(row, dict) or row.get("next_validation_category") not in DEPRECATED_VALIDATION_CATEGORIES:
+            continue
+        source_id = clean(row.get("wf2_hypothesis_id"))
+        before_decision = clean(row.get("strategic_decision"))
+        before_category = clean(row.get("next_validation_category"))
+        blockers = advancement_blockers(row)
+        operational_category = nondeprecated_operational_category(row)
+        reason = ""
+        if before_decision == "needs_targeted_validation" and not blockers:
+            row["strategic_decision"] = "advance_to_listing_strategy_input"
+            row["next_validation_category"] = "none"
+            reason = "deprecated_category_only_and_passes_current_commercial_quality_gate"
+        elif before_decision == "needs_targeted_validation" and operational_category:
+            row["next_validation_category"] = operational_category
+            reason = "deprecated_category_replaced_with_existing_operational_or_production_gap"
+        else:
+            row["strategic_decision"] = "hold"
+            row["next_validation_category"] = "none"
+            reason = "deprecated_category_removed_with_remaining_commercial_quality_blockers"
+        changes.append(
+            {
+                "source_id": source_id,
+                "before_decision": before_decision,
+                "before_category": before_category,
+                "after_decision": row["strategic_decision"],
+                "after_category": row["next_validation_category"],
+                "reason": reason,
+                "advancement_blockers": blockers,
+                "operational_category_detected": operational_category,
+            }
+        )
+    return recovered, changes
+
+
+def canonicalize_recover_raw_contract(parsed: Dict[str, Any]) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    recovered = json.loads(json.dumps(parsed))
+    changes: List[Dict[str, Any]] = []
+    raw_schema_version = recovered.get("schema_version") if isinstance(recovered, dict) else None
+    if raw_schema_version in RECOVERABLE_SCHEMA_VERSIONS:
+        changes.append(
+            {
+                "field": "schema_version",
+                "before": raw_schema_version,
+                "after": SCHEMA_VERSION,
+                "reason": "recover_raw_contract_version_bump_without_model_field_changes",
+            }
+        )
+        recovered["schema_version"] = SCHEMA_VERSION
+    decisions = recovered.get("decisions", []) if isinstance(recovered, dict) else []
+    for row in decisions:
+        if not isinstance(row, dict) or "ip_policy_cultural_risk" not in row:
+            continue
+        changes.append(
+            {
+                "source_id": clean(row.get("wf2_hypothesis_id")),
+                "field": "ip_policy_cultural_risk",
+                "dropped_value": row.get("ip_policy_cultural_risk"),
+                "reason": "deprecated_field_removed_from_wf2_wf3_contract",
+            }
+        )
+        row.pop("ip_policy_cultural_risk", None)
+    recovered, reclassification_changes = reclassify_deprecated_validation_categories(recovered)
+    changes.extend(reclassification_changes)
+    return recovered, changes
+
+
 def run_preflight(args: argparse.Namespace) -> Dict[str, Any]:
     return build_preflight_artifacts(args)
 
@@ -1315,12 +1498,54 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
             **decision_count_summary(None, request),
             "errors": ["missing_raw_response"],
         }
+    raw_bytes_before = paths["raw"].read_bytes()
+    raw_sha256 = sha256_file(paths["raw"])
     parsed = parse_response_json(read_json(paths["raw"]))
+    parsed, recovery_changes = canonicalize_recover_raw_contract(parsed)
     ok, errors = write_live_outputs(parsed, request, output_dir)
+    raw_preserved = raw_bytes_before == paths["raw"].read_bytes() and raw_sha256 == sha256_file(paths["raw"])
+    deprecated_drops = [change for change in recovery_changes if change.get("field") == "ip_policy_cultural_risk"]
+    reclassification_changes = [change for change in recovery_changes if "before_decision" in change]
+    if recovery_changes:
+        write_json_atomic(
+            paths["recovery_audit"],
+            {
+                "schema_version": "wf2_grouped_v2_strategic_recover_raw_audit_v1",
+                "created_at": utc_now_iso(),
+                "recovery_status": "dropped_deprecated_fields" if ok else "failed",
+                "raw_response_sha256": raw_sha256,
+                "raw_response_preserved_byte_for_byte": raw_preserved,
+                "canonicalization_changes": recovery_changes,
+                "deprecated_fields_dropped": deprecated_drops,
+                "reclassification_count": len(reclassification_changes),
+                "final_validation_result": "ok" if ok else "failed",
+                "final_validation_errors": [] if ok else errors,
+            },
+        )
+    if reclassification_changes:
+        write_json_atomic(
+            paths["reclassification_audit"],
+            {
+                "schema_version": "wf2_grouped_v2_strategic_reclassification_audit_v1",
+                "created_at": utc_now_iso(),
+                "raw_response_sha256": raw_sha256,
+                "raw_response_preserved_byte_for_byte": raw_preserved,
+                "status": "ok" if ok else "failed",
+                "deprecated_validation_categories_removed": sorted(DEPRECATED_VALIDATION_CATEGORIES),
+                "reclassification_count": len(reclassification_changes),
+                "reclassifications": reclassification_changes,
+                "final_validation_result": "ok" if ok else "failed",
+                "final_validation_errors": [] if ok else errors,
+            },
+        )
     return {
         "status": "ok" if ok else "failed",
         "api_calls_made": False,
         "network_calls_made": False,
+        "raw_response_sha256": raw_sha256,
+        "raw_response_preserved_byte_for_byte": raw_preserved,
+        "deprecated_fields_dropped": len(deprecated_drops),
+        "reclassification_count": len(reclassification_changes),
         **decision_count_summary(parsed, request),
         "errors": errors,
     }

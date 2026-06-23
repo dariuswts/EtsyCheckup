@@ -32,14 +32,75 @@ ALLOWED_SPEEDS = {"TURBO", "DEFAULT", "QUALITY"}
 REJECTED_SPEEDS = {"FLASH"}
 MAX_DOWNLOAD_BYTES = 40 * 1024 * 1024
 ALLOWED_IMAGE_HOST_SUFFIXES = ("ideogram.ai", "ideogram.com")
+DOWNLOAD_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+}
 
 ASPECT_RATIO_MAP_V3 = {
-    "4:5": "ASPECT_4_5",
-    "9:16": "ASPECT_9_16",
+    "1:3": "1x3",
+    "3:1": "3x1",
+    "1:2": "1x2",
+    "2:1": "2x1",
+    "9:16": "9x16",
+    "16:9": "16x9",
+    "10:16": "10x16",
+    "16:10": "16x10",
+    "2:3": "2x3",
+    "3:2": "3x2",
+    "3:4": "3x4",
+    "4:3": "4x3",
+    "4:5": "4x5",
+    "5:4": "5x4",
+    "1:1": "1x1",
 }
-RESOLUTION_MAP_V4_2K = {
-    "4:5": "RESOLUTION_1536_1920",
-    "9:16": "RESOLUTION_1080_1920",
+V4_ACCEPTED_RESOLUTION_VALUES = frozenset({
+    "2048x2048",
+    "1440x2880",
+    "2880x1440",
+    "1664x2496",
+    "2496x1664",
+    "1792x2240",
+    "2240x1792",
+    "1440x2560",
+    "2560x1440",
+    "1600x2560",
+    "2560x1600",
+    "1728x2304",
+    "2304x1728",
+    "1296x3168",
+    "3168x1296",
+    "1152x2944",
+    "2944x1152",
+    "1248x3328",
+    "3328x1248",
+    "1280x3072",
+    "3072x1280",
+    "1024x3072",
+    "3072x1024",
+})
+V4_LITERAL_RESOLUTION_MAP = {
+    "3:1": "3072x1024",
+    "4:3": "2304x1728",
+    "4:5": "1792x2240",
+    "9:16": "1440x2560",
+}
+ENDPOINT_FIELD_SUPPORT = {
+    "v4_visual": {
+        "required_fields": ("text_prompt", "resolution", "rendering_speed"),
+        "optional_fields": ("enable_copyright_detection",),
+        "supports_copyright_detection": True,
+    },
+    "v3_transparent": {
+        "required_fields": ("prompt", "negative_prompt", "aspect_ratio", "rendering_speed", "magic_prompt", "num_images", "upscale_factor"),
+        "optional_fields": ("seed",),
+        "supports_copyright_detection": False,
+    },
+    "v3_standard": {
+        "required_fields": ("prompt", "negative_prompt", "aspect_ratio", "rendering_speed", "magic_prompt", "num_images"),
+        "optional_fields": ("enable_copyright_detection", "seed"),
+        "supports_copyright_detection": True,
+    },
 }
 
 class IdeogramProviderError(Exception):
@@ -95,9 +156,11 @@ def route_for_spec(spec: dict[str, Any]) -> dict[str, str]:
         if not provider_value:
             raise IdeogramProviderError("unsupported_ratio_mapping", ratio)
         return {"route":"v3_standard", "endpoint":V3_STANDARD_ENDPOINT, "model":"ideogram-v3", "provider_field":"aspect_ratio", "provider_value":provider_value, "reason":"nontransparent exact text uses Ideogram 3 with magic_prompt=OFF"}
-    provider_value = RESOLUTION_MAP_V4_2K.get(ratio)
+    provider_value = V4_LITERAL_RESOLUTION_MAP.get(ratio)
     if not provider_value:
         raise IdeogramProviderError("unsupported_ratio_mapping", ratio)
+    if provider_value not in V4_ACCEPTED_RESOLUTION_VALUES:
+        raise IdeogramProviderError("unverified_v4_resolution_mapping", f"{ratio}:{provider_value}")
     return {"route":"v4_visual", "endpoint":V4_ENDPOINT, "model":"ideogram-v4", "provider_field":"resolution", "provider_value":provider_value, "reason":"nontransparent visual-only candidate uses Ideogram 4 text_prompt"}
 
 def embedded_v4_prompt(positive: str, negative: str) -> str:
@@ -145,7 +208,6 @@ def build_request(spec: dict[str, Any], api_key: str, rendering_speed: str = "QU
             "magic_prompt": "OFF",
             "num_images": "1",
             "upscale_factor": "X1",
-            "enable_copyright_detection": "true" if enable_copyright_detection else "false",
         }
         transport = "provider_field"
     else:
@@ -181,6 +243,8 @@ def build_request(spec: dict[str, Any], api_key: str, rendering_speed: str = "QU
 def validate_request(req: ProviderRequest) -> None:
     if req.route == "v4_visual" and "negative_prompt" in req.fields:
         raise IdeogramProviderError("invalid_provider_request", "V4 request cannot include separate negative_prompt")
+    if req.route == "v3_transparent" and "enable_copyright_detection" in req.fields:
+        raise IdeogramProviderError("invalid_provider_request", "V3 transparent request cannot include enable_copyright_detection")
     if req.route != "v4_visual" and req.fields.get("magic_prompt") != "OFF":
         raise IdeogramProviderError("invalid_provider_request", "V3 requests must use magic_prompt=OFF")
     if req.route != "v4_visual" and req.fields.get("num_images") != "1":
@@ -193,7 +257,7 @@ def sanitize_error(exc: BaseException) -> dict[str, str]:
     return {"type": type(exc).__name__, "message": text[:600]}
 
 def safe_headers(headers: Any) -> dict[str, str]:
-    allowed = {"content-type", "content-length", "date", "x-request-id"}
+    allowed = {"content-type", "content-length", "date", "x-request-id", "server", "cache-control", "expires", "last-modified", "etag", "via", "cf-ray"}
     out: dict[str, str] = {}
     for key, value in getattr(headers, "items", lambda: [])():
         if str(key).lower() in allowed:
@@ -270,26 +334,48 @@ def sniff_image(data: bytes) -> tuple[str, str]:
         return "jpg", "image/jpeg"
     raise IdeogramProviderError("image_signature_mismatch", "downloaded bytes are not PNG or JPEG")
 
+def download_error_detail(exc: BaseException, body: bytes = b"", headers: Any = None, status: int | None = None) -> str:
+    detail = sanitize_error(exc)
+    payload: dict[str, Any] = {"type": detail["type"], "message": detail["message"]}
+    if status is not None:
+        payload["http_status"] = status
+    if headers is not None:
+        payload["headers"] = safe_headers(headers)
+    if body:
+        payload["body_sha256"] = sha256_bytes(body)
+        payload["body_preview"] = body[:240].decode("utf-8", "replace")
+    return json.dumps(payload, sort_keys=True)
+
 def download_asset(url: str, destination_dir: Path, attempt_id: str, timeout_seconds: float, transport: Callable[..., Any] | None = None, max_bytes: int = MAX_DOWNLOAD_BYTES) -> dict[str, Any]:
     validate_download_url(url)
     opener = transport or urllib.request.urlopen
-    req = urllib.request.Request(url, method="GET")
+    req = urllib.request.Request(url, headers=DOWNLOAD_HEADERS, method="GET")
     destination_dir.mkdir(parents=True, exist_ok=True)
-    response = opener(req, timeout=timeout_seconds)
-    final_url = getattr(response, "url", url)
-    validate_download_url(final_url)
-    content_type = str(getattr(response, "headers", {}).get("Content-Type", "")).split(";")[0].strip().lower()
-    chunks: list[bytes] = []
-    total = 0
-    while True:
-        chunk = response.read(1024 * 64)
-        if not chunk:
-            break
-        total += len(chunk)
-        if total > max_bytes:
-            raise IdeogramProviderError("image_download_failed", "download exceeded maximum size")
-        chunks.append(chunk)
+    start = time.time()
+    try:
+        response = opener(req, timeout=timeout_seconds)
+        final_url = getattr(response, "url", url)
+        validate_download_url(final_url)
+        content_type = str(getattr(response, "headers", {}).get("Content-Type", "")).split(";")[0].strip().lower()
+        chunks: list[bytes] = []
+        total = 0
+        while True:
+            chunk = response.read(1024 * 64)
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > max_bytes:
+                raise IdeogramProviderError("image_download_failed", "download exceeded maximum size")
+            chunks.append(chunk)
+    except urllib.error.HTTPError as exc:
+        body = exc.read() if hasattr(exc, "read") else b""
+        code = "image_download_redirect_failed" if 300 <= int(exc.code) < 400 else f"image_download_http_{exc.code}"
+        raise IdeogramProviderError(code, download_error_detail(exc, body=body, headers=exc.headers, status=exc.code)) from exc
+    except (TimeoutError, urllib.error.URLError, ConnectionError, socket.timeout, ssl.SSLError, OSError) as exc:
+        raise IdeogramProviderError("image_download_failed", download_error_detail(exc)) from exc
     data = b"".join(chunks)
+    if not data:
+        raise IdeogramProviderError("image_download_failed", "downloaded asset was empty")
     if content_type and content_type not in {"image/png", "image/jpeg", "application/octet-stream"}:
         raise IdeogramProviderError("image_signature_mismatch", f"unexpected content type {content_type}")
     ext, detected_type = sniff_image(data)
@@ -297,7 +383,7 @@ def download_asset(url: str, destination_dir: Path, attempt_id: str, timeout_sec
     dest = destination_dir / f"{attempt_id}.{ext}"
     tmp.write_bytes(data)
     os.replace(tmp, dest)
-    return {"local_asset_path": dest, "local_asset_sha256": sha256_bytes(data), "detected_extension": ext, "detected_content_type": detected_type, "download_url_redacted": redacted_url(final_url), "download_url_sha256": hashlib.sha256(final_url.encode("utf-8")).hexdigest(), "bytes": len(data)}
+    return {"local_asset_path": dest, "local_asset_sha256": sha256_bytes(data), "detected_extension": ext, "detected_content_type": detected_type, "download_url_redacted": redacted_url(final_url), "download_url_sha256": hashlib.sha256(final_url.encode("utf-8")).hexdigest(), "bytes": len(data), "http_status": getattr(response, "status", 200), "headers": safe_headers(getattr(response, "headers", {})), "started_at_epoch": start, "completed_at_epoch": time.time()}
 
 def provider_contract_summary() -> dict[str, Any]:
-    return {"endpoints":{"v4_visual":V4_ENDPOINT,"v3_transparent":V3_TRANSPARENT_ENDPOINT,"v3_standard":V3_STANDARD_ENDPOINT},"auth_header":API_KEY_HEADER,"allowed_rendering_speeds":sorted(ALLOWED_SPEEDS),"rejected_rendering_speeds":sorted(REJECTED_SPEEDS),"v3_aspect_ratio_map":ASPECT_RATIO_MAP_V3,"v4_resolution_map":RESOLUTION_MAP_V4_2K}
+    return {"endpoints":{"v4_visual":V4_ENDPOINT,"v3_transparent":V3_TRANSPARENT_ENDPOINT,"v3_standard":V3_STANDARD_ENDPOINT},"endpoint_field_support":ENDPOINT_FIELD_SUPPORT,"auth_header":API_KEY_HEADER,"allowed_rendering_speeds":sorted(ALLOWED_SPEEDS),"rejected_rendering_speeds":sorted(REJECTED_SPEEDS),"v3_aspect_ratio_map":ASPECT_RATIO_MAP_V3,"v4_resolution_map":V4_LITERAL_RESOLUTION_MAP,"v4_accepted_resolution_values":sorted(V4_ACCEPTED_RESOLUTION_VALUES),"verified_v4_resolution_values":sorted(V4_LITERAL_RESOLUTION_MAP.values())}

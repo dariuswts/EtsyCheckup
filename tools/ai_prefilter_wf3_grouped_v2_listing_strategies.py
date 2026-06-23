@@ -30,14 +30,14 @@ SOURCE_QUEUE_CSV = "WF2_grouped_v2_listing_strategy_input_queue.csv"
 WF1_EVIDENCE_CSV = "WF1_everbee_listing_evidence_normalized.csv"
 
 LEGACY_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_response_v1"
-MODEL_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_wf2_ordered_id_arrays_v2"
+MODEL_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_wf2_ordered_id_arrays_v4_no_ip_policy_field"
 LEGACY_ORDERED_ARRAY_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ordered_id_arrays_v1"
-SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ranked_queue_v1"
-REQUEST_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_request_v1"
-PREFLIGHT_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_preflight_v1"
-VALIDATED_META_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_validated_meta_v1"
+SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_ranked_queue_v3_no_ip_policy_field"
+REQUEST_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_request_v3_no_ip_policy_field"
+PREFLIGHT_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_preflight_v3_no_ip_policy_field"
+VALIDATED_META_SCHEMA_VERSION = "wf3_grouped_v2_priority_prefilter_validated_meta_v3_no_ip_policy_field"
 LEGACY_CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v1"
-CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v3_wf2_id_enum_arrays"
+CONTRACT_REVISION = "wf3_grouped_v2_priority_prefilter_contract_v5_no_ip_policy_field"
 RECOVERY_CODE_REVISION = "wf3_priority_prefilter_recover_raw_v2"
 
 SOURCE_AUDIT_CSV = "WF3_grouped_v2_priority_prefilter_source_audit.csv"
@@ -72,7 +72,10 @@ DECISION_FIELDS = [
     "strongest_support",
     "primary_risk",
     "recommended_surface_category",
+    "surface_grounding_basis",
+    "commercial_case_summary",
     "overlap_group",
+    "selection_blockers",
     "source_evidence_ids",
     "exact_competitor_titles_excluded",
     "shop_names_excluded",
@@ -85,7 +88,10 @@ MODEL_DETAIL_FIELDS = [
     "strongest_support",
     "primary_risk",
     "recommended_surface_category",
+    "surface_grounding_basis",
+    "commercial_case_summary",
     "overlap_group",
+    "selection_blockers",
     "exact_competitor_titles_excluded",
     "shop_names_excluded",
     "human_approval_required_before_design_generation",
@@ -114,6 +120,19 @@ LISTING_GENERATION_FIELDS = {
     "ip_policy_cultural_checks",
     "listing_readiness",
     "listing_approved",
+}
+CANONICAL_SURFACE_CATEGORIES = {
+    "apparel",
+    "drinkware",
+    "phone_case",
+    "wall_art",
+    "throw_blanket",
+    "tote_bag",
+    "pouch",
+    "sticker",
+    "card",
+    "ornament",
+    "apron",
 }
 INVENTED_METRIC_RE = re.compile(
     r"\b(\d+(\.\d+)?\s*(sales|orders|revenue|profit|conversion|ctr|views)|guaranteed|proven demand|will sell|winner)\b",
@@ -205,6 +224,32 @@ def parse_list_value(value: object) -> List[str]:
     return [text]
 
 
+def substantive_text(value: object, min_words: int = 6) -> bool:
+    return len(re.findall(r"[A-Za-z0-9]+", clean(value))) >= min_words
+
+
+def source_quality_errors(row: Dict[str, Any]) -> List[str]:
+    source_id = clean(row.get("wf2_hypothesis_id") or row.get("source_wf2_hypothesis_id"))
+    errors: List[str] = []
+    surfaces = parse_list_value(row.get("evidence_backed_surface_categories"))
+    if not surfaces:
+        errors.append(f"missing_evidence_backed_surface:{source_id}")
+    if any(surface not in CANONICAL_SURFACE_CATEGORIES for surface in surfaces):
+        errors.append(f"unknown_evidence_backed_surface:{source_id}")
+    if clean(row.get("surface_grounding_strength")) != "strong":
+        errors.append(f"weak_surface_grounding:{source_id}")
+    if clean(row.get("commercial_hook_strength")) != "strong":
+        errors.append(f"weak_commercial_hook:{source_id}")
+    if clean(row.get("differentiation_strength")) in {"", "weak", "unclear"}:
+        errors.append(f"weak_differentiation:{source_id}")
+    if str(row.get("aesthetic_only_direction")).lower() in {"true", "yes", "1"}:
+        errors.append(f"aesthetic_only:{source_id}")
+    if clean(row.get("saturation_assessment")) == "high":
+        if clean(row.get("differentiation_strength")) != "strong" or not substantive_text(row.get("saturation_escape_summary"), 8):
+            errors.append(f"high_saturation_without_escape:{source_id}")
+    return errors
+
+
 def source_queue_path(batch_dir: Path) -> Path:
     return batch_dir / SOURCE_DIRNAME / "live_outputs" / SOURCE_QUEUE_CSV
 
@@ -285,6 +330,9 @@ def load_source_queue(batch_dir: Path) -> Tuple[List[Dict[str, str]], str]:
     for row in rows:
         if row.get("strategic_decision") != "advance_to_listing_strategy_input":
             raise WF3PriorityPrefilterError(f"source_row_not_listing_strategy_input:{row.get('wf2_hypothesis_id')}")
+        quality_errors = source_quality_errors(row)
+        if quality_errors:
+            raise WF3PriorityPrefilterError("source_row_fails_quality_gate:" + ";".join(quality_errors))
     return sorted(rows, key=source_sort_key), sha256_file(path)
 
 
@@ -296,11 +344,16 @@ def compact_input_for_row(row: Dict[str, str]) -> Dict[str, Any]:
         "primary_buyer": row.get("primary_buyer", ""),
         "buyer_use_case": row.get("buyer_use_case", ""),
         "provisional_surface_context": row.get("provisional_surface_context", ""),
+        "evidence_backed_surface_categories": parse_list_value(row.get("evidence_backed_surface_categories")),
+        "surface_grounding_strength": row.get("surface_grounding_strength", ""),
+        "commercial_hook_strength": row.get("commercial_hook_strength", ""),
+        "commercial_hook_summary": row.get("commercial_hook_summary", ""),
+        "aesthetic_only_direction": str(row.get("aesthetic_only_direction")).lower() in {"true", "yes", "1"},
+        "saturation_escape_summary": row.get("saturation_escape_summary", ""),
         "evidence_strength_summary": row.get("evidence_strength_summary", ""),
         "differentiation_strength": row.get("differentiation_strength", ""),
         "saturation_assessment": row.get("saturation_assessment", ""),
         "operational_feasibility": row.get("operational_feasibility", ""),
-        "ip_policy_cultural_risk": row.get("ip_policy_cultural_risk", ""),
         "missing_proof": row.get("missing_proof", ""),
         "next_validation_category": row.get("next_validation_category", ""),
         "next_validation_detail": row.get("next_validation_detail", ""),
@@ -323,6 +376,14 @@ def expected_source_ids(inputs: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]
             "source_global_candidate_id": row["source_global_candidate_id"],
             "strategic_direction_label": row["strategic_direction_label"],
             "source_evidence_ids": row["source_evidence_ids"],
+            "evidence_backed_surface_categories": row.get("evidence_backed_surface_categories", []),
+            "surface_grounding_strength": row.get("surface_grounding_strength", ""),
+            "commercial_hook_strength": row.get("commercial_hook_strength", ""),
+            "commercial_hook_summary": row.get("commercial_hook_summary", ""),
+            "aesthetic_only_direction": row.get("aesthetic_only_direction", False),
+            "saturation_escape_summary": row.get("saturation_escape_summary", ""),
+            "differentiation_strength": row.get("differentiation_strength", ""),
+            "saturation_assessment": row.get("saturation_assessment", ""),
         }
         for row in inputs
     ]
@@ -338,13 +399,15 @@ Globally compare every source row in the one request. Return source IDs only in 
 
 Copy only the exact source_wf2_hypothesis_id values into all ordered arrays. Never use source_global_candidate_id in an ordered array.
 
-Return selected_first_batch_wf2_hypothesis_ids in strongest-first order with at most {selection_limit} IDs. Return alternate_wf2_hypothesis_ids next with at most {alternate_limit} IDs. Return held_for_later_wf2_hypothesis_ids with every remaining source_wf2_hypothesis_id in your recommended order. Every input source_wf2_hypothesis_id must appear exactly once across the three arrays.
+Return selected_first_batch_wf2_hypothesis_ids in strongest-first order with at most {selection_limit} IDs. You may select fewer than the limit, including zero. Return alternate_wf2_hypothesis_ids next with at most {alternate_limit} IDs. Return held_for_later_wf2_hypothesis_ids with every remaining source_wf2_hypothesis_id in your recommended order. Every input source_wf2_hypothesis_id must appear exactly once across the three arrays.
+
+Prioritize originality and differentiation, specific buyer identity, specific purchase motivation or occasion, evidence-backed surface suitability, defensible commercial hook, credible saturation escape, commercial positioning, production feasibility, cross-surface consistency, and text/icon legibility. Penalize purely aesthetic themes, generic gift-for-her/him messaging, broad decor concepts, saturated motifs without a narrow escape, inferred product forms, concepts differentiated only by palette/styling/original artwork, vague buyers, no reason to buy now, and interchangeable Etsy listings.
 
 Valid ordered ID example: wf2hyp_v2_gc_v1_example. Invalid ordered ID example: gc_v1_example.
 
-Return one concise decision_details record for every source ID. Reasons and risks must be keyed by source_wf2_hypothesis_id. Include source_global_candidate_id inside decision_details only for lineage; never use it as an ordered-array identifier. Do not repeat strategic labels or source evidence IDs in the model output; those are restored locally from immutable source lineage.
+Return one concise decision_details record for every source ID. Rationale and commercial constraints must be keyed by source_wf2_hypothesis_id. Include source_global_candidate_id inside decision_details only for lineage; never use it as an ordered-array identifier. Do not repeat strategic labels or source evidence IDs in the model output; those are restored locally from immutable source lineage. recommended_surface_category must exactly match one of the row's evidence_backed_surface_categories. Use selection_blockers for held rows where applicable.
 
-Avoid near-duplicate selected rows by using overlap_group. Selected rows should be varied by buyer/profile/surface/risk where possible, but there are no seed, niche, or quota rules.
+Diversity by surface, buyer, niche, or profile is only a tie-breaker between commercially comparable rows. It must never force a weaker row into the selected set.
 
 Do not expose exact competitor titles or shop names. Treat market metrics as directional only; do not invent sales, revenue, conversion, profit, guarantees, provider availability, material, shipping, or fulfillment support. Human approval is required before any design generation."""
 
@@ -378,8 +441,11 @@ def _response_schema_for_ids(
         "selection_reason": {"type": "string"},
         "strongest_support": {"type": "string"},
         "primary_risk": {"type": "string"},
-        "recommended_surface_category": {"type": "string"},
+        "recommended_surface_category": {"type": "string", "enum": sorted(CANONICAL_SURFACE_CATEGORIES)},
+        "surface_grounding_basis": {"type": "string"},
+        "commercial_case_summary": {"type": "string"},
         "overlap_group": {"type": "string"},
+        "selection_blockers": {"type": "array", "items": {"type": "string"}},
         "exact_competitor_titles_excluded": {"type": "boolean", "enum": [True]},
         "shop_names_excluded": {"type": "boolean", "enum": [True]},
         "human_approval_required_before_design_generation": {"type": "boolean", "enum": [True]},
@@ -440,7 +506,10 @@ def legacy_response_schema(count: int) -> Dict[str, Any]:
         "strongest_support": {"type": "string"},
         "primary_risk": {"type": "string"},
         "recommended_surface_category": {"type": "string"},
+        "surface_grounding_basis": {"type": "string"},
+        "commercial_case_summary": {"type": "string"},
         "overlap_group": {"type": "string"},
+        "selection_blockers": {"type": "array", "items": {"type": "string"}},
         "source_evidence_ids": {"type": "array", "items": {"type": "string"}},
         "exact_competitor_titles_excluded": {"type": "boolean", "enum": [True]},
         "shop_names_excluded": {"type": "boolean", "enum": [True]},
@@ -678,11 +747,6 @@ def validate_ranked_decisions(decisions: Sequence[Dict[str, Any]], request: Dict
         errors.append(f"too_many_selected_first_batch:{len(selected)}>{request['selection_limit']}")
     if len(alternates) > int(request["alternate_limit"]):
         errors.append(f"too_many_alternates:{len(alternates)}>{request['alternate_limit']}")
-    selected_groups = [clean(row.get("overlap_group")) for row in selected]
-    duplicate_groups = sorted(group for group, count in Counter(selected_groups).items() if group and count > 1)
-    if duplicate_groups:
-        errors.append("selected_near_duplicate_overlap_group:" + ",".join(duplicate_groups))
-
     for row in decisions:
         if not isinstance(row, dict):
             continue
@@ -695,6 +759,23 @@ def validate_ranked_decisions(decisions: Sequence[Dict[str, Any]], request: Dict
                 errors.append(f"strategic_direction_label_mismatch:{source_id}")
             if row.get("source_evidence_ids") != expected["source_evidence_ids"]:
                 errors.append(f"source_evidence_ids_mismatch:{source_id}")
+            surface = clean(row.get("recommended_surface_category"))
+            evidence_surfaces = expected.get("evidence_backed_surface_categories") or []
+            if surface and surface not in evidence_surfaces:
+                errors.append(f"recommended_surface_not_evidence_backed:{source_id}:{surface}")
+            if row.get("selection_status") == "selected_first_batch":
+                source_errors = source_quality_errors({
+                    "wf2_hypothesis_id": source_id,
+                    "evidence_backed_surface_categories": evidence_surfaces,
+                    "surface_grounding_strength": expected.get("surface_grounding_strength", ""),
+                    "commercial_hook_strength": expected.get("commercial_hook_strength", ""),
+                    "differentiation_strength": expected.get("differentiation_strength", ""),
+                    "aesthetic_only_direction": expected.get("aesthetic_only_direction", False),
+                    "saturation_assessment": expected.get("saturation_assessment", ""),
+                    "saturation_escape_summary": expected.get("saturation_escape_summary", ""),
+                })
+                if source_errors:
+                    errors.append(f"selected_source_fails_quality_gate:{source_id}:{'|'.join(source_errors)}")
         for field in BOOLEAN_TRUE_FIELDS:
             if row.get(field) is not True:
                 errors.append(f"guardrail_not_true:{source_id}:{field}")
@@ -821,10 +902,23 @@ def construct_ranked_queue_from_ordered_ids(parsed: Dict[str, Any], request: Dic
         detail_global = clean(detail.get("source_global_candidate_id"))
         if detail_global and detail_global != expected["source_global_candidate_id"]:
             errors.append(f"decision_detail_global_id_mismatch:{source_id}")
-    selected_groups = [clean(detail_by_id.get(source_id, {}).get("overlap_group")) for source_id in selected_ids]
-    duplicate_groups = sorted(group for group, count in Counter(selected_groups).items() if group and count > 1)
-    if duplicate_groups:
-        errors.append("selected_near_duplicate_overlap_group:" + ",".join(duplicate_groups))
+        surface = clean(detail.get("recommended_surface_category"))
+        evidence_surfaces = expected.get("evidence_backed_surface_categories") or []
+        if surface and surface not in evidence_surfaces:
+            errors.append(f"recommended_surface_not_evidence_backed:{source_id}:{surface}")
+        if source_id in selected_ids:
+            source_errors = source_quality_errors({
+                "wf2_hypothesis_id": source_id,
+                "evidence_backed_surface_categories": evidence_surfaces,
+                "surface_grounding_strength": expected.get("surface_grounding_strength", ""),
+                "commercial_hook_strength": expected.get("commercial_hook_strength", ""),
+                "differentiation_strength": expected.get("differentiation_strength", ""),
+                "aesthetic_only_direction": expected.get("aesthetic_only_direction", False),
+                "saturation_assessment": expected.get("saturation_assessment", ""),
+                "saturation_escape_summary": expected.get("saturation_escape_summary", ""),
+            })
+            if source_errors:
+                errors.append(f"selected_source_fails_quality_gate:{source_id}:{'|'.join(source_errors)}")
 
     decisions: List[Dict[str, Any]] = []
     for rank, source_id in enumerate(ordered_ids, start=1):
@@ -848,7 +942,10 @@ def construct_ranked_queue_from_ordered_ids(parsed: Dict[str, Any], request: Dic
             "strongest_support": detail.get("strongest_support", ""),
             "primary_risk": detail.get("primary_risk", ""),
             "recommended_surface_category": detail.get("recommended_surface_category", ""),
+            "surface_grounding_basis": detail.get("surface_grounding_basis", ""),
+            "commercial_case_summary": detail.get("commercial_case_summary", ""),
             "overlap_group": detail.get("overlap_group", ""),
+            "selection_blockers": detail.get("selection_blockers", []),
             "source_evidence_ids": expected["source_evidence_ids"],
             "exact_competitor_titles_excluded": detail.get("exact_competitor_titles_excluded"),
             "shop_names_excluded": detail.get("shop_names_excluded"),
@@ -952,19 +1049,27 @@ def recover_global_id_namespace_ordered_response(
     if errors:
         return None, {}, errors
 
+    recovered_details = []
+    for row in detail_rows:
+        if not isinstance(row, dict) or row.get("source_wf2_hypothesis_id") not in expected_by_wf2:
+            continue
+        source_id = row["source_wf2_hypothesis_id"]
+        expected = expected_by_wf2[source_id]
+        surfaces = expected.get("evidence_backed_surface_categories") or []
+        detail = dict(row)
+        detail["source_global_candidate_id"] = expected["source_global_candidate_id"]
+        detail.setdefault("recommended_surface_category", surfaces[0] if surfaces else "")
+        detail.setdefault("surface_grounding_basis", "Recovered from immutable WF2 evidence-backed surface category.")
+        detail.setdefault("commercial_case_summary", clean(expected.get("commercial_hook_summary")) or "Recovered from immutable WF2 commercial hook summary.")
+        detail.setdefault("selection_blockers", [] if source_id in selected_ids + alternate_ids else ["recovered_held_for_later"])
+        recovered_details.append(detail)
+
     recovered_model = {
         "schema_version": MODEL_SCHEMA_VERSION,
         "selected_first_batch_wf2_hypothesis_ids": selected_ids,
         "alternate_wf2_hypothesis_ids": alternate_ids,
         "held_for_later_wf2_hypothesis_ids": held_ids,
-        "decision_details": [
-            {
-                **dict(row),
-                "source_global_candidate_id": expected_by_wf2[row["source_wf2_hypothesis_id"]]["source_global_candidate_id"],
-            }
-            for row in detail_rows
-            if isinstance(row, dict) and row.get("source_wf2_hypothesis_id") in expected_by_wf2
-        ],
+        "decision_details": recovered_details,
     }
     recovery_request = dict(request)
     recovery_request["response_schema"] = response_schema_for_request_ids(
@@ -1098,7 +1203,6 @@ def input_rows(inputs: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
                 "differentiation_strength": row.get("differentiation_strength", ""),
                 "saturation_assessment": row.get("saturation_assessment", ""),
                 "operational_feasibility": row.get("operational_feasibility", ""),
-                "ip_policy_cultural_risk": row.get("ip_policy_cultural_risk", ""),
                 "source_evidence_ids": "|".join(row.get("source_evidence_ids", [])),
                 "source_risk_flags": "|".join(row.get("source_risk_flags", [])),
             }
@@ -1168,7 +1272,6 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
             "differentiation_strength",
             "saturation_assessment",
             "operational_feasibility",
-            "ip_policy_cultural_risk",
             "source_evidence_ids",
             "source_risk_flags",
         ],

@@ -13,7 +13,10 @@ from typing import Any
 from hub_config import ACTIVE_BATCH, PROJECT_ROOT
 
 REVIEW_QUEUE_FILENAME = "WF3_grouped_v2_listing_candidate_review_queue.csv"
-RUN_ID = "priority_selected"
+WF3_ROOT_DIR = "WF3_grouped_v2_listing_candidates"
+WF3_PRIORITY_RUNS_DIR = "priority_selected_runs"
+ROOT_RUN_ID = "root"
+RUN_ID = ROOT_RUN_ID
 DECISION_CSV = "WF3_grouped_v2_listing_candidate_human_decisions.csv"
 APPROVED_CSV = "WF3_grouped_v2_listing_candidates_approved_for_wf4.csv"
 META_JSON = "WF3_grouped_v2_listing_candidate_human_review_meta.json"
@@ -111,19 +114,41 @@ def read_csv_with_columns(path: Path) -> tuple[list[str], list[dict[str, str]]]:
         return list(reader.fieldnames or []), list(reader)
 
 
+def root_review_queue_path(active_batch: Path = ACTIVE_BATCH) -> Path:
+    return active_batch / WF3_ROOT_DIR / "live_outputs" / REVIEW_QUEUE_FILENAME
+
+
 def expected_queue_path(active_batch: Path = ACTIVE_BATCH) -> Path:
-    return active_batch / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / RUN_ID / REVIEW_QUEUE_FILENAME
+    return root_review_queue_path(active_batch)
+
+
+def is_archived_path(path: Path) -> bool:
+    return any(part.lower() == "_archives" for part in path.parts)
+
+
+def active_priority_review_queues(active_batch: Path = ACTIVE_BATCH) -> list[Path]:
+    priority_root = active_batch / WF3_ROOT_DIR / WF3_PRIORITY_RUNS_DIR
+    if not priority_root.exists():
+        return []
+    return sorted(
+        [
+            path
+            for path in priority_root.glob(f"*/live_outputs/{REVIEW_QUEUE_FILENAME}")
+            if path.is_file() and not is_archived_path(path)
+        ],
+        key=lambda item: rel(item),
+    )
 
 
 def resolve_review_queue(active_batch: Path = ACTIVE_BATCH) -> Path:
-    expected = expected_queue_path(active_batch)
-    if expected.exists():
+    expected = root_review_queue_path(active_batch)
+    if expected.exists() and not is_archived_path(expected):
         return expected
-    matches = sorted([path for path in active_batch.rglob(REVIEW_QUEUE_FILENAME) if path.is_file()], key=lambda item: rel(item)) if active_batch.exists() else []
+    matches = active_priority_review_queues(active_batch)
     if not matches:
-        raise WF3ListingReviewError("WF3 listing review source not found", "The current grouped-v2 priority-selected review queue was not found inside the active batch.", expected_path=expected)
+        raise WF3ListingReviewError("WF3 listing review source not found", "No active grouped-v2 WF3 review queue was found. The resolver ignores archived runs and expects the root full-run review queue first.", expected_path=expected)
     if len(matches) > 1:
-        raise WF3ListingReviewError("Multiple WF3 listing review sources found", "More than one exact review queue filename exists in the active batch, so the hub refused to choose one arbitrarily.", expected_path=expected, conflicts=matches)
+        raise WF3ListingReviewError("Multiple active WF3 listing review sources found", "More than one active non-archived priority-selected review queue exists, so the hub refused to choose one arbitrarily.", expected_path=expected, conflicts=matches)
     return matches[0]
 
 
@@ -193,7 +218,7 @@ def load_validated_candidates(run_folder: Path) -> tuple[dict[str, dict[str, Any
                 raise WF3ListingReviewError("Validated candidate missing fields", f"{candidate_id} is missing required fields: {', '.join(missing)}")
             candidates[candidate_id] = candidate
     if not candidates:
-        raise WF3ListingReviewError("No validated WF3 candidates found", "The priority-selected run has no validated listing-candidate JSON rows to display.")
+        raise WF3ListingReviewError("No validated WF3 candidates found", "The grouped-v2 WF3 run has no validated listing-candidate JSON rows to display.")
     return candidates, batch_ids, hashes
 
 
@@ -231,6 +256,7 @@ def load_source(active_batch: Path = ACTIVE_BATCH) -> dict[str, Any]:
         "queue_path": queue_path,
         "expected_path": expected_queue_path(active_batch),
         "run_folder": run_folder,
+        "source_run_id": ROOT_RUN_ID if run_folder == active_batch / WF3_ROOT_DIR else run_folder.name,
         "human_review_folder": human_review_folder(queue_path),
         "source_sha256": sha256_file(queue_path),
         "source_rows": rows,
@@ -290,7 +316,7 @@ def error_block(error: WF3ListingReviewError) -> str:
     <p>Expected source location:</p>
     <p><code>{esc(rel(expected))}</code></p>
     {conflict_block}
-    <p class="muted">Safe next action: confirm the grouped-v2 priority-selected live outputs are complete and that exactly one current review queue exists inside the active batch. This page will not repair, overwrite, or delete source artifacts.</p>
+    <p class="muted">Safe next action: confirm the active grouped-v2 WF3 live outputs are complete and that exactly one current review queue exists outside archives. This page will not repair, overwrite, or delete source artifacts.</p>
   </div>
 </div>
 """
@@ -415,8 +441,8 @@ def page_body(show_approved: bool = False, active_batch: Path = ACTIVE_BATCH, me
 {message}
 <div class="wf3-review-app" data-wf3-review data-source-hash="{esc(source['source_sha256'])}" data-show-approved="{'yes' if show_approved else ''}">
   <aside class="wf3-review-rail"><div class="wf3-rail-inner">
-    <h2>WF3 Listing Review</h2><p class="muted">Current grouped-v2 priority-selected review surface.</p>
-    <div class="wf3-run-summary"><div><span>Source run</span><strong>{esc(RUN_ID)}</strong></div><div><span>Total candidates</span><strong>{source['source_row_count']}</strong></div><div><span>Approved</span><strong data-approved-count>{approved_count}</strong></div><div><span>Remaining</span><strong data-remaining-count>{remaining_count}</strong></div></div>
+    <h2>WF3 Listing Review</h2><p class="muted">Current grouped-v2 WF3 review surface.</p>
+    <div class="wf3-run-summary"><div><span>Source run</span><strong>{esc(source['source_run_id'])}</strong></div><div><span>Total candidates</span><strong>{source['source_row_count']}</strong></div><div><span>Approved</span><strong data-approved-count>{approved_count}</strong></div><div><span>Remaining</span><strong data-remaining-count>{remaining_count}</strong></div></div>
     <div class="ok">Review only - no images, products, listings, or publishing actions are performed here.</div>
     <label class="wf3-toggle"><input type="checkbox" data-show-approved-toggle{checked_toggle}> Show approved</label>
     <div class="wf3-source-meta"><div class="muted">Source validation status</div><strong>{esc(source_status)}</strong><div class="muted">Last saved</div><strong>{esc(last_saved or 'not saved')}</strong></div>
@@ -627,7 +653,9 @@ def save_review(form: dict[str, list[str]], active_batch: Path = ACTIVE_BATCH) -
         "decision_csv_sha256": decision_sha,
         "approved_queue_sha256": approved_sha,
         "original_validated_batch_ids": source["batch_ids"],
-        "active_run_id": RUN_ID,
+        "active_run_id": source["source_run_id"],
+        "source_wf3_run_id": source["source_run_id"],
+        "source_wf3_folder": rel(source["run_folder"]),
         "guardrails": {"no_design_generation": True, "no_publish": True, "no_etsy_action": True, "no_printify_action": True, "no_external_api_calls": True},
         "architecture_unchanged_confirmation": "WF2 strategic review -> WF3 listing candidates -> human listing approval -> future WF4 design production",
     }

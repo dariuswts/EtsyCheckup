@@ -18,7 +18,11 @@ except ImportError:  # pragma: no cover - direct script execution from tools/
 
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_BATCH = ROOT / "05_DATA_MODEL" / "sample_intake_tests" / "batches" / "WF1_everbee_normalization_20260614_234128"
+WF3_ROOT_DIR = "WF3_grouped_v2_listing_candidates"
+WF3_PRIORITY_RUNS_DIR = "priority_selected_runs"
+WF3_ROOT_SOURCE_RUN_ID = "root"
 WF3_RUN_ID = "priority_selected"
+DEFAULT_WF3_SOURCE_RUN_ID = WF3_ROOT_SOURCE_RUN_ID
 SCHEMA_VERSION = "wf4_design_production_v1_master_asset_preflight"
 PROFILE_VERSION = "wf4_surface_profile_registry_v1"
 APPROVED_QUEUE = "WF3_grouped_v2_listing_candidates_approved_for_wf4.csv"
@@ -34,8 +38,12 @@ ATTEMPT_FIELDS = ["wf4_attempt_id","wf4_run_id","wf4_design_spec_id","listing_ca
 DECISION_FIELDS = ["wf4_attempt_id","listing_candidate_id","design_approved","source_asset_sha256","source_attempt_manifest_sha256","reviewed_at_utc"]
 
 class WF4Error(Exception):
-    def __init__(self, code: str, detail: str):
-        super().__init__(f"{code}:{detail}"); self.code = code; self.detail = detail
+    def __init__(self, code: str, detail: str, api_calls_made: bool = False, network_calls_made: bool = False):
+        super().__init__(f"{code}:{detail}")
+        self.code = code
+        self.detail = detail
+        self.api_calls_made = api_calls_made
+        self.network_calls_made = network_calls_made
 
 def clean(v: object) -> str: return "" if v is None else str(v).strip()
 def utc_now() -> str: return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
@@ -61,17 +69,43 @@ def write_csv_atomic(p: Path, fields: list[str], rows: list[dict[str,Any]]) -> N
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
     os.replace(tmp, p)
 def boolish(v: object) -> bool: return clean(v).lower() in {"true","yes","1"}
-def wf3_run(batch: Path) -> Path: return batch / "WF3_grouped_v2_listing_candidates" / "priority_selected_runs" / WF3_RUN_ID
-def approved_path(batch: Path) -> Path: return wf3_run(batch) / "human_review" / APPROVED_QUEUE
-def meta_path(batch: Path) -> Path: return wf3_run(batch) / "human_review" / HUMAN_META
-def wf3_review_path(batch: Path) -> Path: return wf3_run(batch) / "live_outputs" / WF3_REVIEW_QUEUE
+def normalize_wf3_source_run_id(value: object = DEFAULT_WF3_SOURCE_RUN_ID) -> str:
+    run_id = clean(value) or DEFAULT_WF3_SOURCE_RUN_ID
+    if run_id == WF3_ROOT_SOURCE_RUN_ID:
+        return run_id
+    if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", run_id):
+        raise WF4Error("invalid_wf3_source_run_id", run_id)
+    if run_id.lower() == "_archives":
+        raise WF4Error("invalid_wf3_source_run_id", run_id)
+    return run_id
+
+def wf3_run(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> Path:
+    run_id = normalize_wf3_source_run_id(source_run_id)
+    root = batch / WF3_ROOT_DIR
+    if run_id == WF3_ROOT_SOURCE_RUN_ID:
+        return root
+    return root / WF3_PRIORITY_RUNS_DIR / run_id
+
+def wf3_source_info(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> dict[str,str]:
+    run_id = normalize_wf3_source_run_id(source_run_id)
+    folder = wf3_run(batch, run_id)
+    if any(part.lower() == "_archives" for part in folder.parts):
+        raise WF4Error("invalid_wf3_source_run_id", run_id)
+    return {"source_wf3_run_id": run_id, "source_wf3_folder": rel(folder)}
+
+def approved_path(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> Path: return wf3_run(batch, source_run_id) / "human_review" / APPROVED_QUEUE
+def meta_path(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> Path: return wf3_run(batch, source_run_id) / "human_review" / HUMAN_META
+def wf3_review_path(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> Path: return wf3_run(batch, source_run_id) / "live_outputs" / WF3_REVIEW_QUEUE
 def wf4_root(batch: Path) -> Path: return batch / "WF4_design_production"
 def run_dir(batch: Path, run_id: str) -> Path: return wf4_root(batch) / "runs" / run_id
 def ensure_run_dirs(base: Path) -> None:
     for d in ["preflight","request_contracts","manual_prompt_pack","manual_import/inbox","manual_import/processed","manual_import/rejected","live_outputs/raw","live_outputs/assets","live_outputs/errors","live_outputs/recovery_audits","live_outputs/validated","human_review","reports"]: (base/d).mkdir(parents=True, exist_ok=True)
 
-def load_approved_source(batch: Path) -> tuple[list[dict[str,str]], dict[str,Any], dict[str,str]]:
-    q, m, src = approved_path(batch), meta_path(batch), wf3_review_path(batch)
+def load_approved_source(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> tuple[list[dict[str,str]], dict[str,Any], dict[str,str]]:
+    info = wf3_source_info(batch, source_run_id)
+    folder = Path(batch) / WF3_ROOT_DIR if info["source_wf3_run_id"] == WF3_ROOT_SOURCE_RUN_ID else Path(batch) / WF3_ROOT_DIR / WF3_PRIORITY_RUNS_DIR / info["source_wf3_run_id"]
+    if not folder.exists(): raise WF4Error("wf3_source_folder_missing", rel(folder))
+    q, m, src = approved_path(batch, info["source_wf3_run_id"]), meta_path(batch, info["source_wf3_run_id"]), wf3_review_path(batch, info["source_wf3_run_id"])
     if not q.exists(): raise WF4Error("approved_queue_missing", rel(q))
     if not m.exists(): raise WF4Error("approval_meta_missing", rel(m))
     if not src.exists(): raise WF4Error("wf3_review_queue_missing", rel(src))
@@ -80,11 +114,11 @@ def load_approved_source(batch: Path) -> tuple[list[dict[str,str]], dict[str,Any
     if clean(meta.get("source_review_queue_sha256")) != srcsha: raise WF4Error("source_review_queue_hash_mismatch", "WF3 review queue hash differs from metadata")
     rows = [r for r in read_csv(q) if clean(r.get("listing_approved")) == "yes"]
     if int(meta.get("approved_count", len(rows))) != len(rows): raise WF4Error("approved_count_mismatch", "approved count differs from metadata")
-    return rows, meta, {"approved_queue_sha256": qsha, "human_meta_sha256": sha256_file(m), "wf3_review_queue_sha256": srcsha}
+    return rows, meta, {"approved_queue_sha256": qsha, "human_meta_sha256": sha256_file(m), "wf3_review_queue_sha256": srcsha, **info}
 
-def validated_index(batch: Path) -> dict[str,dict[str,str]]:
+def validated_index(batch: Path, source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> dict[str,dict[str,str]]:
     out = {}
-    for p in sorted((wf3_run(batch)/"live_outputs"/"validated").glob("*_validated.json")):
+    for p in sorted((wf3_run(batch, source_run_id)/"live_outputs"/"validated").glob("*_validated.json")):
         data, fsha = read_json(p), sha256_file(p)
         for c in data.get("listing_candidates", []):
             cid = clean(c.get("listing_candidate_id"))
@@ -132,7 +166,7 @@ def spec_id(cid: str) -> str: return "wf4spec_v1_" + re.sub(r"[^A-Za-z0-9_]+", "
 def attempt_id(run_id: str, cid: str, n: int) -> str: return f"wf4attempt_{run_id}_{re.sub(r'[^A-Za-z0-9_]+','_',cid).strip('_')}_{n:02d}"
 def candidate_hash(row: dict[str,str]) -> str: return sha256_json({k:row.get(k,"") for k in sorted(row)})
 
-def build_spec(row: dict[str,str], hashes: dict[str,str], lineage: dict[str,dict[str,str]]) -> tuple[dict[str,Any],dict[str,Any]]:
+def build_spec(row: dict[str,str], hashes: dict[str,str], lineage: dict[str,dict[str,str]], source_run_id: str = DEFAULT_WF3_SOURCE_RUN_ID) -> tuple[dict[str,Any],dict[str,Any]]:
     cid = clean(row.get("listing_candidate_id")); pid, profile, block = derive_surface_profile(row)
     norm, audit, perr = normalize_prompt(row, pid, profile)
     ready = "ready_for_manual_or_live_attempt" if profile and not perr else "blocked"
@@ -141,7 +175,7 @@ def build_spec(row: dict[str,str], hashes: dict[str,str], lineage: dict[str,dict
     personal = boolish(row.get("personalization_required"))
     ppol = "base_art_only_variable_text_deferred" if personal else "not_personalized"
     spec = {
-      "wf4_design_spec_id": spec_id(cid), "listing_candidate_id": cid, "source_wf2_hypothesis_id": clean(row.get("source_wf2_hypothesis_id")), "source_global_candidate_id": clean(row.get("source_global_candidate_id")), "strategic_direction_label": clean(row.get("strategic_direction_label")), "source_wf3_run_id": WF3_RUN_ID, "source_wf3_batch_id": clean(lin.get("source_wf3_batch_id")), "source_wf3_validated_sha256": clean(lin.get("source_wf3_validated_sha256")), "source_human_approval_sha256": hashes["approved_queue_sha256"], "surface_profile_id": pid, "surface_profile_version": PROFILE_VERSION,
+      "wf4_design_spec_id": spec_id(cid), "listing_candidate_id": cid, "source_wf2_hypothesis_id": clean(row.get("source_wf2_hypothesis_id")), "source_global_candidate_id": clean(row.get("source_global_candidate_id")), "strategic_direction_label": clean(row.get("strategic_direction_label")), "source_wf3_run_id": normalize_wf3_source_run_id(source_run_id), "source_wf3_batch_id": clean(lin.get("source_wf3_batch_id")), "source_wf3_validated_sha256": clean(lin.get("source_wf3_validated_sha256")), "source_human_approval_sha256": hashes["approved_queue_sha256"], "surface_profile_id": pid, "surface_profile_version": PROFILE_VERSION,
       "master_asset_type": "master design asset" if profile else "blocked_pending_surface_profile", "composition_mode": profile.get("mode", "needs review") if profile else "needs review", "background_policy": profile.get("bg", "needs review") if profile else "needs review", "transparency_expected": str(bool(profile and profile.get("alpha"))).lower(), "repeat_policy": profile.get("repeat", "needs review") if profile else "needs review", "master_aspect_ratio": profile.get("ratio", "") if profile else "", "target_orientation": profile.get("orient", "") if profile else "", "safe_focal_zone_guidance": profile.get("safe", "") if profile else "", "edge_bleed_policy": profile.get("bleed", "") if profile else "",
       "provider_template_required_later":"true", "provider_specific_export_deferred":"true", "selected_design_text": clean(row.get("selected_design_text")), "text_required": str(bool(clean(row.get("selected_design_text")))).lower(), "personalization_required": str(personal).lower(), "personalization_asset_policy": ppol, "original_ideogram_prompt": clean(row.get("ideogram_prompt")), "normalized_design_only_prompt": norm, "ideogram_negative_prompt": clean(row.get("ideogram_negative_prompt")), "visual_direction": clean(row.get("visual_direction")), "technical_validation_expectations":"Objective checks only: signature, dimensions, alpha when expected, aspect ratio, hashes, lineage. No subjective quality claims.", "blocking_questions":" | ".join(block + perr), "wf4_preflight_readiness": ready, "human_design_approval_required":"true", "no_mockups_generated":"true", "no_products_created":"true", "not_sent_to_etsy_or_printify":"true", "not_published":"true", "ai_generated_asset":"true"}
     sa = sha256_json(profile or {"surface_profile_id":pid})
@@ -164,11 +198,13 @@ def select_canary(rows: list[dict[str,str]], limit: int, ids: list[str]) -> list
     return selected
 
 def contract_for(args: argparse.Namespace, hashes: dict[str,str], selected_ids: list[str]) -> dict[str,Any]:
+    source_run_id = normalize_wf3_source_run_id(getattr(args, "wf3_source_run_id", DEFAULT_WF3_SOURCE_RUN_ID))
     return {
         "schema_version": SCHEMA_VERSION,
         "workflow_stage": "WF4_design_asset_production",
         "architecture": "WF0 -> WF1 -> WF2 -> WF3 listing candidates -> human listing approval -> WF4 design asset production",
-        "source_wf3_run_id": WF3_RUN_ID,
+        "source_wf3_run_id": source_run_id,
+        "source_wf3_folder": hashes.get("source_wf3_folder", ""),
         "approved_queue_sha256": hashes["approved_queue_sha256"],
         "human_meta_sha256": hashes["human_meta_sha256"],
         "wf3_review_queue_sha256": hashes["wf3_review_queue_sha256"],
@@ -178,6 +214,7 @@ def contract_for(args: argparse.Namespace, hashes: dict[str,str], selected_ids: 
         "generation_model": args.model,
         "quality": args.quality,
         "image_count_per_attempt": 1,
+        "provider_contract_summary": ideogram_api.provider_contract_summary(),
         "raw_response_preservation_required": True,
         "design_only_guardrails": {
             "no_mockups_generated": True,
@@ -353,6 +390,10 @@ def attempt_rows_for(args: argparse.Namespace, specs: list[dict[str,Any]], contr
     return rows
 def write_blocked_preflight(base: Path, args: argparse.Namespace, code: str, detail: str) -> dict[str,Any]:
     ensure_run_dirs(base)
+    try:
+        source_info = wf3_source_info(Path(args.batch_dir).resolve(), getattr(args, "wf3_source_run_id", DEFAULT_WF3_SOURCE_RUN_ID))
+    except WF4Error:
+        source_info = {"source_wf3_run_id": clean(getattr(args, "wf3_source_run_id", "")), "source_wf3_folder": ""}
     summary = {
         "status": "blocked",
         "blocked_reason": code,
@@ -364,19 +405,21 @@ def write_blocked_preflight(base: Path, args: argparse.Namespace, code: str, det
         "approved_candidate_count": 0,
         "selected_canary_count": 0,
         "attempt_count": 0,
+        **source_info,
     }
     write_json_atomic(base/"preflight"/"WF4_design_production_preflight.json", summary)
-    write_text_atomic(base/"reports"/"WF4_DESIGN_PRODUCTION_REPORT.md", f"# WF4 Design Production Report\n\nStatus: blocked\n\nReason: `{code}`\n\nDetail: {detail}\n")
+    write_text_atomic(base/"reports"/"WF4_DESIGN_PRODUCTION_REPORT.md", f"# WF4 Design Production Report\n\nStatus: blocked\n\nSource WF3 run: `{source_info['source_wf3_run_id']}`\n\nSource WF3 folder: `{source_info['source_wf3_folder']}`\n\nReason: `{code}`\n\nDetail: {detail}\n")
     return summary
 
 def preflight(args: argparse.Namespace) -> dict[str,Any]:
     batch = Path(args.batch_dir).resolve()
+    source_run_id = normalize_wf3_source_run_id(getattr(args, "wf3_source_run_id", DEFAULT_WF3_SOURCE_RUN_ID))
     base = run_dir(batch, args.run_id)
     if base.exists() and any(base.iterdir()) and not args.overwrite:
         raise WF4Error("run_exists", rel(base))
     ensure_run_dirs(base)
     try:
-        approved, meta, hashes = load_approved_source(batch)
+        approved, meta, hashes = load_approved_source(batch, source_run_id)
     except ideogram_api.IdeogramProviderError as exc:
         print(json.dumps({"status":"error", "error_code": exc.code, "detail": exc.detail, "api_calls_made": False, "network_calls_made": False}, indent=2, sort_keys=True), file=sys.stderr)
         return 2
@@ -384,12 +427,12 @@ def preflight(args: argparse.Namespace) -> dict[str,Any]:
         return write_blocked_preflight(base, args, exc.code, exc.detail)
     if not approved:
         return write_blocked_preflight(base, args, "no_human_approved_candidates", "The approved-for-WF4 queue contains zero listing_approved=yes rows.")
-    lineage = validated_index(batch)
+    lineage = validated_index(batch, source_run_id)
     selected = select_canary(approved, args.candidate_limit, args.candidate_id)
     specs: list[dict[str,Any]] = []
     audit: list[dict[str,Any]] = []
     for row in selected:
-        spec, extra = build_spec(row, hashes, lineage)
+        spec, extra = build_spec(row, hashes, lineage, source_run_id)
         specs.append(spec)
         audit.append({**extra, "wf4_design_spec_id": spec["wf4_design_spec_id"], "surface_profile_id": spec["surface_profile_id"], "wf4_preflight_readiness": spec["wf4_preflight_readiness"]})
     contract = contract_for(args, hashes, [r["listing_candidate_id"] for r in selected])
@@ -434,7 +477,8 @@ def preflight(args: argparse.Namespace) -> dict[str,Any]:
         "status": "ok",
         "wf4_run_id": args.run_id,
         "created_at_utc": utc_now(),
-        "source_wf3_run_id": WF3_RUN_ID,
+        "source_wf3_run_id": source_run_id,
+        "source_wf3_folder": hashes["source_wf3_folder"],
         "approved_candidate_count": len(approved),
         "selected_canary_count": len(selected),
         "selected_candidate_ids": [r["listing_candidate_id"] for r in selected],
@@ -453,7 +497,7 @@ def preflight(args: argparse.Namespace) -> dict[str,Any]:
         "guardrails": {"no_mockups_generated": True, "no_products_created": True, "not_sent_to_etsy_or_printify": True, "not_published": True},
     }
     write_json_atomic(base/"preflight"/"WF4_design_production_preflight.json", summary)
-    report = ["# WF4 Design Production Report", "", f"Status: `{summary['status']}`", f"Approved candidates: `{len(approved)}`", f"Selected canary candidates: `{len(selected)}`", f"Attempt rows: `{len(attempts)}`", f"Blocked candidates: `{len(blocked)}`", "", "## Guardrails", "", "No API calls, network calls, mockups, products, Etsy, Printify, or publishing actions were performed.", "", "## Selected Candidates"]
+    report = ["# WF4 Design Production Report", "", f"Status: `{summary['status']}`", f"Source WF3 run: `{source_run_id}`", f"Source WF3 folder: `{hashes['source_wf3_folder']}`", f"Approved candidates: `{len(approved)}`", f"Selected canary candidates: `{len(selected)}`", f"Attempt rows: `{len(attempts)}`", f"Blocked candidates: `{len(blocked)}`", "", "## Guardrails", "", "No API calls, network calls, mockups, products, Etsy, Printify, or publishing actions were performed.", "", "## Selected Candidates"]
     for spec in specs:
         report.append(f"- `{spec['listing_candidate_id']}`: `{spec['surface_profile_id']}` / `{spec['wf4_preflight_readiness']}`")
     write_text_atomic(base/"reports"/"WF4_DESIGN_PRODUCTION_REPORT.md", "\n".join(report)+"\n")
@@ -672,6 +716,144 @@ def append_or_replace_attempt(validated_path: Path, rows: list[dict[str,Any]], u
     write_csv_atomic(validated_path, ATTEMPT_FIELDS, out)
     return out
 
+def attempt_row_from_spec(args: argparse.Namespace, spec: dict[str,Any], contract_sha: str, attempt_int: int, request_preview: dict[str,Any] | None = None) -> dict[str,Any]:
+    row_args = argparse.Namespace(
+        run_id=clean(getattr(args, "run_id", "")),
+        provider=clean(getattr(args, "provider", "ideogram")) or "ideogram",
+        rendering_speed=clean((request_preview or {}).get("rendering_speed")) or clean(getattr(args, "rendering_speed", DEFAULT_QUALITY)) or DEFAULT_QUALITY,
+        quality=clean((request_preview or {}).get("rendering_speed")) or clean(getattr(args, "quality", DEFAULT_QUALITY)) or DEFAULT_QUALITY,
+    )
+    row_args.attempts_per_candidate = attempt_int
+    rows = attempt_rows_for(row_args, [spec], contract_sha)
+    row = dict(rows[-1])
+    route = provider_route_preview(spec, clean(args.provider), clean((request_preview or {}).get("rendering_speed")) or clean(args.rendering_speed))
+    row.update({
+        "wf4_attempt_id": attempt_id(args.run_id, spec["listing_candidate_id"], attempt_int),
+        "attempt_number": f"{attempt_int:02d}",
+        "generation_provider": "ideogram",
+        "generation_model": clean((request_preview or {}).get("model")) or route["generation_model"],
+        "quality": clean((request_preview or {}).get("rendering_speed")) or route["rendering_speed"],
+        "provider_endpoint": clean((request_preview or {}).get("endpoint")) or route["provider_endpoint"],
+        "provider_route": clean((request_preview or {}).get("route")) or route["provider_route"],
+        "provider_resolution_or_aspect_field": clean((request_preview or {}).get("provider_field")) or route["provider_resolution_or_aspect_field"],
+        "provider_resolution_or_aspect_value": clean((request_preview or {}).get("provider_value")) or route["provider_resolution_or_aspect_value"],
+        "negative_prompt_transport": clean((request_preview or {}).get("negative_prompt_transport")) or route["negative_prompt_transport"],
+        "provider_route_reason": clean((request_preview or {}).get("route_reason")) or route["provider_route_reason"],
+    })
+    return row
+
+def recovery_audit_payload(aid: str, cid: str, attempt_number: str, status: str, detail: dict[str,Any]) -> dict[str,Any]:
+    return {
+        "schema_version": "wf4_attempt_asset_download_recovery_v1",
+        "wf4_attempt_id": aid,
+        "listing_candidate_id": cid,
+        "attempt_number": attempt_number,
+        "status": status,
+        "recorded_at_utc": utc_now(),
+        "non_billable_recovery": True,
+        "generation_post_sent": False,
+        "api_calls_made": False,
+        "network_calls_made": bool(detail.get("network_calls_made", False)),
+        "detail": detail,
+    }
+
+def recover_download_mode(args: argparse.Namespace) -> dict[str,Any]:
+    if clean(args.provider) != "ideogram":
+        raise WF4Error("unsupported_provider", clean(args.provider) or "blank")
+    if len(args.candidate_id) != 1:
+        raise WF4Error("candidate_id_required", "Recovery requires exactly one --candidate-id.")
+    attempt_number = clean(args.attempt_number)
+    if attempt_number.lower() in {"", "next"}:
+        raise WF4Error("explicit_attempt_number_required", "Recovery must name the preserved attempt number; use --attempt-number 03.")
+    try:
+        attempt_int = int(attempt_number)
+    except ValueError as exc:
+        raise WF4Error("invalid_attempt_number", attempt_number) from exc
+    batch = Path(args.batch_dir).resolve()
+    base = run_dir(batch, args.run_id)
+    specs, manifest, summary = load_preflight(base)
+    cid = args.candidate_id[0]
+    specs_by_cid = {clean(s.get("listing_candidate_id")): s for s in specs}
+    if cid not in specs_by_cid:
+        raise WF4Error("candidate_not_in_run", cid)
+    spec = specs_by_cid[cid]
+    aid = attempt_id(args.run_id, cid, attempt_int)
+    attempt_dir = base/"live_outputs"/"attempts"/aid
+    raw_path = attempt_dir/"raw"/"provider_response.json"
+    request_preview_path = attempt_dir/"request"/"request_preview.json"
+    recovery_root = attempt_dir/"recovery"
+    recovery_id = f"download_recovery_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_{os.getpid()}"
+    recovery_dir = recovery_root/recovery_id
+    recovery_dir.mkdir(parents=True, exist_ok=False)
+    (base/"live_outputs"/"recovery_audits").mkdir(parents=True, exist_ok=True)
+    if not raw_path.exists():
+        detail = {"error_code": "raw_provider_response_missing", "raw_response_path": rel(raw_path), "network_calls_made": False}
+        audit = recovery_audit_payload(aid, cid, f"{attempt_int:02d}", "error", detail)
+        write_json_atomic(recovery_dir/"recovery_audit.json", audit)
+        write_json_atomic(base/"live_outputs"/"recovery_audits"/f"{recovery_id}.json", audit)
+        raise WF4Error("raw_provider_response_missing", rel(raw_path), api_calls_made=False, network_calls_made=False)
+    request_preview = read_json(request_preview_path) if request_preview_path.exists() else {}
+    raw_body = raw_path.read_bytes()
+    validated_path = base/"live_outputs"/"validated"/"WF4_design_production_attempt_manifest_validated.csv"
+    current_rows = read_csv(validated_path) if validated_path.exists() else manifest
+    contract_sha = clean(summary.get("request_contract_sha256"))
+    row = manifest_row_for_attempt(current_rows, cid, f"{attempt_int:02d}") or attempt_row_from_spec(args, spec, contract_sha, attempt_int, request_preview)
+    row.update({
+        "wf4_attempt_id": aid,
+        "attempt_number": f"{attempt_int:02d}",
+        "raw_response_path": rel(raw_path),
+        "raw_response_sha256": sha256_file(raw_path),
+    })
+    try:
+        parsed = ideogram_api.parse_response(raw_body)
+        row.update({
+            "source_image_url": ideogram_api.redacted_url(parsed["image_url"]),
+            "provider_seed": clean(parsed.get("seed")),
+            "provider_returned_resolution": clean(parsed.get("resolution")),
+            "provider_is_image_safe": str(parsed.get("is_image_safe", "")).lower(),
+        })
+        unsafe = parsed.get("is_image_safe") is False
+        target_dir = recovery_dir/("quarantine" if unsafe else "asset")
+        dl = ideogram_api.download_asset(parsed["image_url"], target_dir, aid, timeout_seconds=args.download_timeout_seconds)
+        row.update({
+            "local_asset_path": rel(dl["local_asset_path"]),
+            "local_asset_sha256": dl["local_asset_sha256"],
+            "provider_download_url_redacted": dl["download_url_redacted"],
+            "provider_download_url_sha256": dl["download_url_sha256"],
+            "completed_at_utc": utc_now(),
+        })
+        if unsafe:
+            row.update({"technical_validation_status": "invalid", "technical_validation_errors": "provider_safety_flagged"})
+        else:
+            temp_rows = append_or_replace_attempt(validated_path, current_rows, row)
+            seen_hashes = {r.get("local_asset_sha256", "") for r in temp_rows if r.get("local_asset_sha256") and r.get("wf4_attempt_id") != aid}
+            row.update(validate_attempt_row(row, {spec["wf4_design_spec_id"]: spec}, base, seen_hashes))
+        append_or_replace_attempt(validated_path, current_rows, row)
+        write_json_atomic(attempt_dir/"validation"/"technical_validation_record.json", row)
+        detail = {
+            "download_url_redacted": dl["download_url_redacted"],
+            "download_url_sha256": dl["download_url_sha256"],
+            "local_asset_path": rel(dl["local_asset_path"]),
+            "local_asset_sha256": dl["local_asset_sha256"],
+            "detected_content_type": dl["detected_content_type"],
+            "bytes": dl["bytes"],
+            "http_status": dl.get("http_status"),
+            "response_headers": dl.get("headers", {}),
+            "network_calls_made": True,
+        }
+        audit = recovery_audit_payload(aid, cid, f"{attempt_int:02d}", row["technical_validation_status"], detail)
+        write_json_atomic(recovery_dir/"recovery_audit.json", audit)
+        write_json_atomic(base/"live_outputs"/"recovery_audits"/f"{recovery_id}.json", audit)
+        return {"status": "ok" if row["technical_validation_status"] == "valid" else "invalid", "wf4_attempt_id": aid, "candidate_id": cid, "attempt_number": f"{attempt_int:02d}", "technical_validation_status": row["technical_validation_status"], "technical_validation_errors": row["technical_validation_errors"], "recovery_audit_path": rel(recovery_dir/"recovery_audit.json"), "api_calls_made": False, "network_calls_made": True, "billable_images_requested": 0, "generation_post_sent": False}
+    except ideogram_api.IdeogramProviderError as exc:
+        row.update({"technical_validation_status": "invalid", "technical_validation_errors": exc.code})
+        append_or_replace_attempt(validated_path, current_rows, row)
+        detail = {"error_code": exc.code, "detail": exc.detail, "network_calls_made": exc.code.startswith("image_download_")}
+        audit = recovery_audit_payload(aid, cid, f"{attempt_int:02d}", "error", detail)
+        write_json_atomic(recovery_dir/"recovery_error.json", audit)
+        write_json_atomic(base/"live_outputs"/"recovery_audits"/f"{recovery_id}.json", audit)
+        raise WF4Error(exc.code, exc.detail, api_calls_made=False, network_calls_made=bool(detail["network_calls_made"])) from exc
+
 def live_mode(args: argparse.Namespace) -> dict[str,Any]:
     if clean(args.provider) != "ideogram":
         raise WF4Error("unsupported_provider", clean(args.provider) or "blank")
@@ -687,7 +869,11 @@ def live_mode(args: argparse.Namespace) -> dict[str,Any]:
     batch = Path(args.batch_dir).resolve()
     base = run_dir(batch, args.run_id)
     specs, manifest, summary = load_preflight(base)
-    approved, _meta, hashes = load_approved_source(batch)
+    source_run_id = normalize_wf3_source_run_id(clean(summary.get("source_wf3_run_id")) or getattr(args, "wf3_source_run_id", DEFAULT_WF3_SOURCE_RUN_ID))
+    requested_source_run_id = normalize_wf3_source_run_id(getattr(args, "wf3_source_run_id", source_run_id))
+    if requested_source_run_id != source_run_id:
+        raise WF4Error("wf3_source_run_mismatch", f"preflight uses {source_run_id}; command requested {requested_source_run_id}")
+    approved, _meta, hashes = load_approved_source(batch, source_run_id)
     if hashes["approved_queue_sha256"] != clean(summary.get("approved_queue_sha256")):
         raise WF4Error("preflight_hash_mismatch", "approved queue hash differs from frozen preflight")
     cid = args.candidate_id[0]
@@ -719,12 +905,14 @@ def live_mode(args: argparse.Namespace) -> dict[str,Any]:
     attempt_dir = base/"live_outputs"/"attempts"/aid
     for sub in ["request", "raw", "asset", "quarantine", "validation", "errors"]:
         (attempt_dir/sub).mkdir(parents=True, exist_ok=True)
+    post_started = False
     try:
         req = ideogram_api.build_request(spec, api_key=api_key, rendering_speed=args.rendering_speed, enable_copyright_detection=args.enable_copyright_detection)
         ideogram_api.validate_request(req)
         write_json_atomic(attempt_dir/"request"/"request_preview.json", req.request_preview)
         print(json.dumps({"billable_action_preview":{"provider":"ideogram","candidate_id":cid,"attempt_id":aid,"endpoint":req.endpoint,"route":req.route,"rendering_speed":req.rendering_speed,"max_billable_images":1,"headers":req.redacted_headers}}, indent=2, sort_keys=True))
         started = utc_now()
+        post_started = True
         response = ideogram_api.execute_generation(req, timeout_seconds=args.request_timeout_seconds)
         raw_body = response.get("body", b"")
         raw_path = attempt_dir/"raw"/"provider_response.json"
@@ -736,7 +924,7 @@ def live_mode(args: argparse.Namespace) -> dict[str,Any]:
             row.update({"technical_validation_status":"invalid", "technical_validation_errors":code})
             write_json_atomic(attempt_dir/"errors"/"provider_error.json", {k:v for k,v in response.items() if k != "body"})
             append_or_replace_attempt(validated_path, current_rows, row)
-            raise WF4Error(code, "Provider returned HTTP error; raw response preserved and no automatic POST retry was attempted.")
+            raise WF4Error(code, "Provider returned HTTP error; raw response preserved and no automatic POST retry was attempted.", api_calls_made=True, network_calls_made=True)
         parsed = ideogram_api.parse_response(raw_body)
         write_json_atomic(attempt_dir/"raw"/"provider_response_parsed.json", {k:v for k,v in parsed.items() if k != "image_url"} | {"image_url_redacted": ideogram_api.redacted_url(parsed["image_url"]), "image_url_sha256": sha256_text(parsed["image_url"])})
         row.update({"source_image_url": ideogram_api.redacted_url(parsed["image_url"]), "provider_seed": clean(parsed.get("seed")), "provider_returned_resolution": clean(parsed.get("resolution")), "provider_is_image_safe": str(parsed.get("is_image_safe", "")).lower()})
@@ -757,12 +945,13 @@ def live_mode(args: argparse.Namespace) -> dict[str,Any]:
         row.update({"technical_validation_status":"invalid", "technical_validation_errors":exc.code})
         write_json_atomic(attempt_dir/"errors"/"provider_error.json", {"error_code": exc.code, "detail": exc.detail})
         append_or_replace_attempt(validated_path, current_rows, row)
-        raise WF4Error(exc.code, exc.detail) from exc
+        raise WF4Error(exc.code, exc.detail, api_calls_made=post_started, network_calls_made=post_started) from exc
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Current WF4 design asset production scaffold")
-    p.add_argument("--mode", choices=["preflight","validate","import-manual","live"], required=True)
+    p.add_argument("--mode", choices=["preflight","validate","import-manual","live","recover-download"], required=True)
     p.add_argument("--batch-dir", default=str(ACTIVE_BATCH))
     p.add_argument("--run-id", required=True)
+    p.add_argument("--wf3-source-run-id", default=DEFAULT_WF3_SOURCE_RUN_ID, help="WF3 source selector: root or a sanitized priority_selected_runs run ID.")
     p.add_argument("--candidate-limit", type=int, default=DEFAULT_CANDIDATE_LIMIT)
     p.add_argument("--candidate-id", action="append", default=[])
     p.add_argument("--attempts-per-candidate", type=int, default=DEFAULT_ATTEMPTS_PER_CANDIDATE)
@@ -792,6 +981,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.mode == "preflight": result = preflight(args)
         elif args.mode == "validate": result = validate_mode(args)
         elif args.mode == "import-manual": result = import_manual(args)
+        elif args.mode == "recover-download": result = recover_download_mode(args)
         elif args.mode == "live": result = live_mode(args)
         else: raise WF4Error("unknown_mode", args.mode)
         print(json.dumps(result, indent=2, sort_keys=True))
@@ -800,7 +990,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"status":"error", "error_code": exc.code, "detail": exc.detail, "api_calls_made": False, "network_calls_made": False}, indent=2, sort_keys=True), file=sys.stderr)
         return 2
     except WF4Error as exc:
-        print(json.dumps({"status":"error", "error_code": exc.code, "detail": exc.detail, "api_calls_made": False, "network_calls_made": False}, indent=2, sort_keys=True), file=sys.stderr)
+        print(json.dumps({"status":"error", "error_code": exc.code, "detail": exc.detail, "api_calls_made": exc.api_calls_made, "network_calls_made": exc.network_calls_made}, indent=2, sort_keys=True), file=sys.stderr)
         return 2
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -34,7 +34,7 @@ WF1_EVIDENCE_CSV = "WF1_everbee_listing_evidence_normalized.csv"
 SCHEMA_VERSION = "wf3_grouped_v2_listing_candidate_generation_v1"
 REQUEST_SCHEMA_VERSION = "wf3_grouped_v2_listing_candidate_request_v1"
 PREFLIGHT_SCHEMA_VERSION = "wf3_grouped_v2_listing_candidate_preflight_v1"
-CONTRACT_REVISION = "wf3_grouped_v2_listing_candidate_contract_v2_blank_batch_notes"
+CONTRACT_REVISION = "wf3_grouped_v2_listing_candidate_contract_v3_priority_surface_locked"
 RECOVERY_CODE_REVISION = "wf3_recover_raw_canonicalization_v1"
 
 SOURCE_AUDIT_CSV = "WF3_grouped_v2_listing_candidate_source_audit.csv"
@@ -77,6 +77,7 @@ LISTING_FIELDS = [
     "listing_candidate_id",
     "source_wf2_hypothesis_id",
     "source_global_candidate_id",
+    "required_surface_category",
     "strategic_direction_label",
     "target_buyer",
     "buyer_use_case",
@@ -235,7 +236,7 @@ def sanitize_run_id(value: str) -> str:
 
 def priority_run_id(args: argparse.Namespace) -> str:
     if not getattr(args, "priority_selection_file", None):
-        return ""
+        return "diagnostic_canary" if getattr(args, "diagnostic_canary", False) else ""
     return sanitize_run_id(getattr(args, "run_id", "") or "priority_selected")
 
 
@@ -319,7 +320,6 @@ def row_search_text(row: Dict[str, str]) -> str:
         "primary_buyer",
         "buyer_use_case",
         "provisional_surface_context",
-        "ip_policy_cultural_risk",
         "missing_proof",
         "source_risk_flags",
         "next_validation_detail",
@@ -340,13 +340,11 @@ def canary_profile_score(row: Dict[str, str], profile: str) -> int:
     text = row_search_text(row)
     saturation = clean(row.get("saturation_assessment")).lower()
     feasibility = clean(row.get("operational_feasibility")).lower()
-    ip_risk = clean(row.get("ip_policy_cultural_risk")).lower()
     risk_flags = parse_list_value(row.get("source_risk_flags"))
     score = 0
     if profile == "ordinary_standard_pod":
         score += 5 if feasibility == "standard_pod_plausible_unverified" else -5
         score += 3 if keyword_score(text, ["phone case", "wall art", "apparel", "throw blanket", "drinkware"]) else 0
-        score += 2 if "low" in ip_risk else 0
         score += 1 if saturation in {"low", "moderate"} else -2
         score -= 3 * keyword_score(text, ["cultural", "religious", "heritage", "trademark", "bachelorette", "party"])
         score -= 2 if risk_flags else 0
@@ -369,12 +367,11 @@ def canary_profile_score(row: Dict[str, str], profile: str) -> int:
                 "policy",
             ],
         )
-        score += 2 if "moderate" in ip_risk or "sensitivity" in ip_risk else 0
+        score += 2 if "sensitivity" in text.lower() else 0
     elif profile == "saturation_or_operational_risk":
         score += 5 if saturation == "high" else 0
         score += 4 if feasibility != "standard_pod_plausible_unverified" else 0
         score += 4 * keyword_score(text, ["trademark", "phrase", "nonstandard", "line weight", "device", "provider", "surface"])
-        score += 2 if "moderate" in ip_risk else 0
         score += 2 if risk_flags else 0
     return score
 
@@ -389,7 +386,7 @@ def choose_profile_row(rows: Sequence[Dict[str, str]], profile: str, used_ids: s
 
 def canary_reason(row: Dict[str, str], profile: str) -> str:
     if profile == "ordinary_standard_pod":
-        return "Deterministic ordinary standard-POD representative with low policy risk and a concrete printable surface context."
+        return "Deterministic ordinary standard-POD representative with low operational risk and a concrete printable surface context."
     if profile == "personalization_related":
         return "Deterministic personalization/occasion representative with group or event-specific positioning to test approval-gated listing copy."
     if profile == "policy_sensitive":
@@ -454,6 +451,13 @@ def select_priority_rows(batch_dir: Path, rows: Sequence[Dict[str, str]], select
         row["canary_selection_reason"] = ""
         row["priority_rank"] = str(decision["priority_rank"])
         row["priority_selection_status"] = decision["selection_status"]
+        row["priority_selection_reason"] = decision.get("selection_reason", "")
+        row["required_surface_category"] = decision.get("recommended_surface_category", "")
+        row["surface_grounding_basis"] = decision.get("surface_grounding_basis", "")
+        row["commercial_case_summary"] = decision.get("commercial_case_summary", "")
+        surfaces = parse_list_value(row.get("evidence_backed_surface_categories"))
+        if row["required_surface_category"] not in surfaces:
+            raise WF3ListingCandidateError(f"priority_selection_surface_not_evidence_backed:{source_id}")
         selected.append(row)
     return selected, meta
 
@@ -475,6 +479,8 @@ def surface_status_for(row: Dict[str, str]) -> str:
 
 
 def request_input_for_row(row: Dict[str, str]) -> Dict[str, Any]:
+    evidence_backed_surfaces = parse_list_value(row.get("evidence_backed_surface_categories"))
+    required_surface = row.get("required_surface_category", "") or (evidence_backed_surfaces[0] if evidence_backed_surfaces else "")
     return {
         "source_wf2_hypothesis_id": row["wf2_hypothesis_id"],
         "source_global_candidate_id": row["source_global_candidate_id"],
@@ -483,12 +489,15 @@ def request_input_for_row(row: Dict[str, str]) -> Dict[str, Any]:
         "target_buyer": row.get("primary_buyer", ""),
         "buyer_use_case": row.get("buyer_use_case", ""),
         "provisional_surface_context": row.get("provisional_surface_context", ""),
+        "evidence_backed_surface_categories": evidence_backed_surfaces,
+        "required_surface_category": required_surface,
+        "surface_grounding_basis": row.get("surface_grounding_basis", ""),
+        "commercial_case_summary": row.get("commercial_case_summary", ""),
         "recommended_surface_status": surface_status_for(row),
         "evidence_strength_summary": row.get("evidence_strength_summary", ""),
         "differentiation_strength": row.get("differentiation_strength", ""),
         "saturation_assessment": row.get("saturation_assessment", ""),
         "operational_feasibility": row.get("operational_feasibility", ""),
-        "ip_policy_cultural_risk": row.get("ip_policy_cultural_risk", ""),
         "missing_proof": row.get("missing_proof", ""),
         "next_validation_category": row.get("next_validation_category", ""),
         "next_validation_detail": row.get("next_validation_detail", ""),
@@ -518,6 +527,10 @@ Return exactly one listing candidate for every source row in the request batch. 
 
 Each candidate must be a specific customer-facing Etsy draft package that can be approved or rejected by a human before design production. This is not a strategy, hypothesis, design brief, validation summary, or generic ideation task.
 
+For priority-selected production rows, required_surface_category is locked by the validated WF3 priority prefilter. The candidate's recommended_surface_category must equal required_surface_category exactly. Do not substitute a different product category or broaden the surface. Develop only within the selected buyer, use case, commercial hook, theme scope, and required surface.
+
+Do not turn broad keepsakes into arbitrary unrelated products, convert a baby product into an adult/home product without explicit grounding, choose a saturated motif identified as a risk, invent an unrelated buyer occasion, or rely on generic cozy, rustic, boho, coastal, gift, or farmhouse wording as the main differentiator.
+
 Customer-facing fields must not mention AI, evidence pipelines, hypotheses, strategic review, competitors, EverBee, eRank, internal workflow, source IDs, or project disclaimers. Do not include exact competitor titles or shop names. Do not claim handmade production, materials, shipping speed, production time, provider support, or fulfillment availability.
 
 batch_notes must be exactly "".
@@ -536,6 +549,7 @@ def response_schema(batch_id: str, count: int) -> Dict[str, Any]:
         "listing_candidate_id": {"type": "string"},
         "source_wf2_hypothesis_id": {"type": "string"},
         "source_global_candidate_id": {"type": "string"},
+        "required_surface_category": {"type": "string"},
         "strategic_direction_label": {"type": "string"},
         "target_buyer": {"type": "string"},
         "buyer_use_case": {"type": "string"},
@@ -622,6 +636,8 @@ def expected_ids_for(inputs: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
             "source_evidence_ids": item["source_evidence_ids"],
             "source_risk_flags": item["source_risk_flags"],
             "recommended_surface_status": item["recommended_surface_status"],
+            "required_surface_category": item.get("required_surface_category", ""),
+            "evidence_backed_surface_categories": item.get("evidence_backed_surface_categories", []),
         }
         for item in inputs
     ]
@@ -857,6 +873,12 @@ def validate_listing_response(response: Dict[str, Any], request_batch: Dict[str,
             errors.append(f"wrong_source_global_candidate_id:{source_id}")
         if candidate.get("listing_candidate_id") != expected["required_listing_candidate_id"]:
             errors.append(f"wrong_listing_candidate_id:{source_id}")
+        required_surface = clean(expected.get("required_surface_category"))
+        if required_surface:
+            if required_surface not in expected.get("evidence_backed_surface_categories", []):
+                errors.append(f"required_surface_not_evidence_backed:{source_id}")
+            if clean(candidate.get("recommended_surface_category")) != required_surface:
+                errors.append(f"recommended_surface_changed:{source_id}:{clean(candidate.get('recommended_surface_category'))}!={required_surface}")
         if candidate.get("surface_status") not in SURFACE_STATUS:
             errors.append(f"invalid_surface_status:{source_id}")
         if candidate.get("listing_readiness") not in LISTING_READINESS:
@@ -1265,13 +1287,13 @@ def input_rows(selected: Sequence[Dict[str, str]]) -> List[Dict[str, Any]]:
                 "wf2_hypothesis_id": row["wf2_hypothesis_id"],
                 "source_global_candidate_id": row["source_global_candidate_id"],
                 "required_listing_candidate_id": listing_candidate_id(row["source_global_candidate_id"]),
+                "required_surface_category": row.get("required_surface_category", ""),
                 "strategic_direction_label": row["strategic_direction_label"],
                 "target_buyer": row.get("primary_buyer", ""),
                 "buyer_use_case": row.get("buyer_use_case", ""),
                 "recommended_surface_status": surface_status_for(row),
                 "saturation_assessment": row.get("saturation_assessment", ""),
                 "operational_feasibility": row.get("operational_feasibility", ""),
-                "ip_policy_cultural_risk": row.get("ip_policy_cultural_risk", ""),
                 "source_evidence_ids": "|".join(parse_list_value(row.get("source_evidence_ids"))),
                 "source_risk_flags": "|".join(parse_list_value(row.get("source_risk_flags"))),
                 "canary_profile": row.get("canary_profile", ""),
@@ -1284,7 +1306,11 @@ def input_rows(selected: Sequence[Dict[str, str]]) -> List[Dict[str, Any]]:
 def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
     batch_dir = Path(args.batch_dir)
     source_rows, source_queue_sha256 = load_source_queue(batch_dir)
-    selection_mode = "priority_selected" if args.priority_selection_file else "canary"
+    if not args.priority_selection_file and not getattr(args, "diagnostic_canary", False):
+        raise WF3ListingCandidateError("priority_selection_file_required")
+    if not args.priority_selection_file and args.candidate_limit > 4:
+        raise WF3ListingCandidateError("diagnostic_canary_limit_exceeded")
+    selection_mode = "priority_selected" if args.priority_selection_file else "diagnostic_canary"
     priority_meta: Dict[str, Any] = {}
     if args.priority_selection_file:
         selected, priority_meta = select_priority_rows(batch_dir, source_rows, args.priority_selection_file)
@@ -1333,6 +1359,7 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
                     "canary_profile": item["canary_profile"],
                     "canary_selection_reason": item["canary_selection_reason"],
                     "required_listing_candidate_id": item["required_listing_candidate_id"],
+                    "required_surface_category": item.get("required_surface_category", ""),
                     "recommended_surface_status": item["recommended_surface_status"],
                     "batch_payload_byte_count": str(len(payload_text.encode("utf-8"))),
                     "approximate_input_tokens": str(max(1, len(payload_text.encode("utf-8")) // 4)),
@@ -1370,6 +1397,7 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
             "canary_profile",
             "canary_selection_reason",
             "required_listing_candidate_id",
+            "required_surface_category",
             "recommended_surface_status",
             "batch_payload_byte_count",
             "approximate_input_tokens",
@@ -1387,13 +1415,13 @@ def build_preflight_artifacts(args: argparse.Namespace) -> Dict[str, Any]:
             "wf2_hypothesis_id",
             "source_global_candidate_id",
             "required_listing_candidate_id",
+            "required_surface_category",
             "strategic_direction_label",
             "target_buyer",
             "buyer_use_case",
             "recommended_surface_status",
             "saturation_assessment",
             "operational_feasibility",
-            "ip_policy_cultural_risk",
             "source_evidence_ids",
             "source_risk_flags",
             "canary_profile",
@@ -1797,14 +1825,14 @@ def run_recover_raw(args: argparse.Namespace) -> Dict[str, Any]:
 def run_live(args: argparse.Namespace, urlopen=urllib.request.urlopen) -> Dict[str, Any]:
     if not args.confirm_live:
         raise SystemExit("--confirm-live is required for live")
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        raise SystemExit("OPENAI_API_KEY is required for live")
     batch_dir = Path(args.batch_dir)
     output_dir = output_dir_for_args(batch_dir, args)
     request_batches = load_request_batches(batch_dir, args)
     selected = select_request_batches(request_batches, args.batch_id or [])
     summary = base_operation_summary(args, selected)
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise SystemExit("OPENAI_API_KEY is required for live")
     errors: List[str] = []
     blockers = []
     if not args.overwrite:
@@ -1864,6 +1892,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--batch-id", action="append", default=[])
     parser.add_argument("--priority-selection-file", default="")
     parser.add_argument("--run-id", default="")
+    parser.add_argument("--diagnostic-canary", action="store_true")
     return parser.parse_args(argv)
 
 

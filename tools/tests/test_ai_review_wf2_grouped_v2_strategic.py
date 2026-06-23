@@ -292,14 +292,19 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
                     "redundancy_relationship": "standalone",
                     "duplicate_primary_hypothesis_id": "",
                     "strategic_direction_label": "Printable audience market direction",
-                    "primary_buyer": "Gift buyers and identity shoppers.",
-                    "buyer_use_case": "Giftable identity expression and everyday accessory use.",
-                    "provisional_surface_context": "Standard POD surface plausibility remains unverified and provisional.",
+                    "primary_buyer": "Cat rescue volunteers buying identity accessories.",
+                    "buyer_use_case": "Volunteers want everyday phone accessories that signal shelter pride during adoption events.",
+                    "provisional_surface_context": "Evidence-backed phone case surface remains provisional until fulfillment verification.",
+                    "evidence_backed_surface_categories": ["phone_case"],
+                    "surface_grounding_strength": "strong",
+                    "commercial_hook_strength": "strong",
+                    "commercial_hook_summary": "Cat rescue volunteers buy phone cases to show shelter pride during adoption events.",
+                    "aesthetic_only_direction": False,
+                    "saturation_escape_summary": "",
                     "evidence_strength_summary": "Multiple source evidence IDs indicate visible buyer interest.",
                     "differentiation_strength": "moderate",
                     "saturation_assessment": "uncertain",
                     "operational_feasibility": "standard_pod_plausible_unverified",
-                    "ip_policy_cultural_risk": "No unacceptable IP or policy risk is evident from the sanitized evidence.",
                     "missing_proof": "Provider catalog and originality checks remain unresolved before design.",
                     "next_validation_category": category,
                     "next_validation_detail": "Compare source evidence and review originality risk before any design work.",
@@ -379,6 +384,13 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
         properties = decision_schema["properties"]
         self.assertEqual(set(properties), set(strategic.DECISION_FIELDS))
         self.assertEqual(decision_schema["required"], strategic.DECISION_FIELDS)
+        self.assertNotIn("ip_policy_cultural_risk", properties)
+        self.assertNotIn("ip_policy_cultural_risk", decision_schema["required"])
+        self.assertNotIn("ip_policy_cultural_risk", strategic.TEXT_FIELDS)
+        self.assertNotIn("ip_trademark_review", properties["next_validation_category"]["enum"])
+        self.assertNotIn("policy_review", properties["next_validation_category"]["enum"])
+        self.assertNotIn("ip_trademark_review", strategic.NEXT_VALIDATION_CATEGORIES)
+        self.assertNotIn("policy_review", strategic.NEXT_VALIDATION_CATEGORIES)
         for obsolete in strategic.OBSOLETE_DECISION_FIELDS:
             self.assertNotIn(obsolete, properties)
         self.assertEqual(properties["operational_feasibility"]["enum"], sorted(strategic.OPERATIONAL_FEASIBILITY))
@@ -470,6 +482,36 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
         _, errors = strategic.validate_strategic_response(parsed, request)
 
         self.assertTrue(any("degenerate_all_targeted_validation" in error for error in errors), errors)
+
+    def test_strict_gate_rejects_generic_aesthetic_and_high_saturation_without_escape(self):
+        batch = self.make_batch(2)
+        request = self.request_for(batch)
+        parsed = self.valid_strategic_output(request)
+        for decision in parsed["decisions"]:
+            decision["strategic_decision"] = "advance_to_listing_strategy_input"
+            decision["next_validation_category"] = "none"
+        parsed["decisions"][0]["commercial_hook_summary"] = "Unique original artwork with a cohesive palette and giftable design."
+        parsed["decisions"][0]["aesthetic_only_direction"] = True
+        parsed["decisions"][1]["saturation_assessment"] = "high"
+        parsed["decisions"][1]["differentiation_strength"] = "moderate"
+        parsed["decisions"][1]["saturation_escape_summary"] = "Too generic."
+        _, errors = strategic.validate_strategic_response(parsed, request)
+        first_id = parsed["decisions"][0]["wf2_hypothesis_id"]
+        second_id = parsed["decisions"][1]["wf2_hypothesis_id"]
+        self.assertIn(f"aesthetic_only_cannot_advance:{first_id}", errors)
+        self.assertIn(f"generic_commercial_hook_cannot_advance:{first_id}", errors)
+        self.assertIn(f"high_saturation_requires_strong_escape:{second_id}", errors)
+        self.assertIn(f"moderate_differentiation_high_saturation_cannot_advance:{second_id}", errors)
+
+    def test_zero_advance_rows_are_allowed_when_all_rows_hold(self):
+        batch = self.make_batch(3)
+        request = self.request_for(batch)
+        parsed = self.valid_strategic_output(request)
+        for decision in parsed["decisions"]:
+            decision["strategic_decision"] = "hold"
+            decision["next_validation_category"] = "none"
+        _, errors = strategic.validate_strategic_response(parsed, request)
+        self.assertEqual([], errors)
 
     def test_duplicate_relationships_require_primary_and_no_self_or_cycles(self):
         batch = self.make_batch(3)
@@ -574,6 +616,170 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
         self.assertEqual(summary["listing_strategy_queue_count"], 1)
         self.assertEqual(summary["targeted_validation_queue_count"], 1)
 
+    def test_recover_raw_drops_deprecated_ip_policy_cultural_risk_and_preserves_raw(self):
+        batch = self.make_batch(2)
+        request = self.request_for(batch)
+        paths = strategic.output_paths(strategic.output_dir_for_batch(batch))
+        parsed = self.valid_strategic_output(request)
+        parsed["schema_version"] = "wf2_grouped_v2_global_strategic_review_v3_strict_quality_gate"
+        source_id = parsed["decisions"][0]["wf2_hypothesis_id"]
+        parsed["decisions"][0]["ip_policy_cultural_risk"] = "Low."
+        strategic.write_json_atomic(paths["raw"], self.raw_response(parsed))
+        raw_hash = strategic.sha256_file(paths["raw"])
+        raw_bytes = paths["raw"].read_bytes()
+
+        with mock.patch("urllib.request.urlopen") as urlopen:
+            summary = strategic.run_recover_raw(self.strategic_args(batch, mode="recover-raw"))
+
+        urlopen.assert_not_called()
+        self.assertEqual("ok", summary["status"])
+        self.assertEqual(1, summary["deprecated_fields_dropped"])
+        self.assertEqual(raw_hash, summary["raw_response_sha256"])
+        self.assertTrue(summary["raw_response_preserved_byte_for_byte"])
+        self.assertEqual(raw_hash, strategic.sha256_file(paths["raw"]))
+        self.assertEqual(raw_bytes, paths["raw"].read_bytes())
+        validated = strategic.read_json(paths["validated"])
+        self.assertEqual(strategic.SCHEMA_VERSION, validated["schema_version"])
+        self.assertNotIn("ip_policy_cultural_risk", validated["decisions"][0])
+        audit = strategic.read_json(paths["recovery_audit"])
+        self.assertEqual("ok", audit["final_validation_result"])
+        self.assertTrue(audit["raw_response_preserved_byte_for_byte"])
+        self.assertEqual(raw_hash, audit["raw_response_sha256"])
+        self.assertEqual(
+            {
+                "source_id": source_id,
+                "field": "ip_policy_cultural_risk",
+                "dropped_value": "Low.",
+                "reason": "deprecated_field_removed_from_wf2_wf3_contract",
+            },
+            audit["deprecated_fields_dropped"][0],
+        )
+        self.assertIn(
+            {
+                "field": "schema_version",
+                "before": "wf2_grouped_v2_global_strategic_review_v3_strict_quality_gate",
+                "after": strategic.SCHEMA_VERSION,
+                "reason": "recover_raw_contract_version_bump_without_model_field_changes",
+            },
+            audit["canonicalization_changes"],
+        )
+
+    def test_recover_raw_reclassifies_deprecated_validation_categories_and_preserves_raw(self):
+        batch = self.make_batch(4)
+        request = self.request_for(batch)
+        paths = strategic.output_paths(strategic.output_dir_for_batch(batch))
+        parsed = self.valid_strategic_output(request)
+        parsed["schema_version"] = "wf2_grouped_v2_global_strategic_review_v4_no_ip_policy_field"
+        rows = parsed["decisions"]
+        rows[0]["strategic_decision"] = "needs_targeted_validation"
+        rows[0]["next_validation_category"] = "policy_review"
+        rows[0]["missing_proof"] = "Policy-only review for wording tone."
+        rows[0]["next_validation_detail"] = "Review wording tone before launch."
+
+        rows[1]["strategic_decision"] = "needs_targeted_validation"
+        rows[1]["next_validation_category"] = "ip_trademark_review"
+        rows[1]["commercial_hook_strength"] = "moderate"
+        rows[1]["missing_proof"] = "Trademark review only."
+        rows[1]["next_validation_detail"] = "Review phrase territory only."
+
+        rows[2]["strategic_decision"] = "needs_targeted_validation"
+        rows[2]["next_validation_category"] = "policy_review"
+        rows[2]["commercial_hook_strength"] = "moderate"
+        rows[2]["missing_proof"] = "Print-resolution tests for texture fidelity."
+        rows[2]["next_validation_detail"] = "Test minimum texture line weights and color retention."
+
+        rows[3]["strategic_decision"] = "hold"
+        rows[3]["next_validation_category"] = "ip_trademark_review"
+        rows[3]["differentiation_strength"] = "weak"
+        rows[3]["missing_proof"] = "Trademark review only."
+        rows[3]["next_validation_detail"] = "Review phrase territory only."
+
+        strategic.write_json_atomic(paths["raw"], self.raw_response(parsed))
+        raw_hash = strategic.sha256_file(paths["raw"])
+        raw_bytes = paths["raw"].read_bytes()
+
+        with mock.patch("urllib.request.urlopen") as urlopen:
+            summary = strategic.run_recover_raw(self.strategic_args(batch, mode="recover-raw"))
+
+        urlopen.assert_not_called()
+        self.assertEqual("ok", summary["status"])
+        self.assertEqual(raw_hash, summary["raw_response_sha256"])
+        self.assertEqual(raw_bytes, paths["raw"].read_bytes())
+        self.assertTrue(summary["raw_response_preserved_byte_for_byte"])
+        self.assertEqual(4, summary["reclassification_count"])
+        self.assertEqual(1, summary["advance_count"])
+        self.assertEqual(1, summary["targeted_validation_count"])
+        self.assertEqual(2, summary["hold_count"])
+        validated = strategic.read_json(paths["validated"])
+        by_id = {row["wf2_hypothesis_id"]: row for row in validated["decisions"]}
+        self.assertEqual("advance_to_listing_strategy_input", by_id[rows[0]["wf2_hypothesis_id"]]["strategic_decision"])
+        self.assertEqual("none", by_id[rows[0]["wf2_hypothesis_id"]]["next_validation_category"])
+        self.assertEqual("hold", by_id[rows[1]["wf2_hypothesis_id"]]["strategic_decision"])
+        self.assertEqual("none", by_id[rows[1]["wf2_hypothesis_id"]]["next_validation_category"])
+        self.assertEqual("needs_targeted_validation", by_id[rows[2]["wf2_hypothesis_id"]]["strategic_decision"])
+        self.assertEqual("technical_requirements_research", by_id[rows[2]["wf2_hypothesis_id"]]["next_validation_category"])
+        self.assertEqual("hold", by_id[rows[3]["wf2_hypothesis_id"]]["strategic_decision"])
+        self.assertEqual("none", by_id[rows[3]["wf2_hypothesis_id"]]["next_validation_category"])
+        self.assertFalse(any(row["next_validation_category"] in strategic.DEPRECATED_VALIDATION_CATEGORIES for row in validated["decisions"]))
+        audit = strategic.read_json(paths["reclassification_audit"])
+        self.assertEqual(4, audit["reclassification_count"])
+        self.assertEqual(["ip_trademark_review", "policy_review"], audit["deprecated_validation_categories_removed"])
+
+    def test_recover_raw_without_deprecated_field_writes_no_recovery_audit(self):
+        batch = self.make_batch(2)
+        request = self.request_for(batch)
+        paths = strategic.output_paths(strategic.output_dir_for_batch(batch))
+        parsed = self.valid_strategic_output(request)
+        strategic.write_json_atomic(paths["raw"], self.raw_response(parsed))
+
+        with mock.patch("urllib.request.urlopen") as urlopen:
+            summary = strategic.run_recover_raw(self.strategic_args(batch, mode="recover-raw"))
+
+        urlopen.assert_not_called()
+        self.assertEqual("ok", summary["status"])
+        self.assertEqual(0, summary["deprecated_fields_dropped"])
+        validated = strategic.read_json(paths["validated"])
+        self.assertNotIn("ip_policy_cultural_risk", validated["decisions"][0])
+        self.assertFalse(paths["recovery_audit"].exists())
+
+    def test_recover_raw_other_blank_substantive_field_still_fails(self):
+        batch = self.make_batch(2)
+        request = self.request_for(batch)
+        paths = strategic.output_paths(strategic.output_dir_for_batch(batch))
+        parsed = self.valid_strategic_output(request)
+        source_id = parsed["decisions"][0]["wf2_hypothesis_id"]
+        parsed["decisions"][0]["primary_buyer"] = ""
+        strategic.write_json_atomic(paths["raw"], self.raw_response(parsed))
+
+        with mock.patch("urllib.request.urlopen") as urlopen:
+            summary = strategic.run_recover_raw(self.strategic_args(batch, mode="recover-raw"))
+
+        urlopen.assert_not_called()
+        self.assertEqual("failed", summary["status"])
+        self.assertEqual(0, summary["deprecated_fields_dropped"])
+        self.assertIn(f"blank_substantive_field:{source_id}:primary_buyer", summary["errors"])
+        self.assertFalse(paths["validated"].exists())
+
+    def test_recover_raw_multiple_validation_errors_fail_closed_without_recovery(self):
+        batch = self.make_batch(2)
+        request = self.request_for(batch)
+        paths = strategic.output_paths(strategic.output_dir_for_batch(batch))
+        parsed = self.valid_strategic_output(request)
+        source_id = parsed["decisions"][0]["wf2_hypothesis_id"]
+        parsed["decisions"][0]["primary_buyer"] = ""
+        parsed["decisions"][0]["unexpected_extra"] = "not allowed"
+        strategic.write_json_atomic(paths["raw"], self.raw_response(parsed))
+
+        with mock.patch("urllib.request.urlopen") as urlopen:
+            summary = strategic.run_recover_raw(self.strategic_args(batch, mode="recover-raw"))
+
+        urlopen.assert_not_called()
+        self.assertEqual("failed", summary["status"])
+        self.assertEqual(0, summary["deprecated_fields_dropped"])
+        self.assertTrue(any("extra:unexpected_extra" in error for error in summary["errors"]), summary["errors"])
+        self.assertIn(f"blank_substantive_field:{source_id}:primary_buyer", summary["errors"])
+        self.assertFalse(paths["validated"].exists())
+
     def test_materialized_queue_membership_and_summary_counts(self):
         batch = self.make_batch(4)
         request = self.request_for(batch)
@@ -600,6 +806,9 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
         self.assertEqual(summary["targeted_validation_count"], 1)
         self.assertEqual(summary["hold_count"], 1)
         self.assertEqual(summary["reject_count"], 1)
+        self.assertNotIn("ip_policy_cultural_risk", decisions_rows[0])
+        self.assertNotIn("ip_policy_cultural_risk", listing_rows[0])
+        self.assertNotIn("ip_policy_cultural_risk", targeted_rows[0])
 
     def test_missing_fields_fail_before_derivative_outputs(self):
         batch = self.make_batch(1)
@@ -694,10 +903,12 @@ class WF2GroupedV2StrategicTests(unittest.TestCase):
         self.assertIn(summary["status"], {"ok", "failed"})
         if summary["status"] == "ok":
             self.assertEqual(summary["validated_decision_count"], 45)
-            self.assertEqual(summary["advance_count"], 28)
-            self.assertEqual(summary["targeted_validation_count"], 17)
-            self.assertEqual(summary["listing_strategy_queue_count"], 28)
-            self.assertEqual(summary["targeted_validation_queue_count"], 17)
+            self.assertEqual(summary["advance_count"], 2)
+            self.assertEqual(summary["targeted_validation_count"], 7)
+            self.assertEqual(summary["hold_count"], 36)
+            self.assertEqual(summary["reject_count"], 0)
+            self.assertEqual(summary["listing_strategy_queue_count"], 2)
+            self.assertEqual(summary["targeted_validation_queue_count"], 7)
         else:
             self.assertTrue(summary["errors"])
         self.assertFalse(summary["api_calls_made"])

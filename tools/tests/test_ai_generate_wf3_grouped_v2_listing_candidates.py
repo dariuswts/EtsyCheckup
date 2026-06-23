@@ -42,10 +42,18 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         use_case="A clear buyer use case for a printable item.",
         saturation="moderate",
         feasibility="standard_pod_plausible_unverified",
-        ip_risk="Low IP risk with original artwork.",
         risks="[]",
         surface="Provisional: printable phone cases; exact surfaces to be verified.",
+        surface_category="phone_case",
+        differentiation="moderate",
+        surface_grounding="strong",
+        hook_strength="strong",
+        aesthetic_only=False,
+        saturation_escape=None,
     ):
+        if saturation == "high" and saturation_escape is None:
+            differentiation = "strong"
+            saturation_escape = "Specific buyer occasion and underused surface evidence separate this row from broad saturated motifs."
         return {
             "wf2_hypothesis_id": f"wf2hyp_v2_gc_test_{suffix}",
             "source_global_candidate_id": f"gc_test_{suffix}",
@@ -57,11 +65,16 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
             "primary_buyer": buyer,
             "buyer_use_case": use_case,
             "provisional_surface_context": surface,
+            "evidence_backed_surface_categories": f"['{surface_category}']",
+            "surface_grounding_strength": surface_grounding,
+            "commercial_hook_strength": hook_strength,
+            "commercial_hook_summary": "Cat rescue volunteers buy phone cases to show shelter pride during adoption events.",
+            "aesthetic_only_direction": str(aesthetic_only),
+            "saturation_escape_summary": saturation_escape or "",
             "evidence_strength_summary": "Multiple source signals support a cautious listing candidate.",
-            "differentiation_strength": "moderate",
+            "differentiation_strength": differentiation,
             "saturation_assessment": saturation,
             "operational_feasibility": feasibility,
-            "ip_policy_cultural_risk": ip_risk,
             "missing_proof": "Provider catalog and originality checks remain pending.",
             "next_validation_category": "none",
             "next_validation_detail": "Human review should happen before design generation.",
@@ -86,7 +99,6 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
                 "002",
                 "Humorous wine sayings for kitchen decor",
                 saturation="high",
-                ip_risk="Moderate phrase/IP overlap is common; wording must be cleared.",
                 risks="['trademarked_phrase_risk']",
                 surface="Provisional: printable wall art and tea towels; exact surfaces to be verified.",
             ),
@@ -95,7 +107,6 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
                 "Coastal bachelorette badge and club typography",
                 buyer="Bachelorette planners and bridal parties.",
                 use_case="Groups may want coordinated trip items with club-style identifiers.",
-                ip_risk="Moderate phrase risk; avoid protected event and location phrases.",
                 surface="Provisional: printable apparel and small accessories; exact surfaces to be verified.",
             ),
             self.make_row(
@@ -104,7 +115,6 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
                 buyer="Buyers expressing American Mexican heritage.",
                 use_case="Heritage-pride buyers may want respectful national-color apparel.",
                 saturation="high",
-                ip_risk="Moderate cultural sensitivity; ensure respectful flag usage and policy compliance.",
                 surface="Provisional: flat-printed apparel; exact surfaces to be verified.",
             ),
             self.make_row("001", "Wine and culinary still-life wall art for kitchens"),
@@ -118,27 +128,28 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.write_csv(source_path, list(rows[0]), rows)
         return batch, rows
 
-    def args(self, batch, mode="preflight", candidate_limit=4, batch_size=2):
-        return listing.parse_args(
-            [
-                "--mode",
-                mode,
-                "--batch-dir",
-                str(batch),
-                "--candidate-limit",
-                str(candidate_limit),
-                "--batch-size",
-                str(batch_size),
-                "--model",
-                "gpt-5",
-                "--reasoning-effort",
-                "low",
-                "--max-output-tokens",
-                "16000",
-                "--request-timeout-seconds",
-                "600",
-            ]
-        )
+    def args(self, batch, mode="preflight", candidate_limit=4, batch_size=2, diagnostic_canary=True):
+        argv = [
+            "--mode",
+            mode,
+            "--batch-dir",
+            str(batch),
+            "--candidate-limit",
+            str(candidate_limit),
+            "--batch-size",
+            str(batch_size),
+            "--model",
+            "gpt-5",
+            "--reasoning-effort",
+            "low",
+            "--max-output-tokens",
+            "16000",
+            "--request-timeout-seconds",
+            "600",
+        ]
+        if diagnostic_canary:
+            argv.append("--diagnostic-canary")
+        return listing.parse_args(argv)
 
     def valid_model_output(self, request_batch):
         candidates = []
@@ -149,10 +160,11 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
                     "listing_candidate_id": expected["required_listing_candidate_id"],
                     "source_wf2_hypothesis_id": expected["source_wf2_hypothesis_id"],
                     "source_global_candidate_id": expected["source_global_candidate_id"],
+                    "required_surface_category": expected["required_surface_category"],
                     "strategic_direction_label": "Coastal printable direction",
                     "target_buyer": "Gift buyers who like coastal style.",
                     "buyer_use_case": "Everyday gifting for a buyer who wants an expressive printable item.",
-                    "recommended_surface_category": "Printable phone case or flat gift surface pending verification.",
+                    "recommended_surface_category": expected["required_surface_category"],
                     "surface_status": expected["recommended_surface_status"],
                     "product_configuration_direction": "Flat printed layout with readable central type and supporting motifs.",
                     "selected_design_text": text,
@@ -228,8 +240,8 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         legacy["request_contract_sha256"] = listing.request_contract_hash(legacy)
         return legacy
 
-    def write_payload(self, batch, requests):
-        payload_path = listing.output_dir_for_batch(batch) / listing.PAYLOAD_JSONL
+    def write_payload(self, batch, requests, output_dir=None):
+        payload_path = (output_dir or listing.output_dir_for_batch(batch)) / listing.PAYLOAD_JSONL
         payload_path.write_text("\n".join(json.dumps(request, sort_keys=True) for request in requests) + "\n", encoding="utf-8")
 
     def test_active_batch_discovers_exactly_28_advanced_rows(self):
@@ -269,11 +281,19 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertEqual(4, summary["canary_count"])
         self.assertEqual([2, 2], [row["input_count"] for row in summary["batch_manifest"]])
         self.assertEqual(2, summary["expected_live_call_count"])
-        output = listing.output_dir_for_batch(batch)
+        output = listing.output_dir_for_args(batch, self.args(batch))
         self.assertTrue((output / listing.SOURCE_AUDIT_CSV).exists())
         self.assertTrue((output / listing.CANARY_MANIFEST_CSV).exists())
         self.assertTrue((output / listing.PAYLOAD_JSONL).exists())
         self.assertFalse((output / "live_outputs").exists())
+
+    def test_production_preflight_requires_priority_file_and_diagnostic_limit_is_small(self):
+        batch, _ = self.make_batch()
+        with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            with self.assertRaisesRegex(listing.WF3ListingCandidateError, "priority_selection_file_required"):
+                listing.run_preflight(self.args(batch, candidate_limit=4, diagnostic_canary=False))
+            with self.assertRaisesRegex(listing.WF3ListingCandidateError, "diagnostic_canary_limit_exceeded"):
+                listing.run_preflight(self.args(batch, candidate_limit=28, diagnostic_canary=True))
 
     def test_schema_is_strict_and_requires_candidate_fields(self):
         schema = listing.response_schema("batch_x", 2)
@@ -304,6 +324,17 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         self.assertEqual("", parsed["batch_notes"])
         _, errors = listing.validate_listing_response(parsed, request)
         self.assertEqual([], errors)
+
+    def test_model_cannot_change_locked_required_surface(self):
+        batch, _ = self.make_batch()
+        listing.run_preflight(self.args(batch, candidate_limit=2, batch_size=2))
+        request = self.load_request_batches(batch, self.args(batch, candidate_limit=2, batch_size=2))[0]
+        parsed = self.valid_model_output(request)
+        source_id = parsed["listing_candidates"][0]["source_wf2_hypothesis_id"]
+        parsed["listing_candidates"][0]["recommended_surface_category"] = "throw_blanket"
+        _, errors = listing.validate_listing_response(parsed, request)
+        self.assertIn(f"recommended_surface_changed:{source_id}:throw_blanket!=phone_case", errors)
+
 
     def test_validation_rejects_tag_count_duplicate_internal_language_and_claims(self):
         batch, _ = self.make_batch()
@@ -494,7 +525,8 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         parsed["listing_candidates"][0]["mockup_photo_plan"] = "Use a later neutral product mockup photo plan after approval."
         original["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"]
         original["listing_candidates"][0]["mockup_photo_plan"] = parsed["listing_candidates"][0]["mockup_photo_plan"]
-        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        output_dir = listing.output_dir_for_args(batch, args)
+        paths = listing.output_paths(output_dir, request["batch_id"])
         listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
         raw_bytes_before = paths["raw"].read_bytes()
         with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
@@ -525,14 +557,15 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         listing.run_preflight(args)
         original_request = self.load_request_batches(batch, args)[0]
         legacy_request = self.legacy_request_payload(original_request)
-        self.write_payload(batch, [legacy_request])
+        output_dir = listing.output_dir_for_args(batch, args)
+        self.write_payload(batch, [legacy_request], output_dir=output_dir)
         request = self.load_request_batches(batch, args)[0]
         parsed = self.valid_model_output(request)
         parsed["batch_notes"] = "Concrete draft candidates for WF3 review."
         parsed["listing_candidates"][0]["ideogram_prompt"] = parsed["listing_candidates"][0]["ideogram_prompt"].replace(
             '"Moonlit Coast Club"', "\u201cMoonlit Coast Club\u201d"
         )
-        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        paths = listing.output_paths(output_dir, request["batch_id"])
         listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
         raw_bytes_before = paths["raw"].read_bytes()
         with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
@@ -560,10 +593,11 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         listing.run_preflight(args)
         request_a, request_b = self.load_request_batches(batch, args)
         legacy_a = self.legacy_request_payload(request_a)
-        self.write_payload(batch, [legacy_a, request_b])
+        output_dir = listing.output_dir_for_args(batch, args)
+        self.write_payload(batch, [legacy_a, request_b], output_dir=output_dir)
         mixed_requests = self.load_request_batches(batch, args)
         for request in mixed_requests:
-            paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+            paths = listing.output_paths(output_dir, request["batch_id"])
             parsed = self.valid_model_output(request)
             parsed["batch_notes"] = "Concrete draft candidates for WF3 review." if request is mixed_requests[0] else ""
             listing.write_json_atomic(paths["raw"], self.completed_response(parsed))
@@ -588,7 +622,8 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
 
         with mock.patch.dict("os.environ", {"OPENAI_API_KEY": "test-key"}):
             summary = listing.run_live(args, urlopen=fake_urlopen)
-        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        output_dir = listing.output_dir_for_args(batch, args)
+        paths = listing.output_paths(output_dir, request["batch_id"])
         self.assertTrue(paths["raw"].exists())
         self.assertTrue(paths["error"].exists())
         self.assertEqual("failed", summary["status"])
@@ -598,15 +633,16 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         args = self.args(batch, mode="recover-raw", candidate_limit=2, batch_size=2)
         listing.run_preflight(args)
         request = self.load_request_batches(batch, args)[0]
-        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        output_dir = listing.output_dir_for_args(batch, args)
+        paths = listing.output_paths(output_dir, request["batch_id"])
         listing.write_json_atomic(paths["raw"], self.completed_response(self.valid_model_output(request)))
         with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
             summary = listing.run_recover_raw(args)
         self.assertEqual("ok", summary["status"])
         self.assertFalse(summary["api_calls_made"])
         self.assertTrue(paths["validated"].exists())
-        self.assertTrue((listing.output_dir_for_batch(batch) / "live_outputs" / listing.LIVE_CSV).exists())
-        review_queue = listing.output_dir_for_batch(batch) / "live_outputs" / listing.LIVE_REVIEW_QUEUE_CSV
+        self.assertTrue((output_dir / "live_outputs" / listing.LIVE_CSV).exists())
+        review_queue = output_dir / "live_outputs" / listing.LIVE_REVIEW_QUEUE_CSV
         with review_queue.open("r", encoding="utf-8-sig", newline="") as handle:
             self.assertEqual(["listing_approved"], [field for field in csv.DictReader(handle).fieldnames if field == "listing_approved"])
 
@@ -615,13 +651,14 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         args = self.args(batch, mode="recover-raw", candidate_limit=2, batch_size=2)
         listing.run_preflight(args)
         request = self.load_request_batches(batch, args)[0]
-        paths = listing.output_paths(listing.output_dir_for_batch(batch), request["batch_id"])
+        output_dir = listing.output_dir_for_args(batch, args)
+        paths = listing.output_paths(output_dir, request["batch_id"])
         listing.write_json_atomic(paths["raw"], self.completed_response(self.valid_model_output(request)))
         listing.run_recover_raw(args)
         changed_request = dict(request)
         changed_request["model_configuration"] = dict(request["model_configuration"])
         changed_request["model_configuration"]["model"] = "gpt-test-different"
-        errors = listing.current_validation_errors(changed_request, listing.output_dir_for_batch(batch))
+        errors = listing.current_validation_errors(changed_request, output_dir)
         self.assertTrue(any("stale_validated_batch_meta_mismatch" in error for error in errors))
 
     def priority_args(self, batch, priority_file, run_id="priority_test", mode="preflight"):
@@ -647,6 +684,7 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         held = [row["source_wf2_hypothesis_id"] for row in expected[selected_count + alternate_count :]]
         details = []
         for index, expected_row in enumerate(expected, start=1):
+            surface = expected_row["evidence_backed_surface_categories"][0]
             details.append(
                 {
                     "source_wf2_hypothesis_id": expected_row["source_wf2_hypothesis_id"],
@@ -654,7 +692,10 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
                     "selection_reason": "Strong priority for the first cautious WF3 batch.",
                     "strongest_support": "Buyer clarity and surface context are directionally strong.",
                     "primary_risk": "Provider and originality checks remain pending.",
-                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "recommended_surface_category": surface,
+                    "surface_grounding_basis": "The WF2 evidence-backed surface category explicitly names this surface.",
+                    "commercial_case_summary": "The buyer and event use case create a concrete purchase reason.",
+                    "selection_blockers": [] if index <= selected_count + alternate_count else ["lower_priority_than_selected_rows"],
                     "overlap_group": f"group-{index}",
                     "exact_competitor_titles_excluded": True,
                     "shop_names_excluded": True,
@@ -711,6 +752,27 @@ class WF3GroupedV2ListingCandidateTests(unittest.TestCase):
         output_dir = listing.output_dir_for_args(batch, args)
         self.assertTrue((output_dir / listing.PAYLOAD_JSONL).exists())
         self.assertFalse((listing.output_dir_for_batch(batch) / listing.PAYLOAD_JSONL).exists())
+
+    def test_priority_selection_ungrounded_surface_fails_before_network(self):
+        batch, rows = self.make_batch(count=2)
+        decision = {
+            "source_wf2_hypothesis_id": rows[0]["wf2_hypothesis_id"],
+            "source_global_candidate_id": rows[0]["source_global_candidate_id"],
+            "strategic_direction_label": rows[0]["strategic_direction_label"],
+            "priority_rank": 1,
+            "selection_status": "selected_first_batch",
+            "selection_reason": "Selected for test.",
+            "recommended_surface_category": "throw_blanket",
+            "surface_grounding_basis": "Not actually backed.",
+            "commercial_case_summary": "Test case.",
+        }
+        with mock.patch.object(listing.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            with mock.patch(
+                "tools.ai_prefilter_wf3_grouped_v2_listing_strategies.load_validated_priority_selection",
+                return_value=([decision], {"source": "mocked"}),
+            ):
+                with self.assertRaisesRegex(listing.WF3ListingCandidateError, "priority_selection_surface_not_evidence_backed"):
+                    listing.run_preflight(self.priority_args(batch, "mocked_selected.csv"))
 
     def test_priority_selection_rejects_stale_or_manual_edited_selection_file(self):
         batch, _ = self.make_batch(count=8)

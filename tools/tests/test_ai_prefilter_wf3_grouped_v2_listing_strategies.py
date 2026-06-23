@@ -33,7 +33,22 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
-    def make_row(self, suffix, label, saturation="moderate", feasibility="standard_pod_plausible_unverified"):
+    def make_row(
+        self,
+        suffix,
+        label,
+        saturation="moderate",
+        feasibility="standard_pod_plausible_unverified",
+        surface_category="phone_case",
+        differentiation="moderate",
+        surface_grounding="strong",
+        hook_strength="strong",
+        aesthetic_only=False,
+        saturation_escape=None,
+    ):
+        if saturation == "high" and saturation_escape is None:
+            differentiation = "strong"
+            saturation_escape = "Specific buyer occasion and underused surface evidence separate this row from broad saturated motifs."
         return {
             "wf2_hypothesis_id": f"wf2hyp_v2_gc_test_{suffix}",
             "source_global_candidate_id": f"gc_test_{suffix}",
@@ -42,14 +57,19 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
             "redundancy_relationship": "standalone",
             "duplicate_primary_hypothesis_id": "",
             "strategic_direction_label": label,
-            "primary_buyer": "Gift buyers.",
-            "buyer_use_case": "A clear buyer use case.",
-            "provisional_surface_context": "Provisional flat POD surface pending verification.",
+            "primary_buyer": "Cat rescue volunteers buying identity accessories.",
+            "buyer_use_case": "Volunteers want everyday phone accessories that signal shelter pride during adoption events.",
+            "provisional_surface_context": "Evidence-backed phone case surface pending fulfillment verification.",
+            "evidence_backed_surface_categories": f"['{surface_category}']",
+            "surface_grounding_strength": surface_grounding,
+            "commercial_hook_strength": hook_strength,
+            "commercial_hook_summary": "Cat rescue volunteers buy phone cases to show shelter pride during adoption events.",
+            "aesthetic_only_direction": str(aesthetic_only),
+            "saturation_escape_summary": saturation_escape or "",
             "evidence_strength_summary": "Directional marketplace evidence supports review.",
-            "differentiation_strength": "moderate",
+            "differentiation_strength": differentiation,
             "saturation_assessment": saturation,
             "operational_feasibility": feasibility,
-            "ip_policy_cultural_risk": "Low IP risk with original artwork.",
             "missing_proof": "Provider and originality checks remain pending.",
             "next_validation_category": "none",
             "next_validation_detail": "Human review before design generation.",
@@ -106,6 +126,7 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         held = [row["source_wf2_hypothesis_id"] for row in expected[selected_count + alternate_count :]]
         details = []
         for index, row in enumerate(expected, start=1):
+            surface = row["evidence_backed_surface_categories"][0]
             details.append(
                 {
                     "source_wf2_hypothesis_id": row["source_wf2_hypothesis_id"],
@@ -113,7 +134,10 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
                     "selection_reason": "Strongest directional fit for cautious WF3 follow-up.",
                     "strongest_support": "Buyer and surface signals are directionally clear.",
                     "primary_risk": "Provider and originality checks remain unverified.",
-                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "recommended_surface_category": surface,
+                    "surface_grounding_basis": "The WF2 evidence-backed surface category explicitly names this surface.",
+                    "commercial_case_summary": "The buyer and event use case create a concrete purchase reason.",
+                    "selection_blockers": [] if index <= selected_count + alternate_count else ["lower_priority_than_selected_rows"],
                     "overlap_group": f"group-{index}",
                     "exact_competitor_titles_excluded": True,
                     "shop_names_excluded": True,
@@ -138,13 +162,14 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         held = [row["source_global_candidate_id"] for row in held_source]
         details = []
         for index, row in enumerate(expected, start=1):
+            surface = row["evidence_backed_surface_categories"][0]
             details.append(
                 {
                     "source_wf2_hypothesis_id": row["source_wf2_hypothesis_id"],
                     "selection_reason": "Queue after validation; held for later review." if index > selected_count + alternate_count else "Strong candidate.",
                     "strongest_support": "Directional evidence is present.",
                     "primary_risk": "Provider and originality checks remain pending.",
-                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "recommended_surface_category": surface,
                     "overlap_group": f"group-{index}",
                     "exact_competitor_titles_excluded": True,
                     "shop_names_excluded": True,
@@ -178,8 +203,11 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
                     "selection_reason": "Strongest directional fit for cautious WF3 follow-up.",
                     "strongest_support": "Buyer and surface signals are directionally clear.",
                     "primary_risk": "Provider and originality checks remain unverified.",
-                    "recommended_surface_category": "Flat POD surface pending verification.",
+                    "recommended_surface_category": expected["evidence_backed_surface_categories"][0],
+                    "surface_grounding_basis": "Recovered ranked response keeps the evidence-backed surface.",
+                    "commercial_case_summary": "The buyer and event use case create a concrete purchase reason.",
                     "overlap_group": f"group-{index}",
+                    "selection_blockers": [] if status != "held_for_later" else ["lower_priority_than_selected_rows"],
                     "source_evidence_ids": expected["source_evidence_ids"],
                     "exact_competitor_titles_excluded": True,
                     "shop_names_excluded": True,
@@ -191,16 +219,15 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
     def completed_response(self, parsed):
         return {"output": [{"content": [{"type": "output_text", "text": json.dumps(parsed)}]}]}
 
-    def test_active_batch_has_28_rows_and_preflight_is_one_compact_request(self):
-        rows, _ = prefilter.load_source_queue(ACTIVE_BATCH)
-        self.assertEqual(28, len(rows))
+    def test_active_batch_old_queue_fails_closed_until_corrected_wf2_review(self):
         with mock.patch.object(prefilter.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
-            summary = prefilter.run_preflight(self.args(ACTIVE_BATCH))
-        self.assertEqual(28, summary["source_queue_count"])
-        self.assertEqual(1, summary["expected_live_call_count"])
-        self.assertFalse(summary["api_calls_made"])
-        request = prefilter.read_json(prefilter.output_dir_for_batch(ACTIVE_BATCH) / prefilter.PAYLOAD_JSON)
-        self.assertEqual(28, len(request["inputs"]))
+            try:
+                summary = prefilter.run_preflight(self.args(ACTIVE_BATCH))
+            except prefilter.WF3PriorityPrefilterError as exc:
+                self.assertRegex(str(exc), "source_row_fails_quality_gate|empty_source_queue")
+            else:
+                self.assertFalse(summary["api_calls_made"])
+                self.assertFalse(summary["network_calls_made"])
 
     def test_preflight_is_deterministic_and_row_order_independent(self):
         batch_a, _ = self.make_batch(reversed_rows=False)
@@ -210,6 +237,49 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         req_a = prefilter.read_json(prefilter.output_dir_for_batch(batch_a) / prefilter.PAYLOAD_JSON)
         req_b = prefilter.read_json(prefilter.output_dir_for_batch(batch_b) / prefilter.PAYLOAD_JSON)
         self.assertEqual([row["source_wf2_hypothesis_id"] for row in req_a["inputs"]], [row["source_wf2_hypothesis_id"] for row in req_b["inputs"]])
+
+    def test_preflight_inputs_do_not_expose_deprecated_ip_policy_field(self):
+        batch, rows = self.make_batch(count=3)
+        for row in rows:
+            row["ip_policy_cultural_risk"] = "Deprecated legacy value."
+        self.write_csv(prefilter.source_queue_path(batch), list(rows[0]), rows)
+
+        with mock.patch.object(prefilter.urllib.request, "urlopen", side_effect=AssertionError("network not allowed")):
+            prefilter.run_preflight(self.args(batch, selection_limit=2, alternate_limit=1))
+
+        output_dir = prefilter.output_dir_for_batch(batch)
+        request = prefilter.read_json(output_dir / prefilter.PAYLOAD_JSON)
+        self.assertNotIn("ip_policy_cultural_risk", request["inputs"][0])
+        self.assertNotIn("ip_policy_cultural_risk", request["expected_source_ids"][0])
+        with (output_dir / prefilter.INPUT_CSV).open("r", encoding="utf-8", newline="") as handle:
+            self.assertNotIn("ip_policy_cultural_risk", csv.DictReader(handle).fieldnames)
+
+    def test_prompt_uses_commercial_considerations_without_ip_policy_risk_language(self):
+        prompt = prefilter.prompt_text(selection_limit=5, alternate_limit=3)
+        forbidden = [
+            "IP risk",
+            "trademark risk",
+            "policy risk",
+            "cultural risk",
+            "IP-safe language",
+            "trademark clearance",
+            "policy compliance",
+        ]
+        for phrase in forbidden:
+            self.assertNotIn(phrase.lower(), prompt.lower())
+        for phrase in [
+            "originality and differentiation",
+            "generic gift-for-her/him messaging",
+            "specific buyer identity",
+            "specific purchase motivation or occasion",
+            "evidence-backed surface suitability",
+            "production feasibility",
+            "cross-surface consistency",
+            "text/icon legibility",
+            "saturation escape",
+            "commercial positioning",
+        ]:
+            self.assertIn(phrase, prompt)
 
     def test_schema_is_strict_and_output_has_no_listing_fields(self):
         schema = prefilter.response_schema(2, selection_limit=1, alternate_limit=1)
@@ -255,9 +325,32 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         request = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
         ok, errors = prefilter.validate_priority_response(self.valid_response(request, selected_count=1, alternate_count=1), request)
         self.assertTrue(ok)
+        ok, errors = prefilter.validate_priority_response(self.valid_response(request, selected_count=0, alternate_count=1), request)
+        self.assertTrue(ok)
         too_many = self.valid_response(request, selected_count=3, alternate_count=1)
         _, errors = prefilter.validate_priority_response(too_many, request)
         self.assertIn("too_many_selected_first_batch:3>2", errors)
+
+    def test_quality_gate_blocks_generic_aesthetic_and_high_saturation_rows_before_selection(self):
+        batch, rows = self.make_batch(count=2)
+        rows[0]["aesthetic_only_direction"] = "True"
+        rows[0]["commercial_hook_summary"] = "Unique original artwork with cohesive colorways."
+        rows[1]["saturation_assessment"] = "high"
+        rows[1]["differentiation_strength"] = "moderate"
+        rows[1]["saturation_escape_summary"] = "Too generic."
+        self.write_csv(prefilter.source_queue_path(batch), list(rows[0]), rows)
+        with self.assertRaisesRegex(prefilter.WF3PriorityPrefilterError, "aesthetic_only|high_saturation_without_escape"):
+            prefilter.run_preflight(self.args(batch, selection_limit=1, alternate_limit=1))
+
+    def test_selected_surface_must_be_evidence_backed(self):
+        batch, _ = self.make_batch(count=3)
+        prefilter.run_preflight(self.args(batch, selection_limit=1, alternate_limit=1))
+        request = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
+        parsed = self.valid_response(request, selected_count=1, alternate_count=1)
+        parsed["decision_details"][0]["recommended_surface_category"] = "throw_blanket"
+        _, errors = prefilter.validate_priority_response(parsed, request)
+        source_id = parsed["decision_details"][0]["source_wf2_hypothesis_id"]
+        self.assertIn(f"recommended_surface_not_evidence_backed:{source_id}:throw_blanket", errors)
 
     def test_missing_extra_duplicate_altered_ids_fail(self):
         batch, _ = self.make_batch(count=4)
@@ -285,7 +378,7 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         self.assertTrue(any(error.startswith("schema_enum:$.selected_first_batch_wf2_hypothesis_ids[0]") for error in errors))
         self.assertTrue(any(error.startswith("unknown_source_id_in_ordered_arrays:") for error in errors))
 
-    def test_local_deterministic_rank_construction_and_overlap_group_validation(self):
+    def test_local_deterministic_rank_construction_does_not_force_diversity(self):
         batch, _ = self.make_batch(count=4)
         prefilter.run_preflight(self.args(batch))
         request = prefilter.read_json(prefilter.output_dir_for_batch(batch) / prefilter.PAYLOAD_JSON)
@@ -297,7 +390,7 @@ class WF3PriorityPrefilterTests(unittest.TestCase):
         parsed["decision_details"][0]["overlap_group"] = "same"
         parsed["decision_details"][1]["overlap_group"] = "same"
         _, errors = prefilter.validate_priority_response(parsed, request)
-        self.assertIn("selected_near_duplicate_overlap_group:same", errors)
+        self.assertNotIn("selected_near_duplicate_overlap_group:same", errors)
 
     def test_competitor_leakage_guardrails_and_invented_metrics_fail(self):
         batch, _ = self.make_batch(count=4)

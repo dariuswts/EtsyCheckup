@@ -408,3 +408,25 @@ Active-batch result:
 
 Boundary: No live OpenAI/API call, EverBee scraping/API, Apify, Etsy, Printify, Ideogram, n8n, database, product/design generation, WF2 queue fabrication, WF3 scoring, commit, or push was run.
 
+## 2026-06-23 - WF2/WF3 Quality Gate Repair
+
+Decision: tighten the WF2 grouped strategic review and WF3 priority/listing handoff so only evidence-backed, commercially concrete, surface-grounded directions can reach WF3 listing generation.
+
+Reason: audit of the mistaken WF3 path showed broad/generic and saturated examples reached listing generation because WF2 allowed broad POD plausibility and WF3 prefilter optimized for evidence volume/diversity rather than strict opportunity quality.
+
+Changed:
+- WF2 strategic review now requires explicit evidence-backed surface categories, surface grounding strength, commercial hook strength/summary, aesthetic-only flag, and saturation escape.
+- WF2 advancement fails closed for generic aesthetic hooks, weak surface grounding, weak commercial hooks, vague buyers/use cases, and high-saturation rows without strong escape.
+- WF3 priority prefilter now allows fewer than the selection limit, including zero; it does not force diversity.
+- WF3 selected surfaces must match WF2 evidence-backed canonical surface categories.
+- WF3 listing generation now requires a validated priority-selection file in production mode, with only an explicit capped diagnostic canary path outside that flow.
+- WF3 listing generation locks `required_surface_category`.
+
+Artifacts:
+- Audit: `10_LOGS/WF2_WF3_QUALITY_GATE_AUDIT_20260623.md`
+- Patch report: `10_LOGS/WF2_WF3_QUALITY_GATE_PATCH_REPORT.md`
+- Mistaken root WF3 preflight artifacts archived under `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/_archives/WF3_root_28_candidate_preflight_before_quality_gate_20260623_183114/`
+- Corrected WF2 offline preflight refreshed under `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/WF2_grouped_v2_global_strategic_review/`
+
+Boundary: no live OpenAI/API call, Ideogram, WF4, Etsy, Printify, Apify, EverBee scraping/API, n8n, database/schema change, product creation, publishing, or paid action was run.
+
