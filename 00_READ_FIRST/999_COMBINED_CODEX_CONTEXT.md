@@ -32,6 +32,10 @@ Current practical state:
 - WF2 opportunity hypothesis drafting implementation exists and has passed preflight mode.
 - WF2 live hypothesis drafting has not been run in this source update.
 
+2026-06-24 update: an offline WF2 commercial keyword opportunity ranking path now exists before any WF3 listing concept generation. Active script: `tools/build_wf2_commercial_keyword_opportunities.py`. The corrected contract is eRank keyword discovery -> deterministic eRank qualification -> EverBee validation where available -> global commercial ranking. Production preflight fails closed when normalized eRank rows are absent or when fewer than 5 both-source validated candidates exist. With the restored normalized eRank file supplied explicitly, the current real-data run completed offline, found 1 both-source validated candidate, wrote a 20-row EverBee validation queue, and blocked the AI selection payload pending 4 more validations. Outputs live under `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/WF2_commercial_keyword_opportunities/`. No live AI call or listing generation was run for this path.
+
+2026-06-24 commercial-effectiveness update: a local commercial-quality evaluator now checks whether candidate rows answer the buyer/product/purchase-reason test before design or listing production. Active script: `tools/commercial_quality_evaluator.py`. The evaluator fails final-stage candidates with missing demand signal, missing accessible-market validation, missing buyer, missing purchase motivation, unsupported product surface/type, or internal workflow language in customer copy. Current benchmark on the active batch evaluated 57 rows, failed 56, passed 1 synthetic strong case, and failed the prior `Bride's Spa Night` WF3 candidate. No WF3 live run, WF4 run, live AI call, API call, network call, or marketplace action was performed.
+
 Current key files:
 
 - `tools/ai_review_wf1_everbee_phrase_preserving_evidence.py`

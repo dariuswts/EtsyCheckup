@@ -1,0 +1,60 @@
+{
+  "created_at": "2026-06-24T20:19:26Z",
+  "scope": "WF2 deterministic commercial qualification and local commercial-quality evaluation",
+  "boundaries": {
+    "live_ai_calls": false,
+    "network_calls": false,
+    "wf3_live_run": false,
+    "wf4_run": false,
+    "ideogram_calls": false,
+    "etsy_or_printify_actions": false,
+    "n8n_or_database_actions": false,
+    "ip_trademark_behavior_changed": false
+  },
+  "architecture_before": [
+    "eRank and EverBee evidence flowed through multiple gates that could still produce schema-valid but weak product propositions",
+    "WF3 listing generation could inherit broad market directions and turn them into plausible copy",
+    "commercial usefulness was mostly inferred from required fields rather than tested directly"
+  ],
+  "architecture_after": [
+    "WF2 commercial keyword ranking separates eRank discovery, EverBee validation, pending rows, held rows, and final AI payload readiness",
+    "commercial-quality evaluator checks final candidate readiness across independent commercial layers",
+    "live AI selection remains blocked until at least 5 both-source validated candidates exist"
+  ],
+  "files_changed_or_added": [
+    "00_READ_FIRST/999_COMBINED_CODEX_CONTEXT.md",
+    "10_LOGS/DECISION_LOG.md",
+    "10_LOGS/FULL_PROJECT_COMMERCIAL_EFFECTIVENESS_AUDIT.md",
+    "10_LOGS/TARGET_WORKFLOW_ARCHITECTURE.md",
+    "10_LOGS/COMMERCIAL_QUALITY_BENCHMARK_REPORT.md",
+    "10_LOGS/FULL_PROJECT_COMMERCIAL_CHANGE_MANIFEST.json",
+    "10_LOGS/WORKFLOW_BEFORE_AFTER_COMMERCIAL_COMPARISON.md",
+    "tools/build_wf2_commercial_keyword_opportunities.py",
+    "tools/commercial_quality_evaluator.py",
+    "tools/tests/test_build_wf2_commercial_keyword_opportunities.py",
+    "tools/tests/test_commercial_quality_evaluator.py"
+  ],
+  "offline_real_data_result": {
+    "erank_rows": 15899,
+    "unique_normalized_keywords": 14678,
+    "keyword_families": 14398,
+    "qualified_or_pending": 109,
+    "both_source_validated": 1,
+    "pending_everbee_validation": 108,
+    "held_or_excluded": 14289,
+    "production_ready": false,
+    "blocked_reason": "insufficient_both_source_validated_candidates",
+    "additional_validations_required": 4
+  },
+  "commercial_quality_benchmark": {
+    "rows_evaluated": 57,
+    "pass": 1,
+    "fail": 56,
+    "top_blockers": [
+      "missing_accessible_market_validation",
+      "missing_specific_buyer",
+      "missing_purchase_motivation"
+    ]
+  },
+  "next_safe_action": "Complete local/manual EverBee validation for the 20 queued pending keyword families before any live AI selection."
+}

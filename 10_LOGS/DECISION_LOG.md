@@ -430,3 +430,57 @@ Artifacts:
 
 Boundary: no live OpenAI/API call, Ideogram, WF4, Etsy, Printify, Apify, EverBee scraping/API, n8n, database/schema change, product creation, publishing, or paid action was run.
 
+## 2026-06-24 - WF2 Commercial Keyword Opportunity Ranking
+
+Decision: add an offline WF2 commercial keyword opportunity ranking path inside the WF1-to-WF2 boundary, before WF3 listing generation.
+
+Reason: the prior WF2 strategic-review path behaved like categorical survival gating and reduced evidence-backed opportunities without a transparent global commercial comparison.
+
+Created:
+- `tools/build_wf2_commercial_keyword_opportunities.py`
+- `tools/tests/test_build_wf2_commercial_keyword_opportunities.py`
+- `10_LOGS/WF2_COMMERCIAL_KEYWORD_SOURCE_AUDIT.md`
+- `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/WF2_commercial_keyword_opportunities/`
+
+Result on current real data:
+- Follow-up correction made the builder eRank-first. Normal production preflight now requires nonzero normalized eRank rows and refuses to treat the 15 EverBee phrases as the full opportunity universe.
+- No authoritative normalized eRank CSV is present in the searched working-tree roots, so the production run is blocked rather than silently ranking EverBee-only phrases.
+- EverBee deduped evidence rows: 37,123.
+- Diagnostic EverBee-only run only: keyword families 15, qualified 0, held/excluded 15, unmatched EverBee phrases 15.
+- Production AI payload valid: false; expected live AI calls: 0.
+- eRank resolution audit: `10_LOGS/WF2_COMMERCIAL_KEYWORD_ERANK_RESOLUTION_AUDIT.md`.
+
+Follow-up performance correction:
+- The restored normalized eRank file can be supplied explicitly from `C:\Users\clinc\Desktop\POD_Project_Backup_20260615\99_ARCHIVE\manual_full_data_reset_20260610_182045\05_DATA_MODEL_sample_intake_tests\WF0_erank_keyword_normalized_new_batch.csv`.
+- Builder matching was optimized from unrestricted scans to indexed phrase/family/token matching with stage timing.
+- Real offline run completed in about 7.5 seconds with 15,899 eRank rows, 14,678 unique normalized keywords, 14,398 keyword families, 109 qualified/pending, 14,289 held/excluded, and a blocked preflight payload.
+- Follow-up deterministic routing correction added active POD product-scope gating, duplicate commercial-family consolidation, evidence states, broad-intent holds, and a capped EverBee validation queue.
+- Current real offline routing result: 1 both-source validated candidate, 45 strong eRank pending EverBee, 63 moderate eRank pending EverBee, 20 queued EverBee validation searches, 14,289 held/excluded rows.
+- Final AI selection payload is blocked with `insufficient_both_source_validated_candidates`; 4 more both-source validations are required before live AI selection should be considered.
+
+Boundary: no WF3 listing generation, WF4, OpenAI live call, Ideogram, Etsy, Printify, scraping, n8n, database/schema change, publishing, commit, or push was run.
+
+## 2026-06-24 - Commercial Quality Evaluator And Architecture Audit
+
+Decision: add a local commercial-quality evaluator and document the target commercial workflow architecture before any further live AI or downstream generation.
+
+Reason: the project was mechanically functional but could still produce schema-valid, commercially weak candidates such as generic spa-bachelorette apparel. The active workflow needs to distinguish keyword demand, accessible market opportunity, product proposition, product feasibility, and test value.
+
+Created:
+- `tools/commercial_quality_evaluator.py`
+- `tools/tests/test_commercial_quality_evaluator.py`
+- `10_LOGS/FULL_PROJECT_COMMERCIAL_EFFECTIVENESS_AUDIT.md`
+- `10_LOGS/TARGET_WORKFLOW_ARCHITECTURE.md`
+- `10_LOGS/COMMERCIAL_QUALITY_BENCHMARK_REPORT.md`
+- `10_LOGS/FULL_PROJECT_COMMERCIAL_CHANGE_MANIFEST.json`
+- `10_LOGS/WORKFLOW_BEFORE_AFTER_COMMERCIAL_COMPARISON.md`
+- active-batch benchmark outputs under `05_DATA_MODEL/sample_intake_tests/batches/WF1_everbee_normalization_20260614_234128/commercial_quality_evaluation/`
+
+Benchmark result:
+- 57 rows evaluated.
+- 56 failed, 1 passed.
+- The existing `Bride's Spa Night` WF3 candidate failed because it lacks direct demand signal and accessible-market validation.
+- Top blockers were missing accessible-market validation, missing specific buyer, and missing purchase motivation.
+
+Boundary: no WF3 live run, WF4 run, OpenAI live call, Ideogram, Etsy, Printify, scraping, n8n, database action, publishing, paid action, commit, push, or IP/trademark behavior change was performed.
+
